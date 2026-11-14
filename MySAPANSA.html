@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MySAPANSA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--c:#0f766e;--bg:#f4f6f5;--fg:#1c2623;--card:#fff;--ln:#d9e0dd;--side:#12302c}
+@media(prefers-color-scheme:dark){:root{--bg:#10171a;--fg:#e6ecea;--card:#192226;--ln:#2c3a3f;--side:#0b1517}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 "Trebuchet MS",Verdana,sans-serif;background:var(--bg);color:var(--fg)}
+button,input,select,textarea{font:inherit}
+button{background:var(--c);color:#fff;border:0;padding:7px 13px;border-radius:6px;cursor:pointer}
+button.g{background:transparent;color:var(--fg);border:1px solid var(--ln)}
+button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+input,select,textarea{padding:7px 9px;border:1px solid var(--ln);border-radius:6px;background:var(--card);color:var(--fg);width:100%}
+#login{min-height:100vh;display:grid;place-items:center;padding:16px;background:linear-gradient(135deg,var(--side),var(--c))}
+.box{background:var(--card);padding:28px;border-radius:12px;width:100%;max-width:380px;display:grid;gap:12px}
+.box h1{margin:0;font-size:26px}.box small{opacity:.7}
+.tabs{display:flex;gap:6px}.tabs button{flex:1}.tabs button.on{background:var(--c);color:#fff}
+#app{display:none;min-height:100vh;grid-template-columns:270px 1fr}
+#side{background:var(--side);color:#dfeae7;padding:14px 10px;overflow:auto;max-height:100vh;position:sticky;top:0}
+#side h2{margin:4px 8px 12px;font-size:20px}
+#side a,#side summary{display:block;padding:8px 10px;border-radius:6px;color:inherit;text-decoration:none;cursor:pointer}
+#side a:hover,#side summary:hover{background:#ffffff18}
+#side a.on{background:var(--c);color:#fff}
+#side details a{margin-left:14px;font-size:14px}
+main{display:flex;flex-direction:column;min-width:0}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 22px;background:var(--card);border-bottom:1px solid var(--ln);gap:10px}
+#view{padding:22px;flex:1}
+footer{padding:12px;text-align:center;font-size:13px;opacity:.75;border-top:1px solid var(--ln)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
+.cd{background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:14px}
+.cd b{font-size:28px;color:var(--c);display:block}
+.pnl{background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:16px;margin-bottom:14px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%}
+th,td{padding:8px;border-bottom:1px solid var(--ln);text-align:left;white-space:nowrap}
+th{background:var(--bg)}
+.bar{display:flex;align-items:center;gap:8px;margin:4px 0}.bar i{display:block;height:14px;background:var(--c);border-radius:3px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row>*{flex:1 1 140px}.row>button{flex:0 0 auto}
+#wm{position:fixed;inset:0;pointer-events:none;background-repeat:no-repeat;background-position:center;background-size:40vmin;z-index:5}
+#burger{display:none}
+@media(max-width:800px){#app{grid-template-columns:1fr}#side{position:fixed;z-index:20;width:270px;height:100%;left:-280px;transition:left .2s}#side.open{left:0}#burger{display:inline-block}}
+@media print{#side,header,footer,.np{display:none!important}#app{display:block}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div id="wm"></div>
+
+<section id="login">
+ <form class="box" id="lf">
+  <h1>MySAPANSA</h1><small>Sinergi dan Akses Portal Aktif Guru-Wali Murid Ngandul 1</small>
+  <div class="tabs" id="rt"></div>
+  <input id="u" placeholder="Username" autocomplete="username" required>
+  <input id="p" type="password" placeholder="Password" autocomplete="current-password" required>
+  <button>Masuk</button>
+  <small id="err" style="color:#c0392b"></small>
+  <small>Akun contoh: siswa/siswa123, guru/guru123, admin/admin123</small>
+ </form>
+</section>
+
+<div id="app">
+ <nav id="side"></nav>
+ <main>
+  <header><div><button class="g" id="burger" onclick="side.classList.toggle('open')">Menu</button> <b id="ttl"></b></div>
+   <div><span id="who"></span> <button class="g" onclick="logout()">Keluar</button></div></header>
+  <div id="view"></div>
+  <footer>MySAPANSA &copy; 2026 &middot; Dikembangkan oleh <b>SharkArt.evo Education</b></footer>
+ </main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), K='mysapansa_db';
+const TAB=[['siswa','Siswa'],['guru','Guru'],['admin','Admin']];
+const L=(id,t)=>({id,t}), G=(t,c)=>({t,c});
+const TENTANG=G('Tentang',[L('profilsaya','Profil Saya'),L('profilguru','Profil Guru'),L('sapansa','SAPANSA'),L('sekolah','Sekolah')]);
+const M={
+siswa:[L('dash','Dashboard'),
+ G('Masa Depanku',[L('absensiku','Absensiku'),L('tugasku','Tugasku'),L('tugasekskul','Tugas Ekstrakurikuler'),L('khs','Perkembanganku / Kartu Hasil Studi')]),
+ L('kaih','7KAIH (7 Kebiasaan Anak Indonesia Hebat)'),
+ G('Agendaku',[L('jadwal','Jadwal Pelajaran'),L('jurnal','Agenda Jurnal Kelas'),L('mapel','Mata Pelajaran Dipelajari')]),
+ L('game','Permainan Edukasi'),L('set','Pengaturan'),TENTANG],
+guru:[L('dash','Dashboard'),
+ G('Administrasiku',[G('Tugas & Penilaian',[L('tugaskelas','Tugas Kelas'),L('nilaikelas','Penilaian Kelas')])]),
+ G('Absensiku',[L('absenkelas','Absensi Kelasku'),L('absenguru','Absensi Guruku'),L('rekab','Rekap Absensi')]),
+ G('Agenda Kelasku',[L('jurnal','Jurnal Kelas'),L('jadwal','Jadwal Kelas')]),
+ L('kaihkelas','7KAIH Kelasku'),
+ G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
+ G('Perangkat Ajarku Terintegrasi AI',[L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
+ G('Keuangan Kelas',[L('kas','Kas'),L('adiwiyata','Adiwiyata'),L('infaq','Infaq')]),
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),L('set','Pengaturan'),TENTANG],
+admin:[L('dash','Dashboard'),L('users','Manajemen Pengguna'),
+ G('Data Siswa & Guru',[L('absensiku','Absensi'),L('tugasku','Tugas'),L('tugaskelas','Tugas Kelas'),L('nilaikelas','Penilaian'),L('khs','Kartu Hasil Studi'),L('kaih','7KAIH'),L('jadwal','Jadwal'),L('jurnal','Jurnal Kelas'),L('mapel','Mata Pelajaran'),L('absenguru','Absensi Guru'),L('tugasekskul','Ekstrakurikuler'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar'),L('kas','Kas'),L('adiwiyata','Adiwiyata'),L('infaq','Infaq')]),
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),L('db','Database (Ekspor/Impor)'),L('server','Server'),L('set','Pengaturan'),TENTANG]};
+const COL={absensiku:['Tanggal','Status','Keterangan'],absensi:['Tanggal','Status','Keterangan'],tugasku:['Mapel','Tugas','Tenggat','Status'],
+ kaih:['Tanggal','Kebiasaan','Catatan','Paraf'],khs:['Mapel','Nilai','Predikat','Catatan'],jadwal:['Hari','Jam','Mapel','Guru'],
+ kas:['Tanggal','Uraian','Masuk','Keluar'],infaq:['Tanggal','Uraian','Masuk','Keluar'],adiwiyata:['Tanggal','Uraian','Masuk','Keluar'],
+ game:['Judul','Link / Petunjuk','Mapel','Status'],pengumuman:['Tanggal','Judul','Isi'],jurnal:['Tanggal','Mapel','Materi','Catatan']};
+const DEF=['Judul','Keterangan','Tanggal','Status'];
+const INFO={sapansa:['SAPANSA','Sinergi dan Akses Portal Aktif Guru-Wali Murid Ngandul 1: portal yang menghubungkan guru, siswa, dan wali murid dalam satu tempat untuk memantau absensi, tugas, nilai, dan kebiasaan harian.'],
+ sekolah:['Sekolah','Isi nama, alamat, visi, dan misi sekolah. Admin dapat mengubah teks ini.'],
+ profilsaya:['Profil Saya','Data akun Anda.'],profilguru:['Profil Guru','Daftar guru. Admin dapat mengubah.']};
+
+let DB=load(),me=null,role='siswa',cur='dash';
+function load(){try{const d=JSON.parse(localStorage.getItem(K));if(d)return d}catch(e){}
+ return{users:[{u:'admin',p:'admin123',r:'admin',n:'Administrator'},{u:'guru',p:'guru123',r:'guru',n:'Guru Contoh'},{u:'siswa',p:'siswa123',r:'siswa',n:'Siswa Contoh'}],
+ set:{color:'#0f766e',logo:'',wm:true,op:.08,school:'SD Negeri Ngandul 1'},data:{},info:{}}}
+function save(){try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){alert('Penyimpanan penuh atau diblokir.')}}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LOGO='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#0f766e"/><text x="50" y="66" font-size="50" text-anchor="middle" fill="#fff" font-family="Verdana" font-weight="bold">S</text></svg>');
+
+function theme(){document.documentElement.style.setProperty('--c',DB.set.color);
+ const w=$('#wm');w.style.backgroundImage=DB.set.wm?`url("${DB.set.logo||LOGO}")`:'none';w.style.opacity=DB.set.op;}
+theme();
+
+$('#rt').innerHTML=TAB.map(t=>`<button type="button" class="g" data-r="${t[0]}">${t[1]}</button>`).join('');
+$('#rt').onclick=e=>{if(e.target.dataset.r){role=e.target.dataset.r;pickTab()}};
+function pickTab(){document.querySelectorAll('#rt button').forEach(b=>b.className=b.dataset.r==role?'on':'g')}pickTab();
+$('#lf').onsubmit=e=>{e.preventDefault();
+ const x=DB.users.find(x=>x.u==$('#u').value&&x.p==$('#p').value&&x.r==role);
+ if(!x){$('#err').textContent='Username, password, atau peran tidak cocok.';return}
+ me=x;$('#login').style.display='none';$('#app').style.display='grid';$('#who').textContent=`${me.n} (${me.r})`;nav();go('dash')};
+function logout(){me=null;$('#app').style.display='none';$('#login').style.display='grid';$('#p').value=''}
+
+function nav(){
+ const h=(a,d)=>a.map(i=>i.c?`<details ${d?'':'open'}><summary>${esc(i.t)}</summary>${h(i.c,1)}</details>`:`<a href="#" data-id="${i.id}">${esc(i.t)}</a>`).join('');
+ $('#side').innerHTML=`<h2>MySAPANSA</h2>`+h(M[me.r],0);
+ $('#side').onclick=e=>{const a=e.target.closest('a');if(a){e.preventDefault();go(a.dataset.id);side.classList.remove('open')}};}
+function title(id,a=M[me.r]){for(const i of a){if(i.id==id)return i.t;if(i.c){const t=title(id,i.c);if(t)return t}}}
+function go(id){cur=id;document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
+ const t=title(id)||'';$('#ttl').textContent=t;const v=$('#view');
+ ({dash,users,db:dbp,server,set:setp})[id]?({dash,users,db:dbp,server,set:setp})[id](v):INFO[id]?infoP(v,id):table(v,id,t)}
+
+function dash(v){
+ const n=k=>(DB.data[k]||[]).length;
+ const ks=Object.keys(DB.data);const mx=Math.max(1,...ks.map(n));
+ v.innerHTML=`<h2>Selamat datang, ${esc(me.n)}</h2><p>${esc(DB.set.school)} &middot; perkembangan sistem saat ini.</p>
+ <div class="cards"><div class="cd"><b>${DB.users.length}</b>Pengguna</div><div class="cd"><b>${DB.users.filter(u=>u.r=='siswa').length}</b>Siswa</div>
+ <div class="cd"><b>${DB.users.filter(u=>u.r=='guru').length}</b>Guru</div><div class="cd"><b>${ks.reduce((a,k)=>a+n(k),0)}</b>Total catatan</div></div>
+ <div class="pnl"><b>Catatan per modul</b>${ks.length?ks.map(k=>`<div class="bar"><span style="width:150px">${esc(title(k)||k)}</span><i style="width:${n(k)/mx*60}%"></i>${n(k)}</div>`).join(''):'<p>Belum ada data. Buka menu di sidebar untuk mulai mengisi.</p>'}</div>
+ <div class="pnl"><b>Pengumuman terbaru</b>${(DB.data.pengumuman||[]).slice(-3).reverse().map(r=>`<p><b>${esc(r.Judul)}</b> (${esc(r.Tanggal)})<br>${esc(r.Isi)}</p>`).join('')||'<p>Belum ada pengumuman.</p>'}</div>`}
+
+/* ---------- generic table module ---------- */
+function table(v,id,t){
+ const cols=COL[id]||DEF,rows=DB.data[id]=DB.data[id]||[];
+ const canAdd=id!='game'||me.r=='admin';
+ v.innerHTML=`<div class="np row"><div style="flex:1"><h2 style="margin:0">${esc(t)}</h2></div>${exportBtns(id)}</div>
+ ${canAdd?`<div class="pnl np"><div class="row">${cols.map(c=>`<input data-c="${c}" placeholder="${c}">`).join('')}<button id="add">Tambah</button></div></div>`:'<p class="np">Hanya admin yang dapat mengisi menu ini.</p>'}
+ <div class="pnl tw" id="tbl"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th class="np"></th></tr></thead><tbody>
+ ${rows.map((r,i)=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}<td class="np">${canAdd?`<button class="g" data-d="${i}">Hapus</button>`:''}</td></tr>`).join('')||`<tr><td colspan="${cols.length+1}">Belum ada data.${canAdd?' Isi kolom di atas, lalu pilih Tambah.':''}</td></tr>`}</tbody></table></div>`;
+ bindExport(v,id,cols,()=>rows);
+ if(canAdd){$('#add').onclick=()=>{const r={};v.querySelectorAll('[data-c]').forEach(i=>r[i.dataset.c]=i.value);
+  if(!Object.values(r).some(x=>x))return;rows.push(r);save();table(v,id,t)};
+  v.onclick=e=>{if(e.target.dataset.d!==undefined){rows.splice(e.target.dataset.d,1);save();table(v,id,t)}}}}
+
+/* ---------- export / print ---------- */
+const FM=['pdf','docx','rtf','xlsx','csv','json'];
+function exportBtns(){return`<div class="row" style="flex:0 1 auto"><button class="g" onclick="window.print()">Cetak</button>${FM.map(f=>`<button class="g" data-x="${f}">${f.toUpperCase()}</button>`).join('')}</div>`}
+function bindExport(v,name,cols,get){v.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>exportAs(b.dataset.x,name,cols,get()))}
+function dl(blob,fn){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),999)}
+function exportAs(f,name,cols,rows){
+ const head=`MySAPANSA - ${title(name)||name}`,mx=rows.map(r=>cols.map(c=>r[c]??''));
+ if(f=='pdf')return window.print();
+ if(f=='json')return dl(new Blob([JSON.stringify(rows,null,2)],{type:'application/json'}),name+'.json');
+ if(f=='csv'||(f=='xlsx'&&!window.XLSX))return dl(new Blob(['\ufeff'+[cols,...mx].map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv'}),name+'.csv');
+ if(f=='xlsx'){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([cols,...mx]),'Data');return XLSX.writeFile(wb,name+'.xlsx')}
+ if(f=='docx'){const h=`<html xmlns:w="urn:schemas-microsoft-com:office:word"><meta charset="utf-8"><body><h2>${esc(head)}</h2><table border="1" cellpadding="4"><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${mx.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')}</table></body></html>`;
+  return dl(new Blob(['\ufeff'+h],{type:'application/msword'}),name+'.doc')}
+ if(f=='rtf'){const u=s=>String(s).replace(/[\\{}]/g,'\\$&').replace(/[^\x00-\x7f]/g,c=>'\\u'+c.charCodeAt(0)+'?');
+  return dl(new Blob(['{\\rtf1\\ansi\\b '+u(head)+'\\b0\\par\\par '+[cols,...mx].map(r=>r.map(u).join(' | ')).join('\\par ')+'}'],{type:'application/rtf'}),name+'.rtf')}}
+
+/* ---------- info pages ---------- */
+function infoP(v,id){
+ let [t,d]=INFO[id];const o=DB.info[id];if(o)d=o;
+ if(id=='profilsaya')d=`Nama: ${me.n}\nUsername: ${me.u}\nPeran: ${me.r}`;
+ if(id=='profilguru')d=o||DB.users.filter(u=>u.r=='guru').map(u=>u.n).join('\n');
+ v.innerHTML=`<h2>${t}</h2><div class="pnl" style="white-space:pre-wrap">${esc(d)}</div>
+ ${me.r=='admin'&&id!='profilsaya'?`<div class="np"><textarea id="ta" rows="5">${esc(d)}</textarea><div class="row"><button id="sv">Simpan teks</button></div></div>`:''}
+ <div class="np row" style="flex:0"><button class="g" onclick="window.print()">Cetak</button></div>`;
+ if($('#sv'))$('#sv').onclick=()=>{DB.info[id]=$('#ta').value;save();infoP(v,id)}}
+
+/* ---------- settings ---------- */
+function setp(v){const s=DB.set;
+ v.innerHTML=`<h2>Pengaturan</h2><div class="pnl"><div class="row"><label>Warna tema<input type="color" id="co" value="${s.color}"></label>
+ <label>Nama sekolah<input id="sc" value="${esc(s.school)}"></label></div>
+ <div class="row"><label>Logo watermark<input type="file" id="lg" accept="image/*"></label>
+ <label>Opasitas watermark<input type="range" id="op" min="0" max="0.4" step="0.01" value="${s.op}"></label>
+ <label><input type="checkbox" id="wm2" ${s.wm?'checked':''} style="width:auto"> Tampilkan watermark</label></div>
+ <div class="row"><button id="sv">Simpan</button><button class="g" id="rl">Kembalikan logo awal</button></div>
+ <p><small>Pengaturan tampilan berlaku untuk seluruh perangkat ini.</small></p></div>`;
+ $('#co').oninput=e=>{s.color=e.target.value;theme()};$('#op').oninput=e=>{s.op=+e.target.value;theme()};
+ $('#wm2').onchange=e=>{s.wm=e.target.checked;theme()};
+ $('#lg').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{s.logo=r.result;theme()};r.readAsDataURL(f)};
+ $('#rl').onclick=()=>{s.logo='';theme()};
+ $('#sv').onclick=()=>{s.school=$('#sc').value;save();alert('Pengaturan tersimpan.')}}
+
+/* ---------- admin: users ---------- */
+function users(v){
+ v.innerHTML=`<div class="np row"><h2 style="margin:0;flex:1">Manajemen Pengguna</h2>${exportBtns()}</div>
+ <div class="pnl np"><div class="row"><input id="nu" placeholder="Username"><input id="np" placeholder="Password"><input id="nn" placeholder="Nama lengkap">
+ <select id="nr"><option>siswa</option><option>guru</option><option>admin</option></select><button id="add">Tambah</button></div></div>
+ <div class="pnl tw"><table><tr><th>Username</th><th>Nama</th><th>Peran</th><th class="np"></th></tr>${DB.users.map((u,i)=>`<tr><td>${esc(u.u)}</td><td>${esc(u.n)}</td><td>${u.r}</td><td class="np"><button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')}</table></div>`;
+ bindExport(v,'pengguna',['u','n','r'],()=>DB.users);
+ $('#add').onclick=()=>{if(!$('#nu').value||!$('#np').value)return alert('Username dan password wajib diisi.');
+  if(DB.users.some(u=>u.u==$('#nu').value&&u.r==$('#nr').value))return alert('Pengguna sudah ada.');
+  DB.users.push({u:$('#nu').value,p:$('#np').value,n:$('#nn').value||$('#nu').value,r:$('#nr').value});save();users(v)};
+ v.onclick=e=>{const i=e.target.dataset.d;if(i===undefined)return;if(DB.users[i].u==me.u)return alert('Akun yang sedang dipakai tidak bisa dihapus.');DB.users.splice(i,1);save();users(v)}}
+
+/* ---------- admin: database ---------- */
+function dbp(v){
+ v.innerHTML=`<h2>Database</h2><div class="pnl"><p>Data tersimpan otomatis di browser ini. Ekspor secara berkala sebagai cadangan.</p>
+ <div class="row"><button id="ej">Ekspor JSON</button><button id="ex">Ekspor XLSX</button></div></div>
+ <div class="pnl"><b>Impor</b> (JSON atau XLSX; XLSX: satu sheet per modul, baris pertama = nama kolom)
+ <div class="row"><input type="file" id="im" accept=".json,.xlsx,.xls,.csv"></div>
+ <div class="row"><button class="g" id="rs">Hapus seluruh data</button></div></div>`;
+ $('#ej').onclick=()=>dl(new Blob([JSON.stringify(DB,null,2)],{type:'application/json'}),'mysapansa-db.json');
+ $('#ex').onclick=()=>{if(!window.XLSX)return alert('Pustaka XLSX tidak termuat (perlu internet). Gunakan JSON.');
+  const wb=XLSX.utils.book_new();Object.keys(DB.data).forEach(k=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.data[k]),k.slice(0,31)));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.users),'users');XLSX.writeFile(wb,'mysapansa-db.xlsx')};
+ $('#im').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  if(/\.json$/i.test(f.name)){r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.users||!d.data)throw 0;DB=d;save();theme();alert('Impor JSON berhasil.')}catch(x){alert('Berkas JSON tidak valid.')}};r.readAsText(f)}
+  else{r.onload=()=>{if(!window.XLSX)return alert('Pustaka XLSX tidak termuat.');const wb=XLSX.read(r.result,{type:'array'});
+   wb.SheetNames.forEach(n=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[n]);if(n=='users')DB.users=rows;else DB.data[n]=rows});save();alert('Impor selesai.')};r.readAsArrayBuffer(f)}};
+ $('#rs').onclick=()=>{if(confirm('Hapus semua data dan pengguna tambahan?')){localStorage.removeItem(K);DB=load();theme();alert('Data direset.');logout()}}}
+
+/* ---------- admin: server ---------- */
+const t0=Date.now();
+function server(v){
+ const sz=(localStorage.getItem(K)||'').length;
+ v.innerHTML=`<h2>Server</h2><div class="cards"><div class="cd"><b>Aktif</b>Status layanan</div><div class="cd"><b>${Math.round((Date.now()-t0)/60000)} mnt</b>Sesi berjalan</div>
+ <div class="cd"><b>${(sz/1024).toFixed(1)} KB</b>Ukuran database</div><div class="cd"><b>${DB.users.length}</b>Akun terdaftar</div></div>
+ <div class="pnl"><p>Versi ini berjalan sepenuhnya di browser dan menyimpan data di perangkat. Untuk server nyata (banyak pengguna sekaligus), hubungkan aplikasi ke backend atau Google Sheets lewat fitur impor/ekspor.</p>
+ <div class="row"><button id="bk">Cadangkan sekarang (JSON)</button></div></div>`;
+ $('#bk').onclick=()=>dl(new Blob([JSON.stringify(DB)],{type:'application/json'}),'backup-'+new Date().toISOString().slice(0,10)+'.json')}
+</script>
+</body>
+</html>
