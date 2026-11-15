@@ -54,6 +54,53 @@ dialog{border:0;border-radius:12px;max-width:480px;background:var(--card);color:
 .lg span{display:inline-block;margin:2px 8px 2px 0;font-size:13px}.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
 .col{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:6px}.col div{flex:1;text-align:center;font-size:11px}.col i{display:block;background:var(--c);border-radius:4px 4px 0 0}
 button:hover{filter:brightness(1.1)}
+
+:root{--a1:#ec4899;--a2:#f59e0b;--a3:#3b82f6;--a4:#22c55e;--a5:#8b5cf6}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@keyframes shift{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+@keyframes flo{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-50px) scale(1.15)}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes growy{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes spin{from{transform:rotate(-120deg) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes wave{0%,100%{transform:rotate(0)}25%{transform:rotate(18deg)}75%{transform:rotate(-12deg)}}
+#login{position:relative;overflow:hidden;background:linear-gradient(120deg,#0f766e,#6366f1,#ec4899,#f59e0b,#0f766e);background-size:300% 300%;animation:shift 14s ease infinite}
+#login:before,#login:after{content:"";position:absolute;border-radius:50%;filter:blur(8px);opacity:.35;animation:flo 9s ease-in-out infinite}
+#login:before{width:340px;height:340px;background:#fde047;top:-80px;left:-60px}
+#login:after{width:420px;height:420px;background:#38bdf8;bottom:-120px;right:-80px;animation-delay:-4s}
+.feat,.box{position:relative;z-index:1}
+.feat{animation:up .8s both}.box{animation:pop .7s .15s both}
+.feat h1{background:linear-gradient(90deg,#fff,#fde68a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.feat li{animation:up .6s both}.feat li:nth-child(1){animation-delay:.3s}.feat li:nth-child(2){animation-delay:.4s}.feat li:nth-child(3){animation-delay:.5s}.feat li:nth-child(4){animation-delay:.6s}.feat li:nth-child(5){animation-delay:.7s}.feat li:nth-child(6){animation-delay:.8s}
+.feat li:hover{transform:translateX(8px);transition:.2s}
+button{background:linear-gradient(135deg,var(--c),var(--a5));transition:transform .15s,box-shadow .15s}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 14px #0003}button:active{transform:scale(.96)}
+button.g{background:transparent}button.g:hover{background:var(--bg)}
+.tabs button.on{background:linear-gradient(135deg,var(--a5),var(--a1));color:#fff}
+#side{background:linear-gradient(180deg,var(--side),#1e1b4b)}
+#side a:hover,#side summary:hover{background:#ffffff22;transform:translateX(4px)}
+#side a,#side summary{transition:transform .2s,background .2s}
+#side a.on{background:linear-gradient(90deg,var(--a1),var(--a5))}
+#side h2{background:linear-gradient(90deg,#fde68a,#f9a8d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+header{background:linear-gradient(90deg,var(--card),color-mix(in srgb,var(--c) 12%,var(--card)))}
+#view>*{animation:up .5s both}#view>*:nth-child(2){animation-delay:.08s}#view>*:nth-child(3){animation-delay:.16s}#view>*:nth-child(4){animation-delay:.24s}#view>*:nth-child(5){animation-delay:.32s}
+.hero{background:linear-gradient(120deg,var(--c),var(--a5),var(--a1),var(--a2));background-size:300% 300%;animation:shift 10s ease infinite,up .5s both}
+.hero h2:after{content:"";}
+.cd{animation:pop .5s both;transition:transform .2s,box-shadow .2s}.cd:hover{transform:translateY(-5px) rotate(-1deg);box-shadow:0 10px 20px #0002}
+.cards .cd:nth-child(1){border-color:var(--a3);background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--a3) 14%,var(--card)))}
+.cards .cd:nth-child(2){border-color:var(--a4);background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--a4) 14%,var(--card)))}
+.cards .cd:nth-child(3){border-color:var(--a2);background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--a2) 16%,var(--card)))}
+.cards .cd:nth-child(4){border-color:var(--a1);background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--a1) 14%,var(--card)))}
+.cards .cd:nth-child(1) b{color:var(--a3)}.cards .cd:nth-child(2) b{color:var(--a4)}.cards .cd:nth-child(3) b{color:var(--a2)}.cards .cd:nth-child(4) b{color:var(--a1)}
+.pnl{transition:transform .2s,box-shadow .2s}.pnl:hover{box-shadow:0 8px 20px #0000001a}
+.don{animation:spin .9s both}
+.bar i{transform-origin:left;animation:grow .9s both;background:linear-gradient(90deg,var(--a3),var(--a5))}.bar:nth-child(2n) i{background:linear-gradient(90deg,var(--a1),var(--a2))}.bar:nth-child(3n) i{background:linear-gradient(90deg,var(--a4),var(--c))}
+.col i{transform-origin:bottom;animation:growy .9s both;background:linear-gradient(180deg,var(--a1),var(--a5))}
+tbody tr{animation:up .4s both;transition:background .15s}tbody tr:hover{background:color-mix(in srgb,var(--c) 10%,transparent)}
+th{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 18%,var(--card)),color-mix(in srgb,var(--a5) 18%,var(--card)))}
+input:focus,select:focus,textarea:focus{border-color:var(--a5);box-shadow:0 0 0 3px color-mix(in srgb,var(--a5) 25%,transparent);outline:0}
+dialog[open]{animation:pop .3s}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -158,7 +205,7 @@ function dash(v){
  const ds=[...new Set(ab.map(r=>r.Tanggal).filter(x=>x))].sort().slice(-7);
  const tr=ds.map(d=>{const a=ab.filter(r=>r.Tanggal==d);return[d,Math.round(a.filter(r=>r.Status=='Hadir').length/a.length*100)]});
  const adm=me.r=='admin'?`<div class="pnl"><b>Pintasan admin</b><div class="row">${[['users','👥 Pengguna'],['absensiku','🗓️ Absensi otomatis'],['db','🗄️ Database'],['game','🎮 Game edukasi'],['pengumuman','📢 Pengumuman'],['set','🎨 Tampilan']].map(a=>`<button onclick="go('${a[0]}')">${a[1]}</button>`).join('')}</div></div>`:'';
- v.innerHTML=`<div class="hero"><h2>Selamat datang, ${esc(me.n)} 👋</h2>${esc(DB.set.school)} &middot; ringkasan perkembangan sistem.</div>
+ v.innerHTML=`<div class="hero"><h2>Selamat datang, ${esc(me.n)} <span style="display:inline-block;animation:wave 1.6s 1">👋</span></h2>${esc(DB.set.school)} &middot; ringkasan perkembangan sistem.</div>
  <div class="cards"><div class="cd"><b>${DB.users.length}</b>Pengguna</div><div class="cd"><b>${rl[0]}</b>Siswa</div><div class="cd"><b>${rl[1]}</b>Guru</div>
  <div class="cd"><b>${ks.reduce((a,k)=>a+n(k),0)}</b>Total catatan</div></div>${adm}
  <div class="grid2"><div class="pnl"><b>Kehadiran</b><div class="don" style="background:${donut(sc,co)}"></div>${lg(st,co,sc)}</div>
