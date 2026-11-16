@@ -116,8 +116,7 @@ body:not(.in) #wm{display:none}body.in #login{display:none!important}body:not(.i
  <ul id="fl"></ul></div>
  <form class="box" id="lf">
   <h1>MySAPANSA</h1><small>Sinergi dan Akses Portal Aktif Guru-Wali Murid Ngandul 1</small>
-  <div class="tabs" id="rt"></div>
-  <input id="u" placeholder="Username" autocomplete="username" required>
+    <input id="u" placeholder="NIS / NISN / NIP / Username" autocomplete="username" required>
   <input id="p" type="password" placeholder="Password" autocomplete="current-password" required>
   <button>Masuk</button>
   <small id="err" style="color:#c0392b"></small>
@@ -125,7 +124,7 @@ body:not(.in) #wm{display:none}body.in #login{display:none!important}body:not(.i
  </form>
 </section>
 
-<dialog id="hlp"><h2>Petunjuk penggunaan</h2><ol><li>Pilih peran (Siswa, Guru, atau Admin), lalu isi username dan password.</li><li>Pilih menu di sidebar kiri. Di HP, buka lewat tombol Menu.</li><li>Isi kolom di atas tabel, lalu pilih Tambah. Gunakan pencarian dan filter untuk menyaring data.</li><li>Pilih Cetak, PDF, DOCX, RTF, XLSX, CSV, atau JSON untuk mengunduh data.</li><li>Admin: gunakan Absensi otomatis untuk mengisi kehadiran semua pengguna sekaligus, dan menu Database untuk ekspor/impor.</li><li>Ubah warna dan logo watermark di Pengaturan.</li></ol><button onclick="hlp.close()">Mengerti</button></dialog>
+<dialog id="hlp"><h2>Petunjuk penggunaan</h2><ol><li>Masukkan NIS/NISN (siswa), NIP (guru), atau username (admin), lalu password. Peran dikenali otomatis.</li><li>Pilih menu di sidebar kiri. Di HP, buka lewat tombol Menu.</li><li>Isi kolom di atas tabel, lalu pilih Tambah. Gunakan pencarian dan filter untuk menyaring data.</li><li>Pilih Cetak, PDF, DOCX, RTF, XLSX, CSV, atau JSON untuk mengunduh data.</li><li>Admin: gunakan Absensi otomatis untuk mengisi kehadiran semua pengguna sekaligus, dan menu Database untuk ekspor/impor.</li><li>Ubah warna dan logo watermark di Pengaturan.</li></ol><button onclick="hlp.close()">Mengerti</button></dialog>
 <div id="app">
  <nav id="side"></nav>
  <main>
@@ -141,7 +140,7 @@ const $=s=>document.querySelector(s), K='mysapansa_db';
 const TAB=[['siswa','Siswa'],['guru','Guru'],['admin','Admin']];
 const L=(id,t)=>({id,t}), G=(t,c)=>({t,c});
 const TENTANG=G('Tentang',[L('profilsaya','Profil Saya'),L('profilguru','Profil Guru'),L('sapansa','SAPANSA'),L('sekolah','Sekolah')]);
-const IC=[[/dash/i,'🏠'],[/absen/i,'🗓️'],[/ekstra/i,'⚽'],[/tugas|administrasi|nilai|penilaian/i,'📝'],[/7kaih/i,'🌟'],[/agenda|jadwal|jurnal|mata pelajaran/i,'📚'],[/permainan/i,'🎮'],[/atur/i,'⚙️'],[/tentang|profil|sekolah|sapansa/i,'ℹ️'],[/ajar|modul|bahan|media/i,'🤖'],[/keuangan|kas|infaq|adiwiyata/i,'💰'],[/umum/i,'📢'],[/pengguna/i,'👥'],[/database/i,'🗄️'],[/server/i,'🖥️'],[/masa depan|studi|kartu/i,'🎓'],[/data/i,'📂']],ICID={dash:'🏠',users:'👥',mapel:'📘',m_siswa:'🎒',m_guru:'👩‍🏫',db:'💾',tugas:'📝',nilai:'🏅',khs:'🎓',absen:'✅',absenguru:'🧑‍🏫',rekab:'📊',jurnal:'📖',jadwal:'🕒',kaih:'🌟',tugasekskul:'⚽',nilaiekskul:'🥇',pesertaekskul:'🧑‍🤝‍🧑',modul:'📘',bahan:'📚',media:'🎬',kas:'💵',adiwiyata:'🌱',infaq:'🤲',game:'🎮',pengumuman:'📢',tampilan:'🎨',server:'🖥️',profilsaya:'🙋',profilguru:'👩‍🏫',sapansa:'🔗',sekolah:'🏫'},
+const IC=[[/dash/i,'🏠'],[/absen/i,'🗓️'],[/ekstra/i,'⚽'],[/tugas|administrasi|nilai|penilaian/i,'📝'],[/7kaih/i,'🌟'],[/agenda|jadwal|jurnal|mata pelajaran/i,'📚'],[/permainan/i,'🎮'],[/atur/i,'⚙️'],[/tentang|profil|sekolah|sapansa/i,'ℹ️'],[/ajar|modul|bahan|media/i,'🤖'],[/keuangan|kas|infaq|adiwiyata/i,'💰'],[/umum/i,'📢'],[/pengguna/i,'👥'],[/database/i,'🗄️'],[/server/i,'🖥️'],[/masa depan|studi|kartu/i,'🎓'],[/data/i,'📂']],ICID={dash:'🏠',users:'👥',mapel:'📘',m_siswa:'🎒',m_guru:'👩‍🏫',db:'💾',tugas:'📝',nilai:'🏅',khs:'🎓',absen:'✅',absenguru:'🧑‍🏫',rekab:'📊',jurnal:'📖',jadwal:'🕒',kaih:'🌟',tugasekskul:'⚽',nilaiekskul:'🥇',pesertaekskul:'🧑‍🤝‍🧑',modul:'📘',bahan:'📚',media:'🎬',kas:'💵',adiwiyata:'🌱',infaq:'🤲',game:'🎮',pengumuman:'📢',tampilan:'🎨',ping:'📡',server:'🖥️',profilsaya:'🙋',profilguru:'👩‍🏫',sapansa:'🔗',sekolah:'🏫'},
 ic=(t,id)=>ICID[id]||(IC.find(x=>x[0].test(t))||[0,'📁'])[1];
 let FL={},UF='',KS='',RM='',RK='siswa',PW=false,EI=null;
 const JENIS=['Ulangan Harian','Praktek','UTS/ASTS','UAS/ASAS'];
@@ -154,7 +153,7 @@ siswa:[L('dash','Dashboard'),
  G('Masa Depanku',[L('absen','Absensiku'),L('tugas','Tugasku'),L('tugasekskul','Tugas Ekstrakurikuler'),L('khs','Perkembanganku / Kartu Hasil Studi')]),
  L('kaih','7KAIH (7 Kebiasaan Anak Indonesia Hebat)'),
  G('Agendaku',[L('jadwal','Jadwal Pelajaran'),L('jurnal','Agenda Jurnal Kelas'),L('mapel','Mata Pelajaran Dipelajari')]),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan')]),TENTANG],
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan'),L('ping','Ping Jaringan')]),TENTANG],
 guru:[L('dash','Dashboard'),
  G('Administrasiku',[G('Tugas & Penilaian',[L('tugas','Tugas Kelas'),L('nilai','Penilaian Kelas'),L('khs','Kartu Hasil Studi')])]),
  G('Absensiku',[L('absen','Absensi Kelasku'),L('absenguru','Absensi Guruku'),L('rekab','Rekap Absensi')]),
@@ -163,7 +162,7 @@ guru:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajarku Terintegrasi AI',[L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  G('Keuangan Kelas',[L('kas','Kas'),L('adiwiyata','Adiwiyata'),L('infaq','Infaq')]),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan')]),TENTANG],
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan'),L('ping','Ping Jaringan')]),TENTANG],
 admin:[L('dash','Dashboard'),
  G('Database',[L('users','Manajemen Pengguna'),L('mapel','Master Mapel'),L('m_siswa','Master Siswa'),L('m_guru','Master Guru'),L('db','Ekspor / Impor')]),
  G('Administrasi',[L('tugas','Tugas'),L('nilai','Penilaian'),L('khs','Kartu Hasil Studi')]),
@@ -172,7 +171,7 @@ admin:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajar AI',[L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  G('Keuangan Kelas',[L('kas','Kas'),L('adiwiyata','Adiwiyata'),L('infaq','Infaq')]),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan'),L('server','Server')]),TENTANG]};
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Pengaturan',[L('tampilan','Tampilan'),L('ping','Ping Jaringan'),L('server','Server')]),TENTANG]};
 const AB=['Tanggal','Nama','Status','Keterangan'],NOFORM={nilai:['Sumber']},
 COL={absen:AB,absenguru:AB,tugas:['Jenis','Mapel','Judul','Tenggat','Status'],nilai:['Nama','Tugas','Jenis','Mapel','Nilai','Sumber'],
  kaih:['Tanggal','Nama',...HAB],jadwal:['Hari','Jam','Mapel','Guru'],mapel:['Kode','Mapel'],
@@ -186,24 +185,24 @@ const INFO={sapansa:['SAPANSA','Sinergi dan Akses Portal Aktif Guru-Wali Murid N
 let DB=load(),me=null,role='siswa',cur='dash';
 function load(){try{const d=JSON.parse(localStorage.getItem(K));if(d){const m=d.data=d.data||{};[['absensiku','absen'],['absenkelas','absen'],['tugasku','tugas'],['tugaskelas','tugas'],['nilaikelas','nilai'],['kaihkelas','kaih']].forEach(([a,b])=>{if(m[a]){m[b]=(m[b]||[]).concat(m[a]);delete m[a]}});if(!m.mapel)m.mapel=MP0();d.set=d.set||{};d.info=d.info||{};return d}}catch(e){}
  return{users:[{u:'admin',p:'admin123',r:'admin',n:'Administrator'},{u:'guru',p:'guru123',r:'guru',n:'Guru Contoh'},{u:'siswa',p:'siswa123',r:'siswa',n:'Siswa Contoh'}],
- set:{color:'#0f766e',side:'#12302c',mode:'auto',fs:15,off:0,logo:'',wm:true,op:.08,school:'SD Negeri Ngandul 1'},data:{mapel:MP0()},info:{}}}
+ set:{color:'#0f766e',side:'#12302c',mode:'auto',fs:15,off:0,gmt:7,logo:'',wm:true,op:.08,school:'SD Negeri Ngandul 1'},data:{mapel:MP0()},info:{}}}
 function save(){try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){alert('Penyimpanan penuh atau diblokir.')}}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LOGO='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#0f766e"/><text x="50" y="66" font-size="50" text-anchor="middle" fill="#fff" font-family="Verdana" font-weight="bold">S</text></svg>');
 
-const SD=()=>new Date(Date.now()+(DB.set.off||0)).toISOString().slice(0,10);
-setInterval(()=>{const c=$('#clk');if(c)c.textContent=new Date(Date.now()+(DB.set.off||0)).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'medium'})},1000);
+const GM=[-12,-11,-10,-9.5,-9,-8,-7,-6,-5,-4,-3.5,-3,-2,-1,0,1,2,3,3.5,4,4.5,5,5.5,5.75,6,6.5,7,8,8.75,9,9.5,10,10.5,11,12,12.75,13,14];
+const gv=()=>DB.set.gmt??7,SN=()=>Date.now()+(DB.set.off||0)+gv()*36e5,SD=()=>new Date(SN()).toISOString().slice(0,10);
+const GL=g=>{g=g??gv();const a=Math.abs(g),h=Math.floor(a),m=Math.round((a-h)*60);return 'GMT'+(g<0?'-':'+')+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+({7:' (WIB)',8:' (WITA)',9:' (WIT)'}[g]||'')};
+const FT=o=>new Date(SN()).toLocaleString('id-ID',{...o,timeZone:'UTC'});
+setInterval(()=>{const c=$('#clk');if(c)c.textContent=FT({dateStyle:'medium',timeStyle:'medium'})+' '+GL()},1000);
 function feats(){$('#fl').innerHTML=(DB.info.kel||DEFKEL).map(x=>`<li>${esc(x)}</li>`).join('')}
 function theme(){const S=DB.set,h=document.documentElement;h.style.setProperty('--c',S.color);if(S.side)h.style.setProperty('--side',S.side);h.dataset.mode=S.mode||'auto';document.body.style.fontSize=(S.fs||15)+'px';document.body.classList.toggle('still',!!S.still);feats();
  const w=$('#wm');w.style.backgroundImage=DB.set.wm?`url("${DB.set.logo||LOGO}")`:'none';w.style.opacity=DB.set.op;}
 theme();
 
-$('#rt').innerHTML=TAB.map(t=>`<button type="button" class="g" data-r="${t[0]}">${t[1]}</button>`).join('');
-$('#rt').onclick=e=>{if(e.target.dataset.r){role=e.target.dataset.r;pickTab()}};
-function pickTab(){document.querySelectorAll('#rt button').forEach(b=>b.className=b.dataset.r==role?'on':'g');$('#u').placeholder={siswa:'NIS / NISN',guru:'NIP',admin:'Username'}[role]}pickTab();
 $('#lf').onsubmit=e=>{e.preventDefault();
- const x=DB.users.find(x=>x.u==$('#u').value&&x.p==$('#p').value&&x.r==role);
- if(!x){$('#err').textContent='Username, password, atau peran tidak cocok.';return}
+ const x=DB.users.find(x=>x.u==$('#u').value.trim()&&x.p==$('#p').value);
+ if(!x){$('#err').textContent='ID atau password tidak cocok.';return}
  me=x;document.body.classList.add('in');$('#login').style.display='none';$('#app').style.display='grid';$('#who').textContent=`${me.n} (${me.r})`;nav();go('dash')};
 function tgl(){if(innerWidth>800)$('#app').classList.toggle('hide');else $('#side').classList.toggle('open')}
 function logout(){me=null;document.body.classList.remove('in');$('#app').style.display='none';$('#login').style.display='flex';$('#p').value=''}
@@ -215,7 +214,7 @@ function nav(){
 function title(id,a=M[me.r]){for(const i of a){if(i.id==id)return i.t;if(i.c){const t=title(id,i.c);if(t)return t}}}
 function go(id){cur=id;document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
  const t=title(id)||'';$('#ttl').textContent=t;const v=$('#view');
- const P={dash,users,db:dbp,server,tampilan:setp,khs,rekab:rekap,m_siswa:v=>users(v,'siswa'),m_guru:v=>users(v,'guru')};P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t)}
+ const P={dash,users,db:dbp,server,tampilan:setp,ping,khs,rekab:rekap,m_siswa:v=>users(v,'siswa'),m_guru:v=>users(v,'guru')};P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t)}
 
 function dash(v){
  const n=k=>(DB.data[k]||[]).length,ks=Object.keys(DB.data),mx=Math.max(1,...ks.map(n));
@@ -403,15 +402,35 @@ function dbp(v){
  $('#rs').onclick=()=>{if(confirm('Hapus semua data dan pengguna tambahan?')){localStorage.removeItem(K);DB=load();theme();alert('Data direset.');logout()}}}
 
 /* ---------- admin: server */
-function server(v){const sz=(localStorage.getItem(K)||'').length;
- v.innerHTML=`<h2>Server</h2><div class="cards"><div class="cd"><b>Aktif</b>Status layanan</div><div class="cd"><b>${(sz/1024).toFixed(1)} KB</b>Ukuran database</div><div class="cd"><b>${DB.users.length}</b>Akun terdaftar</div><div class="cd"><b>${DB.set.off?'Manual':'Perangkat'}</b>Sumber jam</div></div>
- <div class="pnl"><b>🕐 Jam server</b><p id="sk" style="font-size:24px;margin:8px 0"></p><p><small>Jam ini dipakai sebagai tanggal bawaan absensi dan penanggalan di header. Hanya admin yang dapat mengubahnya.</small></p>
- <div class="row"><input type="datetime-local" id="dt"><button id="ap">Terapkan jam</button><button class="g" id="sy">Sinkron ke jam perangkat</button></div></div>
- <div class="pnl"><div class="row"><button id="bk">Cadangkan sekarang (JSON)</button></div></div>`;
- const tk=()=>{const e=$('#sk');if(e)e.textContent=new Date(Date.now()+(DB.set.off||0)).toLocaleString('id-ID',{dateStyle:'full',timeStyle:'medium'})};tk();const iv=setInterval(()=>{if(!$('#sk'))return clearInterval(iv);tk()},1000);
- $('#ap').onclick=()=>{const t=new Date($('#dt').value);if(isNaN(t))return alert('Pilih tanggal dan jam.');DB.set.off=t-Date.now();save();server(v)};
- $('#sy').onclick=()=>{DB.set.off=0;save();server(v)};
+function server(v){const sz=(localStorage.getItem(K)||'').length,adm=me.r=='admin';
+ v.innerHTML=`<h2>Server</h2><div class="cards"><div class="cd"><b>Aktif</b>Status layanan</div><div class="cd"><b>${(sz/1024).toFixed(1)} KB</b>Ukuran database</div><div class="cd"><b>${DB.users.length}</b>Akun terdaftar</div><div class="cd"><b style="font-size:20px">${GL()}</b>Zona waktu server</div></div>
+ <div class="pnl"><b>🕐 Jam server</b><p id="sk" style="font-size:24px;margin:8px 0"></p>
+ ${adm?`<div class="row"><select id="gz">${GM.map(g=>`<option value="${g}" ${g==gv()?'selected':''}>${GL(g)}</option>`).join('')}</select><button id="ap">Terapkan zona waktu</button><button class="g" id="z7">WIB</button><button class="g" id="z8">WITA</button><button class="g" id="z9">WIT</button><button class="g" id="sy">Ikuti zona perangkat</button></div><small>Jam server dihitung dari jam perangkat lalu disesuaikan dengan GMT yang dipilih. Dipakai untuk tanggal bawaan absensi dan jam di header.</small>`:'<small>Hanya admin yang dapat mengubah zona waktu.</small>'}</div>
+ ${adm?'<div class="pnl"><div class="row"><button id="bk">Cadangkan sekarang (JSON)</button></div></div>':''}`;
+ const tk=()=>{const e=$('#sk');if(e)e.textContent=FT({dateStyle:'full',timeStyle:'medium'})+' '+GL()};tk();const iv=setInterval(()=>{if(!$('#sk'))return clearInterval(iv);tk()},1000);
+ if(!adm)return;const set=g=>{DB.set.gmt=g;DB.set.off=0;save();server(v)};
+ $('#ap').onclick=()=>set(+$('#gz').value);$('#z7').onclick=()=>set(7);$('#z8').onclick=()=>set(8);$('#z9').onclick=()=>set(9);
+ $('#sy').onclick=()=>set(-new Date().getTimezoneOffset()/60);
  $('#bk').onclick=()=>dl(new Blob([JSON.stringify(DB)],{type:'application/json'}),'backup-'+SD()+'.json')}
+
+/* ---------- ping jaringan */
+function ping(v){
+ v.innerHTML=`<h2>Ping Jaringan</h2><div class="pnl"><p id="ns"></p>
+ <div class="row"><input id="ph" value="https://www.google.com/generate_204" list="pl" placeholder="Alamat (URL)"><datalist id="pl"><option value="https://www.google.com/generate_204"><option value="https://1.1.1.1/cdn-cgi/trace"><option value="https://github.com/favicon.ico"><option value="https://cdnjs.cloudflare.com/"></datalist>
+ <select id="pn"><option>4</option><option>10</option><option>20</option></select><button id="pg">Mulai ping</button></div>
+ <small>Mengukur waktu tempuh permintaan HTTP dari browser ke alamat tujuan (bukan ICMP). Cocok untuk menilai kualitas sambungan internet.</small></div>
+ <div class="cards" id="pc"></div><div class="pnl"><b>Hasil</b><div class="tw"><table><thead><tr><th>#</th><th>Status</th><th>Waktu</th></tr></thead><tbody id="pt"></tbody></table></div></div>`;
+ const cn=navigator.connection||{};$('#ns').innerHTML=(navigator.onLine?'🟢 <b>Online</b>':'🔴 <b>Offline</b>')+(cn.effectiveType?` &middot; jenis ${cn.effectiveType}`:'')+(cn.downlink?` &middot; unduh ~${cn.downlink} Mbps`:'')+(cn.rtt?` &middot; RTT ~${cn.rtt} ms`:'');
+ let run=false;
+ $('#pg').onclick=async()=>{if(run)return;let u=$('#ph').value.trim();if(!u)return alert('Isi alamat tujuan.');if(!/^https?:\/\//i.test(u))u='https://'+u;
+  const n=+$('#pn').value,res=[];run=true;$('#pg').textContent='Berjalan...';$('#pt').innerHTML='';
+  for(let i=1;i<=n;i++){const t0=performance.now(),ac=new AbortController(),to=setTimeout(()=>ac.abort(),5000);let ms=null;
+   try{await fetch(u+(u.includes('?')?'&':'?')+'_='+Date.now(),{mode:'no-cors',cache:'no-store',signal:ac.signal});ms=Math.round(performance.now()-t0)}catch(e){}clearTimeout(to);res.push(ms);
+   $('#pt').insertAdjacentHTML('beforeend',`<tr><td>${i}</td><td>${ms===null?'❌ Gagal / timeout':'✅ Balasan diterima'}</td><td>${ms===null?'-':ms+' ms'}</td></tr>`);
+   const ok=res.filter(x=>x!==null),av=ok.length?Math.round(ok.reduce((a,b)=>a+b,0)/ok.length):'-';
+   $('#pc').innerHTML=[[res.length,'Terkirim'],[ok.length,'Diterima'],[Math.round((res.length-ok.length)/res.length*100)+'%','Paket hilang'],[ok.length?Math.min(...ok)+' ms':'-','Tercepat'],[av==='-'?'-':av+' ms','Rata-rata'],[ok.length?Math.max(...ok)+' ms':'-','Terlambat']].map(c=>`<div class="cd"><b style="font-size:22px">${c[0]}</b>${c[1]}</div>`).join('');
+   if(i<n)await new Promise(r=>setTimeout(r,400))}
+  run=false;$('#pg').textContent='Mulai ping'}}
 </script>
 </body>
 </html>
