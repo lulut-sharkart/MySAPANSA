@@ -286,14 +286,52 @@ setTimeout(()=>{try{const q=JSON.parse(localStorage.getItem(RK2)),x=q&&DB.users.
 function tgl(){if(innerWidth>800)$('#app').classList.toggle('hide');else $('#side').classList.toggle('open')}
 function logout(){if(me){logA('Logout','','Keluar dari aplikasi');delete (DB.pres||{})[me.r+':'+me.u];save()}me=null;try{localStorage.removeItem(RK2)}catch(e){}document.body.classList.remove('in');$('#app').style.display='none';$('#login').style.display='flex';$('#p').value=''}
 
+/* ===== AKSES PER PERAN (ACL): kunci siswa/kelas/mapel/agama/ekskul + mode hanya-lihat ===== */
+const ACL_TKN=/tenaga|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
+function aclMapel(u){const all=MPL();let m=(u.mapelAjar||[]).filter(x=>all.includes(x));if(m.length)return m;const j=(u.jabatan||'').toLowerCase();m=all.filter(x=>j.includes(x.toLowerCase()));if(ACL_AGM.test(u.jabatan||''))m=m.concat(all.filter(x=>ACL_AGM.test(x)));return[...new Set(m)]}
+function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!u.walikelas&&ACL_TKN.test(j)&&!/guru/i.test(j))return'tkn';if(u.walikelas)return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
+const aclPembina=u=>!!u&&u.r=='guru'&&!['kep','pnj','tkn'].includes(aclKat(u))&&(u.ekskul||[]).length>0&&u.peran!='Bukan Pembina/Pelatih';
+let _aclC=null,_aclK='';
+function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
+ const k=aclKat(me),L={k},S=()=>DB.users.filter(u=>u.r=='siswa');
+ if(k=='sis')L.siswa=[me.n];
+ else if(k=='kep'||k=='pnj'||k=='tkn')L.ro=true;
+ else if(k!='adm'){if(aclPembina(me))L.ekskul=(me.ekskul||[]).slice();
+  if(!ACL_EK.includes(cur)){
+   if(k=='kls'&&me.walikelas){L.kelas=[me.walikelas];L.siswa=S().filter(u=>u.k==me.walikelas).map(u=>u.n)}
+   if(k=='agm'){if(me.agama){const ag=me.agama.toLowerCase();L.siswa=S().filter(u=>(u.agama||'').toLowerCase()==ag).map(u=>u.n);L.sAll=new Set(S().map(u=>u.n))}const m=aclMapel(me);if(m.length)L.mapel=m}
+   if(k=='mpl'){const m=aclMapel(me);if(m.length)L.mapel=m}}}
+ _aclC=L;_aclK=key;return L}
+function aclMenu(a){if(!me||me.r!='guru')return a;const pb=aclPembina(me);return a.map(i=>{if(!i.c)return i;if(i.t=='Ekstrakurikuler'&&!pb)return null;if(i.t=='Pengaturan')return{...i,c:i.c.filter(x=>x.id=='umum')};return i}).filter(Boolean)}
+const aclBlock=id=>{if(!me||me.r!='guru')return false;if(['tampilan','ping','urutmenu','server'].includes(id))return true;return ACL_EK.includes(id)&&!aclPembina(me)};
+function aclRow(id,r){const L=aclLock();if(!L||L.k=='adm'||L.k=='sis'||L.ro)return true;
+ if(ACL_EK.includes(id))return!L.ekskul||L.ekskul.includes(r.Ekskul);
+ if(L.kelas&&r.Kelas&&r.Kelas!='Semua Kelas'&&!L.kelas.includes(r.Kelas))return false;
+ if(L.mapel&&r.Mapel&&!L.mapel.includes(r.Mapel))return false;
+ if(L.sAll&&r.Nama&&L.sAll.has(r.Nama)&&!L.siswa.includes(r.Nama))return false;return true}
+const ACL_BLANK=o=>o.value===''||/^\s*(--|—|–)/.test(o.text);
+function aclType(s){if(s.multiple||s.dataset.f)return'';const lb=s.closest('label'),cap=lb?[...lb.childNodes].filter(n=>n.nodeType==3).map(n=>n.textContent).join(' '):'',t=(cap+' '+(s.dataset.c||'')+' '+((s.options[0]||{}).text||'')).toLowerCase();
+ if(/guru|staf/.test(t))return'';if(/siswa/.test(t))return'siswa';if(/ekstrakurikuler|ekskul/.test(t))return'ekskul';if(/mapel|mata pelajaran/.test(t))return'mapel';if(/kelas/.test(t)&&!/wali/.test(t))return'kelas';return''}
+function aclSel(s){const t=s.dataset.aclT||aclType(s);if(!t)return;s.dataset.aclT=t;const L=aclLock(),A=L&&L[t];if(!A)return;
+ if(A.length==1){if(s.disabled&&s.options.length==1&&s.options[0].value==A[0])return;const prev=s.value;s.innerHTML='<option>'+esc(A[0])+'</option>';s.value=A[0];if(prev!==A[0])s.dispatchEvent(new Event('change',{bubbles:true}));s.disabled=true;s.title='🔒 Terkunci sesuai akun Anda';return}
+ [...s.options].forEach(o=>{if(!ACL_BLANK(o)&&!A.includes(o.value))o.remove()})}
+const ACL_OK=/cetak|print|pdf|docx|xlsx|csv|json|tampilkan|lihat|cari|filter|kembali|menu utama|unduh|download|buka link|rekap|dashboard|ekspor|export/i;
+const aclRO=()=>!!me&&me.r=='guru'&&['kep','pnj','tkn'].includes(aclKat(me))&&!['absenguru','umum','profilsaya'].includes(cur);
+function aclToast(t){let d=$('#acltoast');if(!d){d=document.createElement('div');d.id='acltoast';d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#92400e;color:#fff;padding:10px 16px;border-radius:10px;z-index:99999;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.3)';document.body.appendChild(d)}d.textContent=t;d.style.display='block';clearTimeout(d._t);d._t=setTimeout(()=>d.style.display='none',2500)}
+document.addEventListener('click',e=>{if(!aclRO())return;const t=e.target.closest&&e.target.closest('#view button,#view [data-d],#view [data-a],#view [data-k],#view .bl');if(!t)return;const a=t.dataset.a;if(a=='dw'||a=='pr')return;if(t.tagName=='BUTTON'&&!t.dataset.d&&!a&&!t.dataset.k&&ACL_OK.test((t.textContent||'')+' '+(t.id||'')))return;e.preventDefault();e.stopImmediatePropagation();aclToast('🔒 Akun Anda hanya dapat melihat data pada menu ini.')},true);
+let _aclO=null;
+function aclApply(v){if(!me)return;v.querySelectorAll('select').forEach(aclSel);
+ if(!_aclO){_aclO=new MutationObserver(ms=>{if(!me)return;const S=new Set();ms.forEach(m=>{const t=m.target;if(t.nodeType!=1)return;if(t.tagName=='SELECT')S.add(t);else if(t.querySelectorAll)t.querySelectorAll('select').forEach(x=>S.add(x))});S.forEach(aclSel)});_aclO.observe(v,{childList:true,subtree:true})}
+ if(aclRO()){v.querySelectorAll('textarea,input[type=file]').forEach(x=>x.disabled=true);v.insertAdjacentHTML('afterbegin','<div class="pnl np" style="border-color:#f59e0b">🔒 Akun Anda hanya dapat <b>melihat</b> halaman ini. Hanya menu <b>Absensi Guruku</b> yang dapat Anda isi.</div>')}}
+
 function nav(){
  const h=(a,d)=>a.map(i=>i.c?`<details ${d?'':'open'}><summary>${ic(i.t)} <span class="tx">${esc(trl(i.t))}</span></summary>${h(i.c,1)}</details>`:`<a href="#" data-id="${i.id}">${ic(i.t,i.id)} <span class="tx">${esc(trl(i.t))}</span></a>`).join('');
- $('#side').innerHTML=`<h2>MySAPANSA</h2>`+h(ordM(M[me.r],me.r),0);
+ $('#side').innerHTML=`<h2>MySAPANSA</h2>`+h(aclMenu(ordM(M[me.r],me.r)),0);
  $('#side').onclick=e=>{const a=e.target.closest('a');if(a){e.preventDefault();go(a.dataset.id);side.classList.remove('open')}};}
 function title(id,a=M[me.r]){for(const i of a){if(i.id==id)return i.t;if(i.c){const t=title(id,i.c);if(t)return t}}}
-function go(id){cur=id;logA('Akses Menu',title(id)||id,'Membuka halaman '+(title(id)||id));document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
+function go(id){if(aclBlock(id)){alert('Akun Anda tidak memiliki akses ke menu ini.');id='dash'}cur=id;logA('Akses Menu',title(id)||id,'Membuka halaman '+(title(id)||id));document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
  const t=title(id)||'';$('#ttl').textContent=t;const v=$('#view');
- const P={dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t)}
+ const P={dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t);aclApply(v)}
 
 function dashS(v){
  const n=k=>(DB.data[k]||[]).length,ks=Object.keys(DB.data),mx=Math.max(1,...ks.map(n));
@@ -329,7 +367,7 @@ function OPT(id,c){
 const att=r=>{const o=[];if(r.LinkTugas&&/^https?:\/\//i.test(r.LinkTugas))o.push(`<a href="${esc(r.LinkTugas)}" target="_blank" rel="noopener">🔗 Buka Link</a>`);if(r.FileTugas&&/^data:/.test(r.FileTugas))o.push(`<a href="${r.FileTugas}" download="${esc(r.NamaFile||'tugas')}">📎 ${esc(r.NamaFile||'Unduh File')}</a>`);return o.join('<br>')||esc(r.Lampiran||'')};
 function table(v,id,t){
  const c0=COL[id]||DEF,cols=c0.includes('Kelas')||NK.includes(id)?c0:['Kelas',...c0],rows=DB.data[id]=DB.data[id]||[],F=FL[id]=FL[id]||{q:'',c:{}};
- const canAdd=me.r=='admin'||(me.r=='guru'?!['game','mapel'].includes(id):['kaih','absen','tugas','tugasekskul'].includes(id)),own=me.r=='siswa'&&cols.includes('Nama'),nf=NOFORM[id]||[];
+ const canAdd=!aclRO()&&(me.r=='admin'||(me.r=='guru'?!['game','mapel'].includes(id):['kaih','absen','tugas','tugasekskul'].includes(id))),own=me.r=='siswa'&&cols.includes('Nama'),nf=NOFORM[id]||[];
  const inp=c=>{if(nf.includes(c))return'';
   if(id=='kaih'&&HAB.includes(c))return`<label><input type="checkbox" data-c="${c}" style="width:auto"> ${c}</label>`;
   const o=OPT(id,c);
@@ -344,7 +382,7 @@ function table(v,id,t){
  ${CF[id]&&canAdd?CF[id]():canAdd?`<div class="pnl np"><div class="row">${cols.map(inp).join('')}<button id="add">Tambah</button></div></div>`:'<p class="np">Menu ini hanya dapat dilihat.</p>'}
  <div class="pnl np"><div class="row"><input id="fq" placeholder="🔍 Cari..." value="${esc(F.q)}">${fs}<button class="g" id="fr">Reset filter</button></div><small id="cnt"></small></div>
  <div class="pnl tw"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th class="np"></th></tr></thead><tbody id="tb"></tbody></table></div>${CR[id]?CR[id]():''}`;
- const view=()=>rows.map((r,i)=>[r,i]).filter(([r])=>(!own||r.Nama==me.n)&&(me.r!='guru'||!EDITABLE.includes(id)||!r.Pemilik||r.Pemilik==me.n||r.Bagikan)&&(me.r!='siswa'||!cols.includes('Kelas')||!r.Kelas||r.Kelas=='Semua Kelas'||r.Kelas==me.k)&&SWF(id,r)&&(!F.q||cols.some(c=>String(r[c]??'').toLowerCase().includes(F.q.toLowerCase())))&&cols.every(c=>!F.c[c]||r[c]==F.c[c]));
+ const view=()=>rows.map((r,i)=>[r,i]).filter(([r])=>(!own||r.Nama==me.n)&&(me.r!='guru'||!EDITABLE.includes(id)||!r.Pemilik||r.Pemilik==me.n||r.Bagikan)&&(me.r!='siswa'||!cols.includes('Kelas')||!r.Kelas||r.Kelas=='Semua Kelas'||r.Kelas==me.k)&&SWF(id,r)&&aclRow(id,r)&&(!F.q||cols.some(c=>String(r[c]??'').toLowerCase().includes(F.q.toLowerCase())))&&cols.every(c=>!F.c[c]||r[c]==F.c[c]));
  const draw=()=>{const w=view();$('#tb').innerHTML=w.map(([r,i])=>`<tr>${cols.map(c=>`<td>${c=='Lampiran'&&id=='tugas'?att(r):(c=='Status'&&me.r=='siswa'&&(id=='tugas'||id=='tugasekskul')?stSw(id,r,i):esc(r[c]))}</td>`).join('')}<td class="np">${canAdd&&me.r!='siswa'?`<button class="g" data-d="${i}">Hapus</button>`:''}${KB(id,r,i)}</td></tr>`).join('')||`<tr><td colspan="${cols.length+1}">Tidak ada data.</td></tr>`;$('#cnt').textContent=`${w.length} dari ${rows.length} data`};
  draw();bindExport(v,id,cols,()=>view().map(x=>x[0]));
  bindImport(v,a=>{let n=0;a.forEach(o=>{const r={};cols.forEach(c=>r[c]=o[c]??'');if(Object.values(r).some(x=>x)){rows.push(r);n++}});save();table(v,id,t);alert(n+' baris diimpor.')});
@@ -786,7 +824,7 @@ function keuP(v,kat){KT=kat||KT;const kl=KL2(),rows=DB.data.keu=DB.data.keu||[];
 /* ---- Master Siswa / Guru */
 function masterP(v,r){const sw=r=='siswa',P=sw?'ms':'mg',eks=(DB.data.ekskul||[]).map(x=>x.Ekstrakurikuler).filter(x=>x),JK=['Laki-laki','Perempuan'];let foto='',ME=null,q='',kf='';
  const sp=sw?[[['u','NIS','text'],['nisn','NISN','text'],['p','Password (kosong = NIS / tidak diubah)','pass'],['n','Nama Lengkap Siswa','text',0,2],['jk','Jenis Kelamin','select',JK]],[['k','Kelas','select',KL2()],['agama','Agama Siswa','select',AG],['ekskul','Ekstrakurikuler Diikuti (Ctrl/Cmd untuk pilih beberapa)','multi',eks,2],['wali','Nama Wali Murid','text']],[['motivasi','Motivasi (tampil di Profil Saya siswa)','text']]]
- :[[['u','NIP / Username','text'],['n','Nama Guru & Gelar','text',0,2],['p','Password Login','pass'],['jk','Jenis Kelamin','select',JK],['agama','Agama Guru','select',AG]],[['jabatan','Jabatan / Guru Mapel','text',0,2],['walikelas','Wali Kelas Di','select',KL2()],['motivasi','Deskripsi Profil / Motivasi','text',0,2]],[['peran','Peran Ekstrakurikuler','select',['Bukan Pembina/Pelatih','Pembina','Pelatih']],['ekskul','Ekstrakurikuler yang Dibina / Dilatih (Ctrl/Cmd untuk pilih beberapa)','multi',eks,2]]];
+ :[[['u','NIP / Username','text'],['n','Nama Guru & Gelar','text',0,2],['p','Password Login','pass'],['jk','Jenis Kelamin','select',JK],['agama','Agama Guru','select',AG]],[['jabatan','Jabatan / Guru Mapel','text',0,2],['mapelAjar','Mata Pelajaran yang Diajar (Ctrl/Cmd untuk pilih beberapa; dipakai untuk kunci akses guru mapel)','multi',MPL(),2],['walikelas','Wali Kelas Di','select',KL2()],['motivasi','Deskripsi Profil / Motivasi','text',0,2]],[['peran','Peran Ekstrakurikuler','select',['Bukan Pembina/Pelatih','Pembina','Pelatih']],['ekskul','Ekstrakurikuler yang Dibina / Dilatih (Ctrl/Cmd untuk pilih beberapa)','multi',eks,2]]];
  const draw=()=>{const a=DB.users.map((u,i)=>[u,i]).filter(([u])=>u.r==r&&(!kf||u.k==kf||u.walikelas==kf)&&(!q||JSON.stringify([u.n,u.u,u.nisn]).toLowerCase().includes(q.toLowerCase())));
   $('#mtb').innerHTML=a.map(([u,i])=>`<tr><td>${u.foto?`<img src="${u.foto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:''}</td><td>${esc(u.u)}${u.nisn?'<br><small>NISN '+esc(u.nisn)+'</small>':''}</td><td>${esc(u.n)}</td><td>${esc(u.jk||'')}</td><td>${esc(sw?u.k||'':(u.jabatan||'')+(u.walikelas?' · Wali '+u.walikelas:''))}</td><td>${esc(u.agama||'')}</td><td>${esc((u.ekskul||[]).join(', '))}</td>${sw?`<td>${esc(u.wali||'')}</td>`:''}<td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')||'<tr><td colspan="9">Belum ada data.</td></tr>';$('#mcn').textContent=a.length+' data'};
  v.innerHTML=`<div class="np row"><h2 style="margin:0;flex:1">Master ${sw?'Siswa':'Guru'}</h2>${exportBtns('u',1)}</div><div class="pnl np"><b>${sw?'🎒 Form Input / Edit Data Master Siswa':'👩‍🏫 Form Input / Edit Tenaga Pengajar'}</b>${fh(P,sp)}<div class="row"><label>Upload Foto ${sw?'Profil Siswa':'Guru'}<input type="file" id="${P}ft" accept="image/*"></label></div><div class="row"><button id="msv" type="button">💾 Simpan ${sw?'Data Siswa':'Guru'}</button><button class="g" id="mrs" type="button">Reset</button></div></div>
