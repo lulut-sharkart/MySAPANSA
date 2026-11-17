@@ -300,19 +300,21 @@ function logout(){try{edClose()}catch(e){}if(me){logA('Logout','','Keluar dari a
 /* ===== AKSES PER PERAN (ACL): kunci siswa/kelas/mapel/agama/ekskul + mode hanya-lihat ===== */
 const ACL_TKN=/tenaga|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
 const ACL_AGL=[['Islam',/islam|\bpai\b/i],['Kristen',/kristen|protestan|\bpak\b/i],['Katolik',/katolik/i],['Hindu',/hindu/i],['Buddha',/budd?ha/i],['Konghucu',/konghucu/i]];
+const aclWK=u=>{const w=String(u&&u.walikelas||'').trim();if(!w)return'';return KL2().find(x=>String(x).toLowerCase()==w.toLowerCase())||''};
+const aclAgN=a=>{a=String(a||'').trim();if(!a)return'';const f=ACL_AGL.find(x=>x[1].test(a)||x[0].toLowerCase()==a.toLowerCase());return f?f[0]:a};
 function aclAgama(u){const t=(u.jabatan||'')+' '+aclMapel(u).join(' '),f=ACL_AGL.find(x=>x[1].test(t));return f?f[0]:(u.agama||'')}
 function aclMapel(u){const all=MPL();let m=(u.mapelAjar||[]).filter(x=>all.includes(x));if(m.length)return m;const j=(u.jabatan||'').toLowerCase();m=all.filter(x=>j.includes(x.toLowerCase()));if(ACL_AGM.test(u.jabatan||''))m=m.concat(all.filter(x=>ACL_AGM.test(x)));return[...new Set(m)]}
-function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!u.walikelas&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(u.walikelas)return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
+function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!aclWK(u)&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(aclWK(u))return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
 const aclPembina=u=>!!u&&u.r=='guru'&&!['kep','pnj','tkn'].includes(aclKat(u))&&(u.ekskul||[]).length>0&&u.peran!='Bukan Pembina/Pelatih';
 let _aclC=null,_aclK='';
-function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
+function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,DB.users.map(u=>u.agama||'').join(),KL2().join(),(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
  const k=aclKat(me),L={k},S=()=>DB.users.filter(u=>u.r=='siswa');
  if(k=='sis')L.siswa=[me.n];
  else if(k=='kep'||k=='pnj'||k=='tkn')L.ro=true;
  else if(k!='adm'){if(aclPembina(me))L.ekskul=(me.ekskul||[]).slice();
   if(!ACL_EK.includes(cur)){
-   if(k=='kls'&&me.walikelas){L.kelas=[me.walikelas];L.siswa=S().filter(u=>u.k==me.walikelas).map(u=>u.n)}
-   if(k=='agm'){const ag=aclAgama(me).toLowerCase();if(ag){const sm=S().filter(u=>!u.agama||String(u.agama).toLowerCase()==ag).map(u=>u.n);if(sm.length){L.siswa=sm;L.sAll=new Set(S().map(u=>u.n))}}const m=aclMapel(me);if(m.length)L.mapel=m}
+   if(k=='kls'&&aclWK(me)){const wk=aclWK(me);L.kelas=[wk];L.siswa=S().filter(u=>u.k==wk).map(u=>u.n)}
+   if(k=='agm'){const ag=aclAgama(me).toLowerCase();if(ag){const an=aclAgN(ag);L.siswa=S().filter(u=>aclAgN(u.agama)==an).map(u=>u.n);L.sAll=new Set(S().map(u=>u.n))}const m=aclMapel(me);if(m.length)L.mapel=m}
    if(k=='mpl'){const m=aclMapel(me);if(m.length)L.mapel=m}}}
  _aclC=L;_aclK=key;return L}
 function aclMenu(a){if(!me||me.r!='guru')return a;const pb=aclPembina(me);return a.map(i=>{if(!i.c)return i;if(i.t=='Ekstrakurikuler'&&!pb)return null;if(i.t=='Pengaturan')return{...i,c:i.c.filter(x=>x.id=='umum')};return i}).filter(Boolean)}
@@ -629,7 +631,7 @@ function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'abse
   const say=(t,ok,nl)=>{out.textContent=t;out.style.color=ok===false?'#dc2626':ok?'#16a34a':'';if(!nl){const d=document.createElement('div');d.textContent=nowT()+' · '+t;lg.insertBefore(d,lg.firstChild)}};
   const rerenderF=()=>{window.__fcm={t:out.textContent,c:out.style.color,l:lg.innerHTML,b:bn.innerHTML};saved=0;after()};
   if(window.__fcm){out.textContent=window.__fcm.t;out.style.color=window.__fcm.c;lg.innerHTML=window.__fcm.l;bn.innerHTML=window.__fcm.b||'';setTimeout(()=>{const e=z('fcbn');if(e)e.innerHTML=''},5000);window.__fcm=null}
-  const fillN=()=>{const kk=g?'':(z('fckl')?z('fckl').value:''),us=DB.users.filter(u=>u.r==role&&(g?(adm||u.u==me.u):(!kk||u.k==kk))).sort((a,b)=>String(a.n).localeCompare(String(b.n)));z('fcid').innerHTML=(us.length>1?'<option value="">-- Pilih --</option>':'')+us.map(u=>`<option value="${esc(u.u)}">${esc(u.n)}${(DB.data.faceid||[]).some(r=>r.u==u.u&&r.r==role)?' ✅':''}</option>`).join('')};
+  const fillN=()=>{const kk=g?'':(z('fckl')?z('fckl').value:''),us=DB.users.filter(u=>u.r==role&&(g?(adm||u.u==me.u):(!kk||u.k==kk))&&(g||me.r!='guru'||!aclLock()||!aclLock().siswa||aclLock().siswa.includes(u.n))).sort((a,b)=>String(a.n).localeCompare(String(b.n)));z('fcid').innerHTML=(us.length>1?'<option value="">-- Pilih --</option>':'')+us.map(u=>`<option value="${esc(u.u)}">${esc(u.n)}${(DB.data.faceid||[]).some(r=>r.u==u.u&&r.r==role)?' ✅':''}</option>`).join('')};
   fillN();if(z('fckl'))z('fckl').onchange=fillN;
   const ldScript=u=>new Promise(r=>{const sc=document.createElement('script');sc.src=u;sc.onload=()=>r(true);sc.onerror=()=>r(false);document.head.appendChild(sc)});
   const lib=async()=>{if(window.__faceReady)return true;for(const b of['https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/','https://cdn.jsdelivr.net/npm/@vladmandic/face-api/']){try{if(!window.faceapi&&!(await ldScript(b+'dist/face-api.js')))continue;const m=b+'model/';await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(m),faceapi.nets.faceLandmark68Net.loadFromUri(m),faceapi.nets.faceRecognitionNet.loadFromUri(m)]);window.__faceReady=true;return true}catch(e){}}return false};
@@ -735,8 +737,8 @@ function KF(){const d=KD||SD(),k=me.r=='siswa'?(me.k||''):KK,us=DB.users.filter(
  <div class="row"><button id="hsv" type="button">💾 Simpan Data 7KAIH</button><button class="g" id="hrs" type="button">Reset</button></div><small>Pilih siswa dulu agar pilihan ibadah menyesuaikan agama siswa.</small></div>`}
 function kaihBind(v,after){const z=i=>$('#'+i);z('kt').onclick=()=>{KD=z('kd').value;KK=z('kk')?z('kk').value:'';after()};
  const fill=()=>{if(!z('hk'))return;const k=z('hk').value;z('hs').innerHTML='<option value="">-- Pilih Siswa --</option>'+DB.users.filter(u=>u.r=='siswa'&&(!k||u.k==k)).map(u=>`<option>${esc(u.n)}</option>`).join('')};
- const ib=()=>{const u=DB.users.find(x=>x.n==z('hs').value&&x.r=='siswa');z('h1').innerHTML=u?(IB[u.agama]||['Berdoa','Beribadah']).map(x=>`<label><span><input type="checkbox" value="${esc(x)}"> ${esc(x)}</span></label>`).join(''):'<small>Pilih siswa terlebih dahulu</small>'};
- if(z('hk'))z('hk').onchange=fill;z('hs').onchange=ib;ib();z('hrs').onclick=after;
+ const ib=()=>{const u=DB.users.find(x=>x.n==z('hs').value&&x.r=='siswa'),ag=u?aclAgN(u.agama):'',lst=u?(IB[ag]||['Berdoa','Beribadah']):[],ex=u?(DB.data.kaih||[]).find(r=>r.Tanggal==z('ht').value&&r.Nama==u.n):null,dn=ex?String(ex[HAB[1]]||'').split(', '):[];z('h1').innerHTML=u?'<small>Agama: <b>'+esc(IB[ag]?ag:(u.agama||'belum diisi'))+'</b>'+(IB[ag]?'':' (pilihan umum, lengkapi data agama siswa)')+'</small>'+lst.map(x=>`<label><span><input type="checkbox" value="${esc(x)}" ${dn.includes(x)?'checked':''}> ${esc(x)}</span></label>`).join(''):'<small>Pilih siswa terlebih dahulu</small>'};
+ if(z('hk'))z('hk').onchange=fill;z('hs').onchange=ib;z('ht').onchange=ib;ib();z('hrs').onclick=after;
  z('hsv').onclick=()=>{const n=z('hs').value;if(!n)return alert('Pilih siswa.');const u=DB.users.find(x=>x.n==n&&x.r=='siswa'),d=z('ht').value,ibd=[...z('h1').querySelectorAll('input:checked')].map(x=>x.value).join(', ');
   const r={Tanggal:d,Kelas:u?u.k||'':'',Nama:n,[HAB[0]]:z('h0').value,[HAB[1]]:ibd,[HAB[2]]:z('h2').value?z('h2').value+(z('h2d').value?' '+z('h2d').value+' mnt':''):'',[HAB[3]]:[z('h3').value,z('h3b').value].filter(x=>x).join(' | '),[HAB[4]]:z('h4').value,[HAB[5]]:z('h5').value,[HAB[6]]:z('h6').value};
   const rows=DB.data.kaih=DB.data.kaih||[],i=rows.findIndex(x=>x.Tanggal==d&&x.Nama==n);if(i>=0)rows.splice(i,1);rows.push(r);save();after();alert(HAB.every(h=>r[h])?'Lengkap! 🌸 Bunga Sakura SAPANSA diberikan.':'Data 7KAIH tersimpan.')}}
@@ -1100,7 +1102,9 @@ function dbp(v){
  <label>Tempel dari spreadsheet (salin sel termasuk baris header, lalu Ctrl+V)<textarea id="fsp" rows="4"></textarea></label><div class="row"><button id="fsb" type="button">📋 Impor data tempelan</button></div><div id="fsl" style="font-size:13px;margin-top:6px"></div></div>
  <div class="pnl" id="sus0"><b>📗 Spreadsheet Integration & Template (Super Admin)</b><p><small>Untuk Google Sheets: unduh sebagai .xlsx, edit, lalu unggah kembali, atau pakai Impor Super Cepat. Impor Massal di bawah menggantikan seluruh data menu terkait.</small></p>
  <div class="row"><label style="flex:3 1 300px">URL / ID Google Spreadsheet Integrasi<input id="sup" value="${esc(DB.set.sheetUrl||'')}" placeholder="https://docs.google.com/spreadsheets/d/..."></label><button id="sus" type="button">💾 Simpan ID Sheet</button><button class="g" id="suo" type="button">↗ Buka Spreadsheet</button></div>
- <b>⚡ Aksi cepat</b><div class="row"><button class="g" id="atp" type="button">1. Buat Template Sheet</button><label>2. Impor Massal Semua Data (ganti)<input type="file" id="aim" accept=".xlsx,.xls"></label><button class="g" id="aex" type="button">3. Ekspor Data LMS ke Spreadsheet</button></div></div>
+ <b>⚡ Aksi cepat</b><div class="row"><button class="g" id="atp" type="button">1. Buat Template Sheet</button><label>2. Impor Massal Semua Data (ganti)<input type="file" id="aim" accept=".xlsx,.xls"></label><button class="g" id="aex" type="button">3. Ekspor Data LMS ke Spreadsheet</button></div>
+ <b>📥 Impor dari Spreadsheet</b><p><small>Tarik data dari file Excel/CSV atau dari Google Sheets (URL di atas, akses "Siapa saja yang memiliki link: Pelihat"). Sheet dikenali dari nama (hasil Buat Template Sheet) atau dari header kolom. Mode Gabung memperbarui data yang sama dan menambah yang baru tanpa menghapus apa pun.</small></p>
+ <div class="row"><label>Mode impor<select id="sum"><option value="gabung">Gabung: perbarui & tambah (aman)</option><option value="ganti">Ganti total data menu terkait</option></select></label><label class="bl noan">📂 Impor dari file (XLSX / XLS / CSV)<input type="file" id="sui" accept=".xlsx,.xls,.csv" multiple hidden></label><button id="sug" type="button">⚡ Impor dari Google Sheets (URL di atas)</button></div><div id="sul" style="font-size:13px;margin-top:6px"></div></div>
  <div class="pnl" id="pip"><b>Impor Parsial</b><div class="row">${DS.map(d=>`<button class="g" data-ip="${d[0]}" type="button">⬆ ${d[1]}</button>`).join('')}</div><b>Ekspor Parsial (Super Cepat)</b><div class="row">${DS.map(d=>`<button class="g" data-ep="${d[0]}" type="button">⬇ ${d[1]}</button>`).join('')}</div></div>
  <div class="pnl" id="sst"><b>🔄 Status Sinkron Semua Menu</b><div id="sstb">${stat()}</div></div>`;
  const z=i=>$('#'+i),need=()=>window.XLSX?true:(alert('Pustaka XLSX tidak termuat (perlu internet).'),false),mark=(k,t)=>{(DB.set.ie=DB.set.ie||{})[k]=t+' '+SD()};
@@ -1114,7 +1118,7 @@ function dbp(v){
   if(d.ip){if(!need())return;const x=DS.find(a=>a[0]==d.ip),f=document.createElement('input');f.type='file';f.accept='.xlsx,.xls,.csv';f.onchange=()=>{const fl=f.files[0];if(!fl||!confirm('Impor menggantikan seluruh data '+x[1]+'. Lanjutkan?'))return;const r=new FileReader();r.onload=()=>{const n=impWb(XLSX.read(r.result,{type:'array'}),[x]);alert(n?x[1]+' diimpor.':'Sheet tidak ditemukan / kosong.');dbp(v)};r.readAsArrayBuffer(fl)};f.click()}};
  /* ---- impor super cepat */
  const KEYS={siswa:['u'],guru:['u'],mapel:['Mapel'],cpatp:['Keterangan','CP'],khsrec:['Nama','Mapel','Semester'],ekskul:['Ekstrakurikuler'],game:['Nama'],pesertaekskul:['Ekskul','Nama'],absen:['Tanggal','Nama'],prestasi:['Nama','Jenis','Tahun'],jadwal:['Kelas','Jenis','Hari','Jam'],tugas:['Kelas','Mapel','Judul'],kaih:['Tanggal','Nama'],kumpul:['tid','Nama']};
- const log=t=>z('fsl').insertAdjacentHTML('beforeend','<div>'+t+'</div>'),mode=()=>z('fsm').value,fin=()=>{save();z('sstb').innerHTML=stat()};
+ const log=t=>{z('fsl').insertAdjacentHTML('beforeend','<div>'+t+'</div>');if(z('sul'))z('sul').insertAdjacentHTML('beforeend','<div>'+t+'</div>')},mode=()=>z('fsm').value,fin=()=>{save();z('sstb').innerHTML=stat()};
  const rowsOf=sh=>XLSX.utils.sheet_to_json(sh,{defval:''}).filter(r=>Object.values(r).some(x=>x!==''));
  const detect=(name,rows)=>{const n=String(name||'').toLowerCase().trim(),byN=n&&DS.find(d=>('sapansa '+d[1]).slice(0,31).toLowerCase()==n||d[1].toLowerCase()==n||d[0].toLowerCase()==n);if(byN)return byN;const ks=Object.keys(rows[0]||{});let b=null,bs=0;DS.forEach(d=>{const s=d[2].filter(c=>ks.includes(c)).length;if(s>bs){bs=s;b=d}});return bs>=3?b:null};
  const upd=(o,n)=>{Object.entries(n).forEach(([a,b])=>{if(b!==''&&b!=null)o[a]=b})};
@@ -1127,6 +1131,9 @@ function dbp(v){
  const ask=()=>mode()!='ganti'||confirm('Mode GANTI menimpa seluruh data pada menu yang ditemukan. Lanjutkan?');
  const files=async fl=>{if(!fl.length||!need()||!ask())return;z('fsl').innerHTML='';let n=0;for(const f of fl){try{const ab=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=no;fr.readAsArrayBuffer(f)});log('📄 '+esc(f.name));n+=fromWb(XLSX.read(ab,{type:'array'}))}catch(e){log('❌ '+esc(f.name)+': '+esc(e.message))}}fin();log('<b>Selesai: '+n+' sheet diimpor.</b>')};
  z('fsf').onchange=e=>{files([...e.target.files]);e.target.value=''};
+ z('sum').onchange=()=>{z('fsm').value=z('sum').value};
+ z('sui').onchange=async e=>{const fl=[...e.target.files];e.target.value='';z('sul').innerHTML='';z('fsm').value=z('sum').value;await files(fl)};
+ z('sug').onclick=()=>{z('sul').innerHTML='';z('fsm').value=z('sum').value;z('fsu').value=z('sup').value.trim();z('fsg').onclick()};
  const zn=z('fsz');zn.ondragover=e=>{e.preventDefault();zn.style.background='color-mix(in srgb,var(--c) 12%,transparent)'};zn.ondragleave=()=>zn.style.background='';zn.ondrop=e=>{e.preventDefault();zn.style.background='';files([...e.dataTransfer.files])};
  z('fsg').onclick=async()=>{if(!need())return;const u=z('fsu').value.trim(),id=(u.match(/\/d\/([\w-]+)/)||[0,u])[1];if(!id)return alert('Isi URL / ID Google Spreadsheet.');if(!ask())return;DB.set.sheetUrl=u;z('fsl').innerHTML='';log('⏳ Menarik '+DS.length+' sheet sekaligus...');
   const res=await Promise.all(DS.map(async d=>{try{const r=await fetch('https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent('SAPANSA '+d[1]));if(!r.ok)throw new Error('HTTP '+r.status);const t=await r.text();if(/^\s*</.test(t))throw new Error('bukan CSV (sheet tidak publik?)');const rows=rowsOf(XLSX.read(t,{type:'string'}).Sheets[XLSX.read(t,{type:'string'}).SheetNames[0]]);if(!rows.length)return[d,null,'kosong'];const dd=detect('',rows);if(!dd||dd[0]!=d[0])return[d,null,'sheet tidak ditemukan / header tidak cocok'];return[d,rows]}catch(e){return[d,null,e.message]}}));
@@ -1677,7 +1684,7 @@ const TABS={
  kartu:()=>({al:'#kpv',t:[['🪪 Pilih & Cetak','#ktp'],['🎨 Desain Header','#ksv']]}),
  ljk:()=>({t:[['🖨️ Cetak LJK','#lp'],['🤖 Scan AI','#sgo'],['📋 Riwayat','#rf']]}),
  dokumen:()=>({al:'#dkpv,#dkpt,#dksv',t:[['🏛️ KOP & Logo','#dkon'],['🔤 Font & Ukuran','#dks1'],['✍️ Tanda Tangan','#dkjb'],['📄 Footer','#dkfo']]}),
- tampilan:()=>({t:[['🏠 Umum & Logo Sekolah','#co,#ldu'],['🎨 Material You & Liquid Glass','#xmy'],['🧩 Tema & Warna','#tyb0'],['🖼️ Latar Berganti','#tyb1'],['💧 Watermark','#tyb2'],['🔤 Tulisan','#tyb3'],['🏷️ Identitas','#tyb4']]})
+ tampilan:()=>({t:[['🧩 Tema & Warna','#co,#ldu,#tyb0'],['🎨 Material You & Liquid Glass','#xmy'],['🖼️ Latar Berganti','#tyb1'],['💧 Watermark','#tyb2'],['🔤 Tulisan','#tyb3'],['🏷️ Identitas','#tyb4']]})
 };
 const tbHas=(el,sel)=>sel.split(',').some(t=>{t=t.trim();if(!t||t=='*')return false;if(t[0]=='>')return el.matches(t.slice(1));return el.matches(t)||!!el.querySelector(t)});
 const TMO=new MutationObserver(()=>applyTabs());
