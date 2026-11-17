@@ -174,17 +174,26 @@ body.glass .pnl,body.glass .cd,body.glass header,body.glass .pf-card,body.glass 
 .bl,.pnl label.bl{display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:linear-gradient(135deg,var(--c),var(--a5));color:#fff;padding:7px 13px;border-radius:6px;font-size:inherit;font-weight:normal;line-height:1.5;transition:transform .15s,box-shadow .15s;animation:pls 2.4s ease-out infinite}
 .bl:hover{transform:translateY(-2px);box-shadow:0 6px 14px #0003;filter:brightness(1.1)}.bl:active{transform:scale(.96)}.bl:focus-within{outline:2px solid var(--c);outline-offset:2px}
 .row>.bl{flex:0 0 auto}
+label.bl.noan,.pnl label.bl.noan{animation:none!important;transition:none!important}label.bl.noan:hover,label.bl.noan:active{transform:none!important;box-shadow:none!important;filter:none!important}
 @keyframes pls{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 55%,transparent)}70%,100%{box-shadow:0 0 0 10px transparent}}
 dialog label{display:grid;gap:3px;font-size:13px;margin:6px 0}
 .mr{background:conic-gradient(var(--ring,var(--a4)) calc(var(--p)*1%),var(--ln) 0)}
 .feat li:nth-child(8){animation-delay:1s}
 .tbbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}.tbbar button{flex:0 1 auto}
+
+#login{position:relative}
+#appver{position:absolute;top:10px;left:14px;z-index:2;color:#fff;font-size:12px;font-weight:600;letter-spacing:.3px;padding:3px 9px;border-radius:999px;background:#0003;backdrop-filter:blur(4px);user-select:none}
+#edwrap{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.55);display:flex;justify-content:center;align-items:flex-start;padding:4vh 10px;overflow:auto}
+#edwrap .edbox{background:var(--bg,#fff);border-radius:14px;width:100%;max-width:960px;padding:14px;box-shadow:0 20px 60px #0008;margin:auto}
+#edwrap .edh{display:flex;align-items:center;gap:8px;margin-bottom:8px}#edwrap .edh b{flex:1;font-size:16px}
+#edwrap .pnl{margin:0 0 10px}
 </style>
 </head>
 <body>
 <div id="wm"></div>
 
 <section id="login">
+ <div id="appver" title="Versi aplikasi">v2026 rev11</div>
  <div class="feat"><img src="https://raw.githubusercontent.com/lulut-sharkart/MySAPANSA/main/sapansa%20logo%20v2.1.png" alt="Logo SAPANSA" style="height:96px;max-width:100%;object-fit:contain;display:block;margin-bottom:8px" onerror="this.style.display='none'"><h1>MySAPANSA</h1><p>Sinergi dan Akses Portal Aktif Guru-Wali Murid Ngandul 1</p>
  <ul id="fl"></ul></div>
  <form class="box" id="lf">
@@ -286,14 +295,14 @@ $('#lf').onsubmit=e=>{e.preventDefault();
 function enter(x){me=x;logA('Login','','Masuk ke aplikasi');document.body.classList.add('in');$('#login').style.display='none';$('#app').style.display='grid';$('#who').textContent=`${me.n} (${me.r})`;nav();go('dash')}
 setTimeout(()=>{try{const q=JSON.parse(localStorage.getItem(RK2)),x=q&&DB.users.find(y=>y.u==q.u&&y.r==q.r);if(x)enter(x)}catch(e){}},0);
 function tgl(){if(innerWidth>800)$('#app').classList.toggle('hide');else $('#side').classList.toggle('open')}
-function logout(){if(me){logA('Logout','','Keluar dari aplikasi');delete (DB.pres||{})[me.r+':'+me.u];save()}me=null;try{localStorage.removeItem(RK2)}catch(e){}document.body.classList.remove('in');$('#app').style.display='none';$('#login').style.display='flex';$('#p').value=''}
+function logout(){try{edClose()}catch(e){}if(me){logA('Logout','','Keluar dari aplikasi');delete (DB.pres||{})[me.r+':'+me.u];save()}me=null;try{localStorage.removeItem(RK2)}catch(e){}document.body.classList.remove('in');$('#app').style.display='none';$('#login').style.display='flex';$('#p').value=''}
 
 /* ===== AKSES PER PERAN (ACL): kunci siswa/kelas/mapel/agama/ekskul + mode hanya-lihat ===== */
 const ACL_TKN=/tenaga|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
 const ACL_AGL=[['Islam',/islam|\bpai\b/i],['Kristen',/kristen|protestan|\bpak\b/i],['Katolik',/katolik/i],['Hindu',/hindu/i],['Buddha',/budd?ha/i],['Konghucu',/konghucu/i]];
 function aclAgama(u){const t=(u.jabatan||'')+' '+aclMapel(u).join(' '),f=ACL_AGL.find(x=>x[1].test(t));return f?f[0]:(u.agama||'')}
 function aclMapel(u){const all=MPL();let m=(u.mapelAjar||[]).filter(x=>all.includes(x));if(m.length)return m;const j=(u.jabatan||'').toLowerCase();m=all.filter(x=>j.includes(x.toLowerCase()));if(ACL_AGM.test(u.jabatan||''))m=m.concat(all.filter(x=>ACL_AGM.test(x)));return[...new Set(m)]}
-function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!u.walikelas&&ACL_TKN.test(j)&&!/guru/i.test(j))return'tkn';if(u.walikelas)return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
+function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!u.walikelas&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(u.walikelas)return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
 const aclPembina=u=>!!u&&u.r=='guru'&&!['kep','pnj','tkn'].includes(aclKat(u))&&(u.ekskul||[]).length>0&&u.peran!='Bukan Pembina/Pelatih';
 let _aclC=null,_aclK='';
 function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
@@ -303,7 +312,7 @@ function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,(
  else if(k!='adm'){if(aclPembina(me))L.ekskul=(me.ekskul||[]).slice();
   if(!ACL_EK.includes(cur)){
    if(k=='kls'&&me.walikelas){L.kelas=[me.walikelas];L.siswa=S().filter(u=>u.k==me.walikelas).map(u=>u.n)}
-   if(k=='agm'){const ag=aclAgama(me).toLowerCase();if(ag){L.siswa=S().filter(u=>(u.agama||'').toLowerCase()==ag).map(u=>u.n);L.sAll=new Set(S().map(u=>u.n))}const m=aclMapel(me);if(m.length)L.mapel=m}
+   if(k=='agm'){const ag=aclAgama(me).toLowerCase();if(ag){const sm=S().filter(u=>!u.agama||String(u.agama).toLowerCase()==ag).map(u=>u.n);if(sm.length){L.siswa=sm;L.sAll=new Set(S().map(u=>u.n))}}const m=aclMapel(me);if(m.length)L.mapel=m}
    if(k=='mpl'){const m=aclMapel(me);if(m.length)L.mapel=m}}}
  _aclC=L;_aclK=key;return L}
 function aclMenu(a){if(!me||me.r!='guru')return a;const pb=aclPembina(me);return a.map(i=>{if(!i.c)return i;if(i.t=='Ekstrakurikuler'&&!pb)return null;if(i.t=='Pengaturan')return{...i,c:i.c.filter(x=>x.id=='umum')};return i}).filter(Boolean)}
@@ -554,7 +563,7 @@ function AF(k){const g=k=='guru',adm=me.r=='admin',quick=g?adm:me.r!='siswa',kl=
  <div class="row"><label>Tanggal<input type="date" id="ad" value="${SD()}"></label>${g?'':`<label>Kelas<select id="ak">${opt(kl)}</select></label>`}<label>Mode<select id="am"><option value="all">Semua Hadir</option><option value="rand">Random</option></select></label><label>Rentang Waktu<select id="ar"><option value="hari">1 Hari (tanggal terpilih)</option><option value="minggu">1 Minggu</option><option value="bulan">1 Bulan</option><option value="rentang">Rentang tanggal</option></select></label><label>Sampai tanggal (rentang)<input type="date" id="ae"></label><label>Hari Sekolah<select id="hb"><option value="6">Senin - Sabtu</option><option value="5">Senin - Jumat</option></select></label><label>Hadir % (Random)<input type="number" id="ap" min="0" max="100" value="90"></label><label>Keterangan<input id="aket" maxlength="100" value="Presensi Otomatis"></label></div>
  <label><span><input type="checkbox" id="atm"> Timpa data absensi yang sudah ada pada tanggal tersebut (data dengan poin pelanggaran/foto bukti selalu dilindungi)</span></label><div class="row"><button id="ag" type="button">⚡ Set Presensi Otomatis</button><button class="g" id="alb" type="button">🏖️ Hari Libur</button></div></div>`:'';
  const c=quick?`<div class="pnl np"><b>🔳 Absensi Kamera (Scan QR ${g?'Kartu Guru':'Kartu Siswa'})</b><p><small>Arahkan kamera ke QR berisi ${g?'NIP':'NIS/NISN'}. Presensi Hadir tersimpan otomatis${g?' (scan pertama = Berangkat, scan berikutnya setelah 30 menit = Pulang)':''}. Jika kamera tidak bisa dibuka, pakai tombol Foto QR atau ketik manual.</small></p>
- <div class="row"><button id="aq" type="button">📷 Buka Kamera Scan QR</button><button class="g" id="asw" type="button" hidden>🔄 Ganti Kamera</button><label class="bl">🖼️ Foto QR<input id="aqf" type="file" accept="image/*" capture="environment" hidden></label></div>
+ <div class="row"><button id="aq" type="button">📷 Buka Kamera Scan QR</button><button class="g" id="asw" type="button" hidden>🔄 Ganti Kamera</button><label class="bl noan">🖼️ Foto QR<input id="aqf" type="file" accept="image/*" capture="environment" hidden></label></div>
  <div id="aqb"></div><div id="avw" hidden style="position:relative;width:100%;max-width:340px;margin-top:8px"><video id="av" playsinline muted style="width:100%;border-radius:8px;display:block;background:#000"></video><div style="position:absolute;inset:18%;border:3px solid #22c55e;border-radius:12px;pointer-events:none"></div></div>
  <div class="row"><label>Input manual (${g?'NIP':'NIS/NISN'})<input id="aqm" inputmode="numeric" placeholder="Ketik lalu Enter"></label><button class="g" id="aqmb" type="button">Catat</button></div>
  <p id="aqr" style="font-weight:bold"></p><div id="aql" style="font-size:13px;max-height:160px;overflow:auto"></div></div>`:'';
@@ -766,7 +775,7 @@ CR={tugas:RT,absen:()=>RA('siswa'),absenguru:()=>RA('guru'),jurnal:RJ,kaih:RH,tu
 CRB={tugas:recT,absen:()=>recAB('siswa'),absenguru:()=>recAB('guru'),jurnal:recJ,kaih:recH,tugasekskul:recE,nilaiekskul:recN2};
 /* ===== Perangkat ajar, kartu, keuangan, surat, master ===== */
 const EDI={},EDF={},DOCH={},AG=['Islam','Kristen','Katolik','Hindu','Buddha','Konghucu'];
-const ACT={ed:(id,r,i)=>{EDF[id](r,i);window.scrollTo(0,0)},dw:(id,r)=>docOut(id,r,'doc'),pr:(id,r)=>docOut(id,r,'print')};
+const ACT={ed:(id,r,i)=>{EDF[id](r,i)},dw:(id,r)=>docOut(id,r,'doc'),pr:(id,r)=>docOut(id,r,'print')};
 const fh=(P,rows)=>rows.map(r=>'<div class="row">'+r.map(([k,l,t,o,w])=>{const i=P+k,st=w?` style="flex:${w} 1 160px"`:'';
  if(t=='check')return`<label${st}><span><input type="checkbox" id="${i}"> ${l}</span></label>`;
  return`<label${st}>${l}${t=='textarea'?`<textarea id="${i}" rows="${o||3}"></textarea>`:t=='select'?`<select id="${i}"><option value="">-- Pilih --</option>${opt(o||[])}</select>`:t=='multi'?`<select id="${i}" multiple size="4">${opt(o||[])}</select>`:`<input id="${i}" type="${t=='pass'?'password':t||'text'}">`}</label>`}).join('')+'</div>').join('');
@@ -879,7 +888,7 @@ function masterP(v,r){const sw=r=='siswa',P=sw?'ms':'mg',eks=(DB.data.ekskul||[]
   if(sw){DB.data.pesertaekskul=(DB.data.pesertaekskul||[]).filter(x=>x.Nama!=u.n);(u.ekskul||[]).forEach(e=>DB.data.pesertaekskul.push({Ekskul:e,Kelas:u.k||'',Nama:u.n}))}
   else(DB.data.ekskul||[]).forEach(e=>e.Pembina=DB.users.filter(g=>g.r=='guru'&&(g.ekskul||[]).includes(e.Ekstrakurikuler)).map(g=>g.n).join(', '));
   save();masterP(v,r);alert('Data tersimpan.')};
- v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ME=+d.e;const u=DB.users[ME];fset(P,sp,u);foto='';window.scrollTo(0,0)}
+ v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ME=+d.e;const u=DB.users[ME];fset(P,sp,u);foto=''}
   if(d.d!==undefined){const u=DB.users[d.d];if(u.u==me.u&&u.r==me.r)return alert('Akun yang sedang dipakai tidak bisa dihapus.');if(confirm('Hapus '+u.n+'?')){DB.users.splice(d.d,1);save();masterP(v,r)}}}}
 /* ---- Cetak Kartu */
 const FLD=['Nama','NIS','NISN','NIP','Kelas','Ruang','No. Meja'],KD0={color:'#4f46e5',rad:12,show:{Nama:1,NIS:1,NISN:1,NIP:1,Kelas:1,Ruang:1,'No. Meja':1},ord:FLD.slice(),logo:'',judul:'',b2:'SAPANSA',b3:'',tc:'#ffffff',ta:'left',ts:14,tl:36,fh:'#111111',fn:'#111111',fi:'#333333'};
@@ -981,7 +990,7 @@ function mcrud(v,c){const P='mc',rows=DB.data[c.id]=DB.data[c.id]||[],sp=c.spec(
  bindExport(v,c.id,c.cols,()=>rows);bindImport(v,a=>{let n=0;a.forEach(o=>{const r={};c.cols.forEach(k=>r[k]=o[k]??'');if(Object.values(r).some(x=>x)){rows.push(r);n++}});save();mcrud(v,c);alert(n+' baris diimpor.')});
  if(c.init)c.init(z,v);
  z('mcs').onclick=()=>{let o=fv(P,sp);if((c.req||[]).some(k=>!String(o[k]||'').trim()))return alert('Lengkapi isian wajib.');if(c.check){const m=c.check(o);if(m)return alert(m)}if(c.pre)o=c.pre(o);if(ed!==null){o={...rows[ed],...o};rows[ed]=o}else rows.push(o);save();mcrud(v,c);alert('Data tersimpan.')};
- v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ed=+d.e;const r=rows[ed];fset(P,sp,c.edit?c.edit(r):r);if(c.afterEdit)c.afterEdit(r,z);window.scrollTo(0,0)}if(d.d!==undefined&&confirm('Hapus data ini?')){rows.splice(d.d,1);save();mcrud(v,c)}};
+ v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ed=+d.e;const r=rows[ed];fset(P,sp,c.edit?c.edit(r):r);if(c.afterEdit)c.afterEdit(r,z)}if(d.d!==undefined&&confirm('Hapus data ini?')){rows.splice(d.d,1);save();mcrud(v,c)}};
  if(c.tail)v.insertAdjacentHTML('beforeend',c.tail())}
 const gcards=()=>`<div class="pnl"><b>🎮 Permainan Edukasi</b><div class="grid2" style="margin-top:8px">${(DB.data.game||[]).map(r=>{const u=r.URL||r['Link / Petunjuk']||'',nm=r.Nama||r.Judul||'';return/^https?:\/\//i.test(u)?`<a class="cd" href="${esc(u)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;border-color:${esc(r.Warna||'var(--c)')}"><b style="font-size:34px">${esc(r.Icon||'🎮')}</b><b style="font-size:16px;color:inherit">${esc(nm)}</b><small>${esc(r.Kategori||'')}${r.Developer?' · '+esc(r.Developer):''}</small><br>${esc(r.Deskripsi||'')}</a>`:`<div class="cd"><b style="font-size:16px;color:inherit">${esc(nm)}</b>${esc(u)}</div>`}).join('')||'Belum ada permainan.'}</div></div>`;
 const MC={
@@ -1672,7 +1681,7 @@ const TABS={
 };
 const tbHas=(el,sel)=>sel.split(',').some(t=>{t=t.trim();if(!t||t=='*')return false;if(t[0]=='>')return el.matches(t.slice(1));return el.matches(t)||!!el.querySelector(t)});
 const TMO=new MutationObserver(()=>applyTabs());
-function applyTabs(){const v=$('#view');if(!v)return;TMO.disconnect();
+function applyTabs(){const v=$('#view');if(!v)return;if(EDW&&!EDW.ph.isConnected)edClose();TMO.disconnect();
  try{v.querySelectorAll(':scope>.tbbar').forEach(x=>x.remove());[...v.children].forEach(c=>{if(c.dataset.tbh){c.style.display='';delete c.dataset.tbh}});
   let cfg=me&&TABS[cur]?TABS[cur]():null;if(!cfg&&me&&!TABS[cur]&&v.querySelector('#add')&&v.querySelector('#fq'))cfg={t:[['➕ Input','#add'],['📋 Data','#fq,.tw']]};
   if(!cfg)return;
@@ -1685,11 +1694,37 @@ function applyTabs(){const v=$('#view');if(!v)return;TMO.disconnect();
   const first=[...v.children].find(c=>grp.has(c));v.insertBefore(bar,first);
   grp.forEach((i,c)=>{if(i!=act){c.style.display='none';c.dataset.tbh=1}});
  }finally{TMO.observe(v,{childList:true})}}
-document.addEventListener('click',e=>{if(!me)return;const b=e.target.closest&&e.target.closest('#view [data-e],#view [data-a="ed"]');if(!b)return;const cfg=TABS[cur]?TABS[cur]():null;if(cfg&&cfg.t.length){TBS[cur]=cfg.t[0][0];applyTabs()}});
+document.addEventListener('click',e=>{if(!me)return;const b=e.target.closest&&e.target.closest('#view [data-e],#view [data-a="ed"]');if(!b)return;if(edOpen())return;const cfg=TABS[cur]?TABS[cur]():null;if(cfg&&cfg.t.length){TBS[cur]=cfg.t[0][0];applyTabs()}window.scrollTo(0,0)});
 TMO.observe($('#view'),{childList:true});
 bgRun();theme();cloudPull().then(m=>{if(/dimuat/.test(m))feats()});
 window.I18R=true;LP=PF().lang||'id';if(I18on())trDom(document.body);
 
+
+/* ===== Edit tampil sebagai pop-up ===== */
+let EDW=null;
+function edKey(e){if(e.key=='Escape'){e.stopPropagation();edClose()}}
+function edClose(){if(!EDW)return;const{w,els,phs}=EDW;EDW=null;document.removeEventListener('keydown',edKey,true);
+ els.forEach((el,i)=>{const ph=phs[i];if(ph&&ph.parentNode)ph.replaceWith(el);else el.remove()});w.remove();if(me)setTimeout(applyTabs,0)}
+function edOpen(){const v=$('#view');if(!v||!me)return false;
+ let cfg=TABS[cur]?TABS[cur]():null;if(!cfg&&v.querySelector('#add')&&v.querySelector('#fq'))cfg={t:[['➕ Input','#add'],['📋 Data','#fq,.tw']]};
+ if(!cfg||!cfg.t||!cfg.t.length)return false;
+ const sel=cfg.t[0][1],els=[...v.children].filter(c=>!c.matches('h2')&&!c.classList.contains('tbbar')&&tbHas(c,sel)&&c.querySelector('input,select,textarea')&&c.querySelector('button'));
+ if(!els.length)return false;
+ edClose();
+ const w=document.createElement('div');w.id='edwrap';
+ w.innerHTML='<div class="edbox" role="dialog" aria-modal="true"><div class="edh"><b>✏️ Edit Data</b><button type="button" class="g" id="edx">✕ Tutup</button></div><div id="edbody"></div></div>';
+ const body=w.querySelector('#edbody'),phs=els.map(el=>{const ph=document.createComment('ed');el.replaceWith(ph);el.style.display='';delete el.dataset.tbh;body.appendChild(el);return ph});
+ document.body.appendChild(w);EDW={w,els,phs,ph:phs[0]};
+ w.querySelector('#edx').onclick=edClose;w.onclick=e=>{if(e.target===w)edClose()};
+ document.addEventListener('keydown',edKey,true);
+ const f=body.querySelector('input:not([type=hidden]):not([type=file]),select,textarea');try{f&&f.focus({preventScroll:true})}catch(x){}
+ return true}
+
+/* ===== Versi aplikasi di halaman login (otomatis: vTAHUN revBULAN) ===== */
+(function(){const el=document.getElementById('appver');if(!el)return;
+ const upd=()=>{let y,m;try{const t=String(typeof SD=='function'?SD():'').match(/^(\d{4})-(\d{2})/);if(t){y=+t[1];m=+t[2]}}catch(e){}
+  if(!y){const d=new Date();y=d.getFullYear();m=d.getMonth()+1}el.textContent='v'+y+' rev'+m};
+ upd();setInterval(upd,6e4)})();
 </script>
 </body>
 </html>
