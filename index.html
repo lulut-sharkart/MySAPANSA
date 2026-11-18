@@ -345,7 +345,7 @@ let _aclO=null;
 /* Jaring pengaman: dropdown siswa Form Absensi selalu dari Master Siswa, apa pun yang terjadi di bagian lain */
 (function(){const fx=()=>{const ss=document.getElementById('ss'),sk=document.getElementById('sk');if(!ss||!sk||ss.tagName!='SELECT'||sk.tagName!='SELECT'||typeof DB=='undefined'||!me)return;
  let kk=String(sk.value||'');if(/^\s*(--|—|–)/.test(kk))kk='';const L=me.r=='guru'?aclLock():null,old=ss.value,N=x=>String(x==null?'':x).trim().toLowerCase().replace(/\s+/g,'');
- let us=(DB.users||[]).filter(u=>u&&String(u.r||'').trim().toLowerCase()=='siswa'&&(!kk||N(u.k)==N(kk)));if(L&&L.siswa&&L.siswa.length)us=us.filter(u=>L.siswa.includes(u.n));
+ let us=(DB.users||[]).filter(u=>u&&String(u.r||'').trim().toLowerCase()=='siswa'&&(!kk||N(u.k)==N(kk)));if(L&&Array.isArray(L.siswa))us=us.filter(u=>L.siswa.includes(u.n));
  const sig=us.map(u=>u.n).join('|');if(ss.dataset.sig===sig&&ss.options.length>1)return;ss.dataset.sig=sig;
  ss.innerHTML='<option value="">'+(us.length?'-- Pilih Siswa --':'-- Tidak ada siswa di kelas ini (cek Master Siswa) --')+'</option>'+us.map(u=>'<option>'+esc(u.n)+'</option>').join('');if(old&&[...ss.options].some(o=>o.value==old))ss.value=old};
  ['mousedown','focusin','touchstart'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.id=='ss')try{fx()}catch(x){console.error(x)}},true));
@@ -603,7 +603,7 @@ function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'abse
  /* form siswa dijalankan paling awal agar tidak ikut gagal bila blok kamera/QR error */
  try{if(!g){const SW=()=>DB.users.filter(u=>String(u.r||'').trim().toLowerCase()=='siswa'),
  fill=()=>{const ss=z('ss'),sk=z('sk');if(!ss||!sk)return;let kk=String(sk.value||'');if(/^\s*(--|—|–)/.test(kk))kk='';const L=me.r=='guru'?aclLock():null,old=ss.value;
-  let us=SW().filter(u=>!kk||KN(u.k)==KN(kk));if(L&&L.siswa&&L.siswa.length)us=us.filter(u=>L.siswa.includes(u.n));
+  let us=SW().filter(u=>!kk||KN(u.k)==KN(kk));if(L&&Array.isArray(L.siswa))us=us.filter(u=>L.siswa.includes(u.n));
   ss.innerHTML='<option value="">'+(us.length?'-- Pilih Siswa --':'-- Tidak ada siswa di kelas ini (cek Master Siswa) --')+'</option>'+us.map(u=>`<option>${esc(u.n)}</option>`).join('');
   if([...ss.options].some(o=>o.value==old&&old!==''))ss.value=old};
  z('sk').onchange=fill;z('sk').addEventListener('change',()=>setTimeout(fill,0));['mousedown','focus'].forEach(ev=>z('ss').addEventListener(ev,fill));fill();setTimeout(fill,300);z('srs').onclick=after;
@@ -705,7 +705,7 @@ function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'abse
   z('fcdl').onclick=()=>{if(g&&me.r!='admin')return say('Penghapusan data wajah guru hanya dapat dilakukan Super Admin.',false);const un=z('fcid').value;if(!un)return say('Pilih nama terlebih dahulu.',false);const p=DB.users.find(x=>x.u==un&&x.r==role);if(!p)return;if(!(DB.data.faceid||[]).some(r=>r.u==un&&r.r==role))return say('Belum ada data wajah untuk '+p.n+'.',false);if(!confirm('Hapus data wajah '+p.n+'?'))return;DB.data.faceid=(DB.data.faceid||[]).filter(r=>!(r.u==un&&r.r==role));save();say('Data wajah '+p.n+' dihapus.',true);rerenderF()}}
  if(!g){const SW=()=>DB.users.filter(u=>String(u.r||'').trim().toLowerCase()=='siswa'),
  fill=()=>{const ss=z('ss'),sk=z('sk');if(!ss||!sk)return;let kk=String(sk.value||'');if(/^\s*(--|—|–)/.test(kk))kk='';const L=me.r=='guru'?aclLock():null,old=ss.value;
-  let us=SW().filter(u=>!kk||KN(u.k)==KN(kk));if(L&&L.siswa&&L.siswa.length)us=us.filter(u=>L.siswa.includes(u.n));
+  let us=SW().filter(u=>!kk||KN(u.k)==KN(kk));if(L&&Array.isArray(L.siswa))us=us.filter(u=>L.siswa.includes(u.n));
   ss.innerHTML='<option value="">'+(us.length?'-- Pilih Siswa --':'-- Tidak ada siswa di kelas ini (cek Master Siswa) --')+'</option>'+us.map(u=>`<option>${esc(u.n)}</option>`).join('');
   if([...ss.options].some(o=>o.value==old&&old!==''))ss.value=old};
  z('sk').onchange=fill;z('sk').addEventListener('change',()=>setTimeout(fill,0));['mousedown','focus'].forEach(ev=>z('ss').addEventListener(ev,fill));fill();setTimeout(fill,300);z('srs').onclick=after;
