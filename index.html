@@ -589,6 +589,16 @@ function AF(k){const g=k=='guru',adm=me.r=='admin',quick=g?adm:me.r!='siswa',kl=
  :`<div class="pnl np"><b>📝 Form Kelola & Edit Absensi / Kejadian</b><div class="row"><label>Tanggal<input type="date" id="st" value="${SD()}"></label><label>Pilih Kelas<select id="sk"><option value="">-- Pilih Kelas --</option>${opt(KL2())}</select></label><label>Pilih Siswa (Sesuai Kelas)<select id="ss"></select></label><label>Status Kehadiran<select id="sst">${opt(['Hadir','Sakit','Izin','Alpa'])}</select></label><label>Poin Pelanggaran<input type="number" id="sp" min="0" value="0"></label></div><div class="row"><label style="flex:2 1 300px">Keterangan / Kejadian<input id="sc" placeholder="Catatan pelanggaran/alasan izin"></label><label>Upload Bukti Foto<input type="file" id="sf" accept="image/*"></label><button id="ssv" type="button">💾 Simpan</button><button class="g" id="srs" type="button">Reset</button></div></div>`;
  return(g?'':GUIDE)+q+c+fcP+f}
 function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'absen']=DB.data[g?'absenguru':'absen']||[],z=i=>$('#'+i),ex=(d,n)=>rows.findIndex(r=>r.Tanggal==d&&r.Nama==n);
+ /* form siswa dijalankan paling awal agar tidak ikut gagal bila blok kamera/QR error */
+ try{if(!g){const SW=()=>DB.users.filter(u=>String(u.r||'').trim().toLowerCase()=='siswa'),
+ fill=()=>{const ss=z('ss'),sk=z('sk');if(!ss||!sk)return;let kk=String(sk.value||'');if(/^\s*(--|—|–)/.test(kk))kk='';const L=me.r=='guru'?aclLock():null,old=ss.value;
+  let us=SW().filter(u=>!kk||KN(u.k)==KN(kk));if(L&&L.siswa&&L.siswa.length)us=us.filter(u=>L.siswa.includes(u.n));
+  ss.innerHTML='<option value="">'+(us.length?'-- Pilih Siswa --':'-- Tidak ada siswa di kelas ini (cek Master Siswa) --')+'</option>'+us.map(u=>`<option>${esc(u.n)}</option>`).join('');
+  if([...ss.options].some(o=>o.value==old&&old!==''))ss.value=old};
+ z('sk').onchange=fill;z('sk').addEventListener('change',()=>setTimeout(fill,0));['mousedown','focus'].forEach(ev=>z('ss').addEventListener(ev,fill));fill();setTimeout(fill,300);z('srs').onclick=after;
+  z('ssv').onclick=()=>{const n=z('ss').value;if(!n)return alert('Pilih siswa.');const u=DB.users.find(x=>x.n==n&&x.r=='siswa'),d=z('st').value,r={Tanggal:d,Kelas:u?u.k||'':'',Nama:n,Status:z('sst').value,Poin:+z('sp').value||0,Keterangan:z('sc').value};
+   const fin=()=>{const i=ex(d,n);if(i>=0)rows.splice(i,1);rows.push(r);save();after()},f=z('sf').files[0];
+   if(f&&f.size<3e5){const rd=new FileReader();rd.onload=()=>{r.Bukti=rd.result;fin()};rd.readAsDataURL(f)}else{if(f)r.Keterangan+=' [foto '+f.name+' terlalu besar, tidak disimpan]';fin()}}}}catch(e){console.error('Form absensi siswa:',e)}
  const mk=(u,src)=>{const d=SD(),i=ex(d,u.n);
   if(g){const rw=rows.filter(r=>r.Tanggal==d&&r.Nama==u.n),br=rw.find(r=>r.Jenis=='Berangkat'),pl=rw.find(r=>r.Jenis=='Pulang'),tm=x=>{const m=String(x||'').match(/(\d+):(\d+)/);return m?+m[1]*60+ +m[2]:null},nw=tm(nowT());
    if(!br){rows.push({Tanggal:d,Nama:u.n,Jenis:'Berangkat',Status:'Hadir',Jam:nowT(),Keterangan:src||'Scan QR',Lokasi:''});save();return'Berangkat'}
