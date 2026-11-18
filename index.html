@@ -342,6 +342,16 @@ const aclRO=()=>!!me&&me.r=='guru'&&['kep','pnj','tkn'].includes(aclKat(me))&&![
 function aclToast(t){let d=$('#acltoast');if(!d){d=document.createElement('div');d.id='acltoast';d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#92400e;color:#fff;padding:10px 16px;border-radius:10px;z-index:99999;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.3)';document.body.appendChild(d)}d.textContent=t;d.style.display='block';clearTimeout(d._t);d._t=setTimeout(()=>d.style.display='none',2500)}
 document.addEventListener('click',e=>{if(!aclRO())return;const t=e.target.closest&&e.target.closest('#view button,#view [data-d],#view [data-a],#view [data-k],#view .bl');if(!t)return;const a=t.dataset.a;if(a=='dw'||a=='pr')return;if(t.tagName=='BUTTON'&&!t.dataset.d&&!a&&!t.dataset.k&&ACL_OK.test((t.textContent||'')+' '+(t.id||'')))return;e.preventDefault();e.stopImmediatePropagation();aclToast('🔒 Akun Anda hanya dapat melihat data pada menu ini.')},true);
 let _aclO=null;
+/* Jaring pengaman: dropdown siswa Form Absensi selalu dari Master Siswa, apa pun yang terjadi di bagian lain */
+(function(){const fx=()=>{const ss=document.getElementById('ss'),sk=document.getElementById('sk');if(!ss||!sk||ss.tagName!='SELECT'||sk.tagName!='SELECT'||typeof DB=='undefined'||!me)return;
+ let kk=String(sk.value||'');if(/^\s*(--|—|–)/.test(kk))kk='';const L=me.r=='guru'?aclLock():null,old=ss.value,N=x=>String(x==null?'':x).trim().toLowerCase().replace(/\s+/g,'');
+ let us=(DB.users||[]).filter(u=>u&&String(u.r||'').trim().toLowerCase()=='siswa'&&(!kk||N(u.k)==N(kk)));if(L&&L.siswa&&L.siswa.length)us=us.filter(u=>L.siswa.includes(u.n));
+ const sig=us.map(u=>u.n).join('|');if(ss.dataset.sig===sig&&ss.options.length>1)return;ss.dataset.sig=sig;
+ ss.innerHTML='<option value="">'+(us.length?'-- Pilih Siswa --':'-- Tidak ada siswa di kelas ini (cek Master Siswa) --')+'</option>'+us.map(u=>'<option>'+esc(u.n)+'</option>').join('');if(old&&[...ss.options].some(o=>o.value==old))ss.value=old};
+ ['mousedown','focusin','touchstart'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.id=='ss')try{fx()}catch(x){console.error(x)}},true));
+ document.addEventListener('change',e=>{if(e.target&&e.target.id=='sk')setTimeout(()=>{try{const ss=document.getElementById('ss');if(ss)delete ss.dataset.sig;fx()}catch(x){console.error(x)}},0)},true);
+ setInterval(()=>{try{fx()}catch(x){}},1500)})();
+
 function aclApply(v){if(!me)return;v.querySelectorAll('select').forEach(aclSel);
  if(!_aclO){_aclO=new MutationObserver(ms=>{if(!me)return;const S=new Set();ms.forEach(m=>{const t=m.target;if(t.nodeType!=1)return;if(t.tagName=='SELECT')S.add(t);else if(t.querySelectorAll)t.querySelectorAll('select').forEach(x=>S.add(x))});S.forEach(aclSel)});_aclO.observe(v,{childList:true,subtree:true})}
  if(aclRO()){v.querySelectorAll('textarea,input[type=file]').forEach(x=>x.disabled=true);v.insertAdjacentHTML('afterbegin','<div class="pnl np" style="border-color:#f59e0b">🔒 Akun Anda hanya dapat <b>melihat</b> halaman ini. Hanya menu <b>Absensi Guruku</b> yang dapat Anda isi.</div>')}}
@@ -444,7 +454,7 @@ function table(v,id,t){
  const draw=()=>{const w=view();$('#tb').innerHTML=w.map(([r,i])=>`<tr>${cols.map(c=>`<td>${c=='Lampiran'&&id=='tugas'?att(r):(c=='Status'&&me.r=='siswa'&&(id=='tugas'||id=='tugasekskul')?stSw(id,r,i):esc(r[c]))}</td>`).join('')}<td class="np">${canAdd&&me.r!='siswa'?`<button class="g" data-d="${i}">Hapus</button>`:''}${KB(id,r,i)}</td></tr>`).join('')||`<tr><td colspan="${cols.length+1}">Tidak ada data.</td></tr>`;$('#cnt').textContent=`${w.length} dari ${rows.length} data`};
  draw();bindExport(v,id,cols,()=>view().map(x=>x[0]));
  bindImport(v,a=>{let n=0;a.forEach(o=>{const r={};cols.forEach(c=>r[c]=o[c]??'');if(Object.values(r).some(x=>x)){rows.push(r);n++}});save();table(v,id,t);alert(n+' baris diimpor.')});
- if(CRB[id])CRB[id]();if(me.r=='siswa'&&id=='tugas')v.onclick=e=>{const k=e.target.dataset.k;if(k===undefined)return;(DB.data.kumpul=DB.data.kumpul||[]).push({tid:tid(rows[k],+k),Nama:me.n,Tgl:SD()});save();table(v,id,t)};
+ if(CRB[id]){try{CRB[id]()}catch(e){console.error('Rekap gagal dimuat:',e)}}if(me.r=='siswa'&&id=='tugas')v.onclick=e=>{const k=e.target.dataset.k;if(k===undefined)return;(DB.data.kumpul=DB.data.kumpul||[]).push({tid:tid(rows[k],+k),Nama:me.n,Tgl:SD()});save();table(v,id,t)};
  $('#fq').oninput=e=>{F.q=e.target.value;draw()};
  v.querySelectorAll('[data-f]').forEach(x=>x.onchange=()=>{F.c[x.dataset.f]=x.value;draw()});
  $('#fr').onclick=()=>{FL[id]={q:'',c:{}};table(v,id,t)};
