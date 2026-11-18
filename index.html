@@ -7,7 +7,7 @@
 <link rel="icon" href="https://raw.githubusercontent.com/lulut-sharkart/MySAPANSA/main/sapansa%20logo%20v2.1.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'"></script>
 <style>
 :root{--c:#0f766e;--bg:#f4f6f5;--fg:#1c2623;--card:#fff;--ln:#d9e0dd;--side:#12302c}
 @media(prefers-color-scheme:dark){:root{--bg:#10171a;--fg:#e6ecea;--card:#192226;--ln:#2c3a3f;--side:#0b1517}}
@@ -624,7 +624,7 @@ function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'abse
    const find=raw=>{raw=String(raw||'').trim();if(!raw)return null;const c=new Set([raw]),dg=raw.replace(/\D/g,'');if(dg)c.add(dg);try{const o=JSON.parse(raw);if(o&&typeof o=='object')['u','nis','nisn','nip','id'].forEach(k=>o[k]&&c.add(String(o[k]).trim()))}catch(e){}raw.split(/[\/?=&#:\s,;|]+/).forEach(x=>x&&c.add(x));return DB.users.find(x=>x.r==role&&[x.u,x.nisn].some(v=>v!=null&&v!==''&&c.has(String(v).trim())))||null};
    const hit=raw=>{raw=String(raw||'').trim();if(!raw||(raw==last&&Date.now()-lt<3000))return;last=raw;lt=Date.now();const u=find(raw);if(!u){sBn(z('aqb'),'⚠️ QR tidak dikenali',raw.slice(0,40),'err');say('⚠️ QR tidak dikenali: '+raw.slice(0,40),false);return}
     if(g&&me.r=='guru'&&u.u!=me.u){sBn(z('aqb'),'⚠️ Bukan akun Anda','Anda hanya dapat mengabsen diri sendiri','err');say('⚠️ QR bukan milik Anda: '+u.n,false);return}const r=mk(u);if(r){saved++;beep();sBn(z('aqb'),'✅ Absensi berhasil',u.n+(u.k?' · Kelas '+u.k:'')+' — '+(r=='Pulang'?'Pulang':r=='Berangkat'?'Berangkat':'Hadir')+' pukul '+nowT(),'ok');say('✅ '+u.n+(u.k?' ('+u.k+')':'')+' dicatat '+(r=='Pulang'?'pulang':r=='Berangkat'?'berangkat':'hadir'),true)}else{sBn(z('aqb'),'ℹ️ Sudah tercatat',u.n+' sudah absen hari ini','info');say('ℹ️ '+u.n+' sudah tercatat hari ini',null)}};
-   const loadJq=()=>new Promise(ok=>{const us=['https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js','https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'];let i=0;const nx=()=>{if(window.jsQR)return ok(true);if(i>=us.length)return ok(false);const sc=document.createElement('script');sc.src=us[i++];sc.onload=nx;sc.onerror=nx;document.head.appendChild(sc)};nx()});
+   const loadJq=()=>new Promise(ok=>{const us=['https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js','https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js','https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'];let i=0;const nx=()=>{if(window.jsQR)return ok(true);if(i>=us.length)return ok(false);const sc=document.createElement('script');sc.src=us[i++];sc.onload=nx;sc.onerror=nx;document.head.appendChild(sc)};nx()});
    const jq=async()=>{if(window.jsQR)return true;if(jqF)return false;jqF=true;return await loadJq()};
    const mkDet=async()=>{if(det!==null)return det;det=false;try{if('BarcodeDetector' in window){const f=BarcodeDetector.getSupportedFormats?await BarcodeDetector.getSupportedFormats():['qr_code'];if(f.includes('qr_code'))det=new BarcodeDetector({formats:['qr_code']})}}catch(e){det=false}return det};
    const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
