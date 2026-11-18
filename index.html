@@ -306,20 +306,21 @@ function logout(){try{edClose()}catch(e){}if(me){logA('Logout','','Keluar dari a
 const ACL_TKN=/tenaga|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
 const ACL_AGL=[['Islam',/islam|\bpai\b/i],['Kristen',/kristen|protestan|\bpak\b/i],['Katolik',/katolik/i],['Hindu',/hindu/i],['Buddha',/budd?ha/i],['Konghucu',/konghucu/i]];
 const aclNoWK=u=>{const j=(u&&u.jabatan)||'';return /kepala|penjaga/i.test(j)||(ACL_TKN.test(j)&&!/guru/i.test(j))||(/mapel|mata pelajaran|agama|\bpa[ik]\b|pjok|penjas|inggris/i.test(j)&&!/guru kelas|wali/i.test(j))};
-const aclWK=u=>{const w=String(u&&u.walikelas||'').trim();if(!w||aclNoWK(u))return'';return KL2().find(x=>String(x).toLowerCase()==w.toLowerCase())||''};
+const aclWK=u=>{const w=String(u&&u.walikelas||'').trim();if(!w||aclNoWK(u))return'';return KL2().find(x=>KN(x)==KN(w))||''};
 const aclAgN=a=>{a=String(a||'').trim();if(!a)return'';const f=ACL_AGL.find(x=>x[1].test(a)||x[0].toLowerCase()==a.toLowerCase());return f?f[0]:a};
 function aclAgama(u){const t=(u.jabatan||'')+' '+aclMapel(u).join(' '),f=ACL_AGL.find(x=>x[1].test(t));return f?f[0]:(u.agama||'')}
 function aclMapel(u){const all=MPL();let m=(u.mapelAjar||[]).filter(x=>all.includes(x));if(m.length)return m;const j=(u.jabatan||'').toLowerCase();m=all.filter(x=>j.includes(x.toLowerCase()));if(ACL_AGM.test(u.jabatan||''))m=m.concat(all.filter(x=>ACL_AGM.test(x)));return[...new Set(m)]}
 function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!aclWK(u)&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(aclWK(u))return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
 const aclPembina=u=>!!u&&u.r=='guru'&&!['kep','pnj','tkn'].includes(aclKat(u))&&(u.ekskul||[]).length>0&&u.peran!='Bukan Pembina/Pelatih';
+const KN=x=>String(x==null?'':x).trim().toLowerCase().replace(/\s+/g,'');
 let _aclC=null,_aclK='';
-function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,DB.users.map(u=>u.agama||'').join(),KL2().join(),(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
+function aclLock(){if(!me)return null;const key=[cur,me.u,me.r,DB.users.length,DB.users.map(u=>(u.r||'')[0]+(u.n||'')+'~'+KN(u.k)+'~'+(u.agama||'')).join('|'),KL2().join(),(DB.data.mapel||[]).length,me.walikelas,me.agama,me.jabatan,me.peran,(me.ekskul||[]).join(),(me.mapelAjar||[]).join()].join('|');if(_aclC&&_aclK==key)return _aclC;
  const k=aclKat(me),L={k},S=()=>DB.users.filter(u=>u.r=='siswa');
  if(k=='sis')L.siswa=[me.n];
  else if(k=='kep'||k=='pnj'||k=='tkn')L.ro=true;
  else if(k!='adm'){if(aclPembina(me))L.ekskul=(me.ekskul||[]).slice();
   if(!ACL_EK.includes(cur)){
-   if(k=='kls'&&aclWK(me)){const wk=aclWK(me);L.kelas=[wk];L.siswa=S().filter(u=>u.k==wk).map(u=>u.n)}
+   if(k=='kls'&&aclWK(me)){const wk=aclWK(me);L.kelas=[wk];L.siswa=S().filter(u=>KN(u.k)==KN(wk)).map(u=>u.n)}
    if(k=='agm'){const ag=aclAgama(me).toLowerCase();if(ag){const an=aclAgN(ag);L.siswa=S().filter(u=>aclAgN(u.agama)==an).map(u=>u.n);L.sAll=new Set(S().map(u=>u.n))}const m=aclMapel(me);if(m.length)L.mapel=m}
    if(k=='mpl'){const m=aclMapel(me);if(m.length)L.mapel=m}}}
  _aclC=L;_aclK=key;return L}
@@ -681,7 +682,7 @@ function absenBind(v,after,k){const g=k=='guru',rows=DB.data[g?'absenguru':'abse
       if(smp.length>=3){DB.data.faceid=(DB.data.faceid||[]).filter(r=>!(r.u==p.u&&r.r==role));DB.data.faceid.push({u:p.u,n:p.n,r:role,k:p.k||'',d:smp,t:SD()});save();stopTracks();resetUI();beep2();sBn(bn,'✅ Wajah berhasil didaftarkan',p.n,'ok');say('✅ Wajah '+p.n+' terdaftar',true);rerenderF();return}}}}catch(e){}
     if(on&&t===tok)setTimeout(lp,300)};lp()};
   z('fcdl').onclick=()=>{if(g&&me.r!='admin')return say('Penghapusan data wajah guru hanya dapat dilakukan Super Admin.',false);const un=z('fcid').value;if(!un)return say('Pilih nama terlebih dahulu.',false);const p=DB.users.find(x=>x.u==un&&x.r==role);if(!p)return;if(!(DB.data.faceid||[]).some(r=>r.u==un&&r.r==role))return say('Belum ada data wajah untuk '+p.n+'.',false);if(!confirm('Hapus data wajah '+p.n+'?'))return;DB.data.faceid=(DB.data.faceid||[]).filter(r=>!(r.u==un&&r.r==role));save();say('Data wajah '+p.n+' dihapus.',true);rerenderF()}}
- if(!g){const fill=()=>{const kk=z('sk').value;z('ss').innerHTML='<option value="">-- Pilih Siswa --</option>'+DB.users.filter(u=>u.r=='siswa'&&(!kk||u.k==kk)).map(u=>`<option>${esc(u.n)}</option>`).join('')};z('sk').onchange=fill;fill();z('srs').onclick=after;
+ if(!g){const fill=()=>{const kk=z('sk').value;z('ss').innerHTML='<option value="">-- Pilih Siswa --</option>'+DB.users.filter(u=>u.r=='siswa'&&(!kk||KN(u.k)==KN(kk))).map(u=>`<option>${esc(u.n)}</option>`).join('')};z('sk').onchange=fill;z('sk').addEventListener('change',()=>setTimeout(fill,0));fill();z('srs').onclick=after;
   z('ssv').onclick=()=>{const n=z('ss').value;if(!n)return alert('Pilih siswa.');const u=DB.users.find(x=>x.n==n&&x.r=='siswa'),d=z('st').value,r={Tanggal:d,Kelas:u?u.k||'':'',Nama:n,Status:z('sst').value,Poin:+z('sp').value||0,Keterangan:z('sc').value};
    const fin=()=>{const i=ex(d,n);if(i>=0)rows.splice(i,1);rows.push(r);save();after()},f=z('sf').files[0];
    if(f&&f.size<3e5){const rd=new FileReader();rd.onload=()=>{r.Bukti=rd.result;fin()};rd.readAsDataURL(f)}else{if(f)r.Keterangan+=' [foto '+f.name+' terlalu besar, tidak disimpan]';fin()}}}
@@ -927,7 +928,7 @@ function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{});
  z('ksv').onclick=()=>{rd();DB.set.kartu=C;save();alert('Pengaturan kartu tersimpan.')};z('krs').onclick=()=>{delete DB.set.kartu;save();kartuP(v)}}
 /* ---- LJK & Scan AI */
 const _isK=s=>s.dataset.c=='Kelas'||aclType(s)=='kelas',_isS=s=>(s.dataset.c=='Nama'&&!/guru/.test(cur))||aclType(s)=='siswa';
-document.addEventListener('change',e=>{const k=e.target;if(!me||!k.tagName||k.tagName!='SELECT'||k.multiple||!_isK(k))return;const box=k.closest('.pnl')||k.closest('#view');if(!box)return;const kv=k.value,nm=new Set(DB.users.filter(u=>u.r=='siswa'&&(!kv||u.k==kv)).map(u=>u.n));
+document.addEventListener('change',e=>{const k=e.target;if(!me||!k.tagName||k.tagName!='SELECT'||k.multiple||!_isK(k))return;const box=k.closest('.pnl')||k.closest('#view');if(!box)return;const kv=k.value,nm=new Set(DB.users.filter(u=>u.r=='siswa'&&(!kv||KN(u.k)==KN(kv))).map(u=>u.n));
  box.querySelectorAll('select').forEach(s=>{if(s===k||s.multiple||!_isS(s))return;if(!s._all||s.innerHTML!==s._mine)s._all=[...s.options].map(o=>({v:o.value,t:o.text}));const old=s.value,bl=o=>o.v===''||/^\s*(--|—|–)/.test(o.t);s.innerHTML=[...s._all.filter(bl),...s._all.filter(o=>!bl(o)&&(!kv||nm.has(o.v||o.t)))].map(o=>`<option value="${esc(o.v)}">${esc(o.t)}</option>`).join('');if([...s.options].some(o=>o.value==old))s.value=old;else s.selectedIndex=0;s._mine=s.innerHTML})});
 const pdfLib=async()=>{if(window.pdfjsLib)return window.pdfjsLib;await new Promise((ok,no)=>{const x=document.createElement('script');x.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';x.onload=ok;x.onerror=()=>no(new Error('Pustaka PDF tidak termuat (perlu internet).'));document.head.appendChild(x)});pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';return pdfjsLib};
 const pdfPages=async f=>{const L=await pdfLib(),d=await L.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,o=[];for(let p=1;p<=d.numPages;p++){const pg=await d.getPage(p),vp=pg.getViewport({scale:2}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;o.push({b64:c.toDataURL('image/jpeg',.85).split(',')[1],mime:'image/jpeg',n:f.name+' hal. '+p})}return o};
