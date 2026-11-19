@@ -226,6 +226,10 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
   <label class="rl"><input type="checkbox" id="rem"> Ingat saya di perangkat ini</label>
   <button>Masuk</button>
   <small id="err" style="color:#c0392b"></small>
+  <details id="lcl" style="margin-top:6px"><summary style="cursor:pointer">☁️ Perangkat baru? Hubungkan data cloud</summary>
+   <small>Data siswa, guru, dll tersimpan di Supabase. Isi sekali di perangkat ini (minta ke Super Admin), lalu data akan dimuat.</small>
+   <input id="lcu" placeholder="Project URL https://xxxx.supabase.co" autocomplete="off"><input id="lck" type="password" placeholder="Anon public key" autocomplete="off">
+   <button type="button" class="g" id="lcb">☁️ Hubungkan & Muat Data</button><small id="lcs"></small></details>
   <button type="button" class="g" onclick="hlp.showModal()">❓ Petunjuk penggunaan</button>
  </form>
 </section>
@@ -311,9 +315,12 @@ function theme(){const S=DB.set,h=document.documentElement;h.style.setProperty('
  const w=$('#wm');w.style.backgroundImage=DB.set.wm?`url("${DB.set.logo||LOGO}")`:'none';w.style.opacity=DB.set.op;themeX()}
 theme();
 
-$('#lf').onsubmit=e=>{e.preventDefault();
- const x=DB.users.find(x=>(x.u==$('#u').value.trim()||(x.nisn&&x.nisn==$('#u').value.trim()))&&x.p==$('#p').value);
- if(!x){$('#err').textContent='ID atau password tidak cocok.';return}
+$('#lf').onsubmit=async e=>{e.preventDefault();
+ const fx=()=>DB.users.find(x=>(x.u==$('#u').value.trim()||(x.nisn&&x.nisn==$('#u').value.trim()))&&x.p==$('#p').value);
+ let x=fx();
+ if(!x&&typeof CL!=='undefined'&&CL.on&&CL.url&&CL.key){$('#err').textContent='Memuat data dari cloud...';try{await cloudPull(true)}catch(_){}x=fx()}
+ if(!x){$('#err').textContent=(typeof CL!=='undefined'&&CL.on&&CL.url)?'ID atau password tidak cocok (data cloud sudah diperiksa).':'ID atau password tidak cocok. Bila ini perangkat baru, hubungkan data cloud di bawah.';return}
+ $('#err').textContent='';
  if($('#rem').checked)try{localStorage.setItem(RK2,JSON.stringify({u:x.u,r:x.r}))}catch(e){}
  enter(x)};
 function enter(x){me=x;logA('Login','','Masuk ke aplikasi');document.body.classList.add('in');$('#login').style.display='none';$('#app').style.display='grid';$('#who').textContent=`${me.n} (${me.r})`;nav();go('dash')}
@@ -1559,7 +1566,9 @@ const MO=new MutationObserver(ms=>{if(!I18on())return;MO.disconnect();ms.forEach
 MO.observe(document.body,{childList:true,subtree:true,characterData:true});
 
 /* ===== Cloud Supabase, tema lanjutan (Tampilan) ===== */
-const CK='mysapansa_cloud';let CL=(()=>{try{return JSON.parse(localStorage.getItem(CK))||{}}catch(e){return{}}})(),cT=null;
+/* Isi dua nilai ini (sekali) agar SEMUA perangkat otomatis terhubung ke Supabase tanpa setup manual. Anon key memang kunci publik. */
+const CLOUD_DEFAULT={url:'',key:''};
+const CK='mysapansa_cloud';let CL=(()=>{let c={};try{c=JSON.parse(localStorage.getItem(CK))||{}}catch(e){}if(!c.url&&CLOUD_DEFAULT.url&&CLOUD_DEFAULT.key)c={...c,url:CLOUD_DEFAULT.url,key:CLOUD_DEFAULT.key,on:true};return c})(),cT=null;
 const cU=()=>CL.url.replace(/\/$/,'')+'/rest/v1/kv',cH=()=>({apikey:CL.key,Authorization:'Bearer '+CL.key,'content-type':'application/json'});
 const rlsHint=t=>/42501|row-level security/i.test(t)?' → Policy RLS tabel kv belum benar: buka Supabase > SQL Editor, jalankan ulang SQL di "Langkah setup" (menu Master Server > Penyimpanan Cloud), lalu coba lagi. Pastikan juga memakai anon/publishable key, bukan key lain.':'';
 function cloudPush(now){if(!CL.on||!CL.url||!CL.key)return;clearTimeout(cT);cT=setTimeout(async()=>{try{const r=await fetch(cU()+'?on_conflict=id',{method:'POST',headers:{...cH(),Prefer:'resolution=merge-duplicates'},body:JSON.stringify({id:'mysapansa_db',data:DB,updated_at:DB._ts})});CL.st=r.ok?'✅ Tersinkron '+new Date().toLocaleTimeString('id-ID'):await(async()=>{const x=await r.text();return'⚠️ Gagal ('+r.status+') '+x.slice(0,160)+rlsHint(x)})()}catch(e){CL.st='⚠️ '+e.message}const el=$('#cst');if(el)el.textContent=CL.st},now?0:1500)}
@@ -1800,9 +1809,9 @@ function kTerima(n,metode){const a=kOut(n);if(!a.length)return 0;const tot=kSum(
 
 /* ---- halaman siswa: Koperasiku */
 function koptagihP(v){v.onchange=v.oninput=v.onkeydown=null;const u=ME2(),n=u.n,tr=kd('koptrx').filter(t=>t.Nama==n).slice().reverse(),by=kd('kopbayar').filter(p=>p.Nama==n).slice().reverse(),ot=kTagih(n),wt=kSum(tr.filter(t=>t.Status=='Menunggu'));
- const lr=KOP_P.map(p=>{const l=kLim(n,p);if(!l)return'';const s=kSpent(n,p),sisa=Math.max(0,l.Batas-s),pr=Math.min(100,Math.round(s/(+l.Batas||1)*100));return`<tr><td>${p}</td><td>${rp(l.Batas)}</td><td>${rp(s)}</td><td><b>${rp(sisa)}</b>${bar(pr,pr>=90?'#dc2626':pr>=70?'#f59e0b':'#10b981')}</td><td>${esc(l.Disetujui||'-')}</td></tr>`}).join('');
+ const lr=KOP_P.map(p=>{const l=kLim(n,p);if(!l)return'';const s=kSpent(n,p),sisa=Math.max(0,l.Batas-s),pr=Math.min(100,Math.round(s/(+l.Batas||1)*100));return`<tr><td>${p}</td><td>${rp(l.Batas)}</td><td>${rp(s)}</td><td><b>${rp(sisa)}</b>${bar(pr,pr>=90?'#dc2626':pr>=70?'#f59e0b':'#10b981')}</td><td>${esc(l.Disetujui||'-')}${l.Jenis?` <small>(${/wali/i.test(l.Jenis)?'Wali Murid':'Guru'})</small>`:''}</td></tr>`}).join('');
  v.innerHTML=`<h2>Koperasiku</h2><div class="cards"><div class="cd"><small>💳 Total tagihan belum lunas</small><b style="font-size:22px">${rp(ot)}</b></div><div class="cd"><small>⏳ Menunggu verifikasi</small><b style="font-size:22px">${rp(wt)}</b></div><div class="cd"><small>🛒 Belanja bulan ini</small><b style="font-size:22px">${rp(kSpent(n,'Bulan ini'))}</b></div></div>
- <div class="pnl tw"><b>🎯 Limit belanja dari sekolah (atas persetujuan kepala sekolah/guru)</b><table><tr><th>Periode</th><th>Batas</th><th>Terpakai</th><th>Sisa</th><th>Disetujui oleh</th></tr>${lr||'<tr><td colspan="5">Belum ada limit belanja.</td></tr>'}</table></div>
+ <div class="pnl tw"><b>🎯 Limit belanja dari sekolah (atas persetujuan guru/wali murid)</b><table><tr><th>Periode</th><th>Batas</th><th>Terpakai</th><th>Sisa</th><th>Disetujui oleh</th></tr>${lr||'<tr><td colspan="5">Belum ada limit belanja.</td></tr>'}</table></div>
  <div class="pnl tw"><b>🧾 Tagihan & riwayat belanja</b><table><tr><th></th><th>Tanggal</th><th>Barang</th><th>Total</th><th>Status</th></tr>${tr.slice(0,60).map(t=>`<tr><td>${t.Status=='Belum Lunas'?`<input type="checkbox" class="kpc" value="${esc(t.id)}" checked>`:''}</td><td>${esc(t.Tanggal)} ${esc(t.Jam||'')}</td><td style="white-space:normal">${esc(kItems(t))}</td><td>${rp(t.Total)}</td><td>${kStat[t.Status]||esc(t.Status)}${t.Status=='Lunas'&&t.Metode?' · '+esc(t.Metode):''}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada transaksi.</td></tr>'}</table>
  <div class="row np"><button type="button" data-ks="qris">🔳 Bayar dengan QRIS</button><button class="g" type="button" data-ks="tunai">💵 Bayar Tunai (ke kasir)</button></div><small>Centang tagihan yang akan dibayar. QRIS dan tunai diverifikasi petugas koperasi sebelum status menjadi Lunas.</small></div>
  <div class="pnl tw"><b>💰 Riwayat pembayaran</b><table><tr><th>Tanggal</th><th>Jumlah</th><th>Metode</th><th>Status</th></tr>${by.slice(0,30).map(p=>`<tr><td>${esc(p.Tanggal)} ${esc(p.Jam||'')}</td><td>${rp(p.Jumlah)}</td><td>${esc(p.Metode)}</td><td>${esc(p.Status)}</td></tr>`).join('')||'<tr><td colspan="4">Belum ada pembayaran.</td></tr>'}</table></div>`;
@@ -1816,6 +1825,12 @@ function koptagihP(v){v.onchange=v.oninput=v.onkeydown=null;const u=ME2(),n=u.n,
 
 /* ---- kamera scan QR kartu (kasir) */
 /* daftar penyetuju limit: kepala sekolah & guru */
+function kOptSetuju(j,sis){const e=x=>esc(x),ph='<option value="">-- Pilih penyetuju --</option>';
+ if(j&&/wali/i.test(j)){const us=DB.users.filter(u=>u.r=='siswa'&&u.wali&&(sis=='*'||!sis||u.n==sis)),seen=new Set();
+  const o=us.filter(u=>{const k=String(u.wali).trim();if(seen.has(k+'|'+u.n))return false;seen.add(k+'|'+u.n);return true}).map(u=>`<option value="${e(String(u.wali).trim())}">${e(String(u.wali).trim())} (wali ${e(u.n)})</option>`).join('');
+  return ph+(o||'<option value="" disabled>Belum ada data wali pada akun siswa</option>')}
+ const P=kPenyetuju(),g=t=>P.filter(x=>x.j==t).map(x=>`<option value="${e(x.n)}">${e(x.n)}</option>`).join('');
+ return ph+(g('Kepala Sekolah')?`<optgroup label="Kepala Sekolah">${g('Kepala Sekolah')}</optgroup>`:'')+(g('Guru')?`<optgroup label="Guru">${g('Guru')}</optgroup>`:'')}
 function kPenyetuju(){const o=[],ad=(n,j)=>{n=String(n||'').trim();if(n&&!o.some(x=>x.n==n))o.push({n,j})};
  ad((DB.set.kop||{}).kn,'Kepala Sekolah');
  DB.users.filter(u=>u.r=='guru'&&/kepala/i.test(u.jabatan||'')).forEach(u=>ad(u.n,'Kepala Sekolah'));
@@ -1908,14 +1923,14 @@ function kTabTagih(el,v){const rows=DB.users.filter(u=>u.r=='siswa').map(u=>({u,
   if(a=='tt'||a=='tq'){const n=b.dataset.n,m=a=='tt'?'Tunai':'QRIS',t=kTagih(n);if(!confirm('Terima pembayaran '+m+' '+rp(t)+' dari '+n+' untuk seluruh tagihan?'+(m=='QRIS'?'\nPastikan dana QRIS sudah masuk.':'')))return;kTerima(n,m);alert('Pembayaran dicatat, tagihan lunas.');koperasiP(v)}}}
 
 function kTabLimit(el,v){const ls=kd('koplimit'),k=KOP.lk||'';
- el.innerHTML=`<div class="pnl"><b>🎯 Atur Limit Belanja</b><p><small>Limit membatasi total belanja siswa dalam satu periode (semua transaksi, tunai maupun kartu). Persetujuan kepala sekolah/guru wajib dicatat. Pilih "Semua Siswa" untuk limit bawaan; limit khusus siswa lebih diutamakan.</small></p>
+ el.innerHTML=`<div class="pnl"><b>🎯 Atur Limit Belanja</b><p><small>Limit membatasi total belanja siswa dalam satu periode (semua transaksi, tunai maupun kartu). Persetujuan guru/kepala sekolah atau wali murid wajib dicatat. Pilih "Semua Siswa" untuk limit bawaan; limit khusus siswa lebih diutamakan.</small></p>
  <div class="row"><label>Kelas<select id="lkk"><option value="">-- Semua --</option>${opt(KL2(),k)}</select></label><label>Siswa<select id="lks"><option value="*">Semua Siswa (limit bawaan)</option>${DB.users.filter(u=>u.r=='siswa'&&(!k||u.k==k)).map(u=>`<option>${esc(u.n)}</option>`).join('')}</select></label><label>Periode<select id="lkp">${opt(KOP_P,'Hari ini')}</select></label><label>Batas (Rp)<input id="lkb" type="number" min="0"></label></div>
- <div class="row"><label>Disetujui oleh<select id="lko"><option value="">-- Pilih penyetuju --</option>${(()=>{const P=kPenyetuju(),g=j=>P.filter(x=>x.j==j).map(x=>`<option value="${esc(x.n)}">${esc(x.n)}</option>`).join('');return(g('Kepala Sekolah')?`<optgroup label="Kepala Sekolah">${g('Kepala Sekolah')}</optgroup>`:'')+(g('Guru')?`<optgroup label="Guru">${g('Guru')}</optgroup>`:'')})()}</select></label><label>Tanggal persetujuan<input id="lkt" type="date" value="${SD()}"></label><label style="flex:2 1 200px">Catatan<input id="lkc"></label><button data-kp="lsv" type="button">💾 Simpan Limit</button></div></div>
- <div class="pnl tw"><table><tr><th>Siswa</th><th>Periode</th><th>Batas</th><th>Terpakai</th><th>Disetujui oleh</th><th>Tgl persetujuan</th><th>Catatan</th><th></th></tr>${ls.map((l,i)=>[l,i]).sort((a,b)=>String(a[0].Nama).localeCompare(b[0].Nama)).map(([l,i])=>`<tr><td>${l.Nama=='*'?'<b>Semua Siswa (bawaan)</b>':esc(l.Nama)}</td><td>${esc(l.Periode)}</td><td>${rp(l.Batas)}</td><td>${l.Nama=='*'?'-':rp(kSpent(l.Nama,l.Periode))}</td><td>${esc(l.Disetujui||'')}</td><td>${esc(l.TglSetuju||'')}</td><td style="white-space:normal">${esc(l.Catatan||'')}</td><td><button class="g" data-kp="ldl" data-i="${i}" type="button">Hapus</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada limit.</td></tr>'}</table></div>`;
- v.onchange=e=>{if(e.target.id=='lkk'){KOP.lk=e.target.value;koperasiP(v)}};
+ <div class="row"><label style="flex:0 1 190px">Jenis penyetuju<select id="lkj"><option>Guru / Kepala Sekolah</option><option>Wali Murid / Orang Tua</option></select></label><label>Disetujui oleh<select id="lko">${kOptSetuju("Guru / Kepala Sekolah","*")}</select></label><label>Tanggal persetujuan<input id="lkt" type="date" value="${SD()}"></label><label style="flex:2 1 200px">Catatan<input id="lkc"></label><button data-kp="lsv" type="button">💾 Simpan Limit</button></div></div>
+ <div class="pnl tw"><table><tr><th>Siswa</th><th>Periode</th><th>Batas</th><th>Terpakai</th><th>Disetujui oleh</th><th>Tgl persetujuan</th><th>Catatan</th><th></th></tr>${ls.map((l,i)=>[l,i]).sort((a,b)=>String(a[0].Nama).localeCompare(b[0].Nama)).map(([l,i])=>`<tr><td>${l.Nama=='*'?'<b>Semua Siswa (bawaan)</b>':esc(l.Nama)}</td><td>${esc(l.Periode)}</td><td>${rp(l.Batas)}</td><td>${l.Nama=='*'?'-':rp(kSpent(l.Nama,l.Periode))}</td><td>${esc(l.Disetujui||'')}${l.Jenis?` <small>(${/wali/i.test(l.Jenis)?'Wali Murid':'Guru'})</small>`:''}</td><td>${esc(l.TglSetuju||'')}</td><td style="white-space:normal">${esc(l.Catatan||'')}</td><td><button class="g" data-kp="ldl" data-i="${i}" type="button">Hapus</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada limit.</td></tr>'}</table></div>`;
+ v.onchange=e=>{if(e.target.id=='lkk'){KOP.lk=e.target.value;koperasiP(v)}else if(e.target.id=='lkj'||e.target.id=='lks'){$('#lko').innerHTML=kOptSetuju($('#lkj').value,$('#lks').value)}};
  KOP.h=(a,b)=>{if(a=='ldl'){const l=ls[+b.dataset.i];if(l&&confirm('Hapus limit ini?')){ls.splice(+b.dataset.i,1);save();koperasiP(v)}return}
-  if(a=='lsv'){const n=$('#lks').value,p=$('#lkp').value,bt=$('#lkb').value,o=$('#lko').value.trim();if(bt===''||isNaN(+bt)||+bt<0)return alert('Isi batas belanja (Rp).');if(!o)return alert('Pilih penyetuju limit (kepala sekolah/guru).');
-   const r={Nama:n,Periode:p,Batas:+bt,Disetujui:o,TglSetuju:$('#lkt').value||SD(),Catatan:$('#lkc').value.trim(),Dicatat:me.n},i=ls.findIndex(l=>l.Nama==n&&l.Periode==p);if(i>=0)ls[i]=r;else ls.push(r);save();logA('Koperasi','Limit',n+' '+p+' '+rp(+bt));koperasiP(v)}}}
+  if(a=='lsv'){const n=$('#lks').value,p=$('#lkp').value,bt=$('#lkb').value,o=$('#lko').value.trim();if(bt===''||isNaN(+bt)||+bt<0)return alert('Isi batas belanja (Rp).');if(!o)return alert('Pilih penyetuju limit (guru/kepala sekolah atau wali murid).');
+   const r={Nama:n,Periode:p,Batas:+bt,Disetujui:o,Jenis:$('#lkj').value,TglSetuju:$('#lkt').value||SD(),Catatan:$('#lkc').value.trim(),Dicatat:me.n},i=ls.findIndex(l=>l.Nama==n&&l.Periode==p);if(i>=0)ls[i]=r;else ls.push(r);save();logA('Koperasi','Limit',n+' '+p+' '+rp(+bt));koperasiP(v)}}}
 
 function kTabRekap(el,v){const p=KOP.rp||'Bulan ini',kl=KOP.rk||'',tr=kd('koptrx').filter(t=>inP(t.Tanggal,p)&&(!kl||t.Kelas==kl)),tot=kSum(tr),lns=kSum(tr.filter(t=>t.Status=='Lunas'));
  el.innerHTML=`<div class="pnl"><div class="row"><label>Periode<select id="rpp">${opt(KOP_P,p)}</select></label><label>Kelas<select id="rpk"><option value="">Semua kelas</option>${opt(KL2(),kl)}</select></label></div></div>
@@ -1988,6 +2003,10 @@ function applyTabs(){const v=$('#view');if(!v)return;if(EDW&&!EDW.ph.isConnected
 document.addEventListener('click',e=>{if(!me)return;const b=e.target.closest&&e.target.closest('#view [data-e],#view [data-a="ed"]');if(!b)return;if(edOpen())return;const cfg=TABS[cur]?TABS[cur]():null;if(cfg&&cfg.t.length){TBS[cur]=cfg.t[0][0];applyTabs()}window.scrollTo(0,0)});
 TMO.observe($('#view'),{childList:true});
 bgRun();theme();cloudPull().then(m=>{if(/dimuat/.test(m))feats()});
+(()=>{const b=$('#lcb'),d=$('#lcl');if(!b)return;if(CL.on&&CL.url){d.hidden=true}
+ b.onclick=async()=>{const u=$('#lcu').value.trim(),k=$('#lck').value.trim(),st=$('#lcs');if(!/^https?:\/\//i.test(u)||!k){st.textContent='Isi Project URL dan Anon key.';return}
+  CL={...CL,url:u,key:k,on:true};localStorage.setItem(CK,JSON.stringify(CL));st.textContent='Menghubungkan...';
+  const m=await cloudPull(true);st.textContent=/dimuat/.test(m)?'✅ Data dimuat ('+DB.users.length+' akun). Silakan masuk.':'⚠️ '+m;if(/dimuat/.test(m)){CL.st='✅ '+m;localStorage.setItem(CK,JSON.stringify(CL));try{feats()}catch(e){}}}})();
 window.I18R=true;LP=PF().lang||'id';if(I18on())trDom(document.body);
 
 
