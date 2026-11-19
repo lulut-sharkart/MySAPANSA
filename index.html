@@ -210,6 +210,17 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
 .pg-c:before{content:"";position:absolute;inset:0;background:radial-gradient(120% 55% at 18% -8%,rgba(255,255,255,.5),transparent 55%);pointer-events:none}
 .pg-c>*{position:relative}
 .pg-c:hover{transform:translateY(-4px);box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -1px 1px rgba(255,255,255,.3),0 14px 34px rgba(31,38,135,.3)}
+
+/* Login: ringankan agar scroll mulus (tanpa animasi latar berat & blur di atas animasi) */
+#login{animation:none!important;background-size:cover!important;background-attachment:scroll!important;contain:paint}
+#login:before,#login:after{filter:none!important;will-change:transform;
+ background:radial-gradient(circle,currentColor 0,transparent 70%)!important;animation-duration:18s!important}
+#login:before{color:#fde047}#login:after{color:#38bdf8}
+#login .feat li,#login .box,#appver{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#login .box{background:var(--card)!important}
+#login .feat li{background:rgba(255,255,255,.2)!important}
+#login .feat,#login .box{will-change:auto}
+@media (prefers-reduced-motion:reduce){#login:before,#login:after,.feat,.box,.feat li{animation:none!important}}
 </style>
 </head>
 <body>
@@ -226,10 +237,6 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
   <label class="rl"><input type="checkbox" id="rem"> Ingat saya di perangkat ini</label>
   <button>Masuk</button>
   <small id="err" style="color:#c0392b"></small>
-  <details id="lcl" style="margin-top:6px"><summary style="cursor:pointer">☁️ Perangkat baru? Hubungkan data cloud</summary>
-   <small>Data siswa, guru, dll tersimpan di Supabase. Isi sekali di perangkat ini (minta ke Super Admin), lalu data akan dimuat.</small>
-   <input id="lcu" placeholder="Project URL https://xxxx.supabase.co" autocomplete="off"><input id="lck" type="password" placeholder="Anon public key" autocomplete="off">
-   <button type="button" class="g" id="lcb">☁️ Hubungkan & Muat Data</button><small id="lcs"></small></details>
   <button type="button" class="g" onclick="hlp.showModal()">❓ Petunjuk penggunaan</button>
  </form>
 </section>
@@ -1567,7 +1574,7 @@ MO.observe(document.body,{childList:true,subtree:true,characterData:true});
 
 /* ===== Cloud Supabase, tema lanjutan (Tampilan) ===== */
 /* Isi dua nilai ini (sekali) agar SEMUA perangkat otomatis terhubung ke Supabase tanpa setup manual. Anon key memang kunci publik. */
-const CLOUD_DEFAULT={url:'',key:''};
+const CLOUD_DEFAULT={url:'https://hvlzduqkksnpevrzasas.supabase.co',key:'sb_publishable_qB-Bmor2wHyFW4zaarcwwA_r7AxtUNp'};
 const CK='mysapansa_cloud';let CL=(()=>{let c={};try{c=JSON.parse(localStorage.getItem(CK))||{}}catch(e){}if(!c.url&&CLOUD_DEFAULT.url&&CLOUD_DEFAULT.key)c={...c,url:CLOUD_DEFAULT.url,key:CLOUD_DEFAULT.key,on:true};return c})(),cT=null;
 const cU=()=>CL.url.replace(/\/$/,'')+'/rest/v1/kv',cH=()=>({apikey:CL.key,Authorization:'Bearer '+CL.key,'content-type':'application/json'});
 const rlsHint=t=>/42501|row-level security/i.test(t)?' → Policy RLS tabel kv belum benar: buka Supabase > SQL Editor, jalankan ulang SQL di "Langkah setup" (menu Master Server > Penyimpanan Cloud), lalu coba lagi. Pastikan juga memakai anon/publishable key, bukan key lain.':'';
@@ -2002,7 +2009,98 @@ function applyTabs(){const v=$('#view');if(!v)return;if(EDW&&!EDW.ph.isConnected
  }finally{TMO.observe(v,{childList:true})}}
 document.addEventListener('click',e=>{if(!me)return;const b=e.target.closest&&e.target.closest('#view [data-e],#view [data-a="ed"]');if(!b)return;if(edOpen())return;const cfg=TABS[cur]?TABS[cur]():null;if(cfg&&cfg.t.length){TBS[cur]=cfg.t[0][0];applyTabs()}window.scrollTo(0,0)});
 TMO.observe($('#view'),{childList:true});
-bgRun();theme();cloudPull().then(m=>{if(/dimuat/.test(m))feats()});
+bgRun();theme();
+/* ===== Sinkronisasi otomatis antar-perangkat (gabung data per catatan, tanpa saling menimpa) ===== */
+(function(){
+const ID='mysapansa_db',PID='mysapansa_pres';
+let BASE=null,cts=0,dirty=false,busy=false,again=false,pend=false,tmr=null,sv=0,pk=null,pbusy=false,cloudNewer=false;
+const on=()=>CL&&CL.on&&CL.url&&CL.key,tm=()=>new Date().toLocaleTimeString('id-ID');
+const isO=v=>v&&typeof v=='object'&&!Array.isArray(v);
+const J=v=>v===null||typeof v!='object'?JSON.stringify(v):Array.isArray(v)?'['+v.map(J).join(',')+']':'{'+Object.keys(v).sort().filter(k=>v[k]!==undefined).map(k=>JSON.stringify(k)+':'+J(v[k])).join(',')+'}';
+const clone=v=>JSON.parse(JSON.stringify(v));
+const core=d=>{const o=Object.assign({},d);delete o.pres;delete o._ts;return o};
+const setSt=s=>{CL.st=s;const e=$('#cst');if(e)e.textContent=s};
+const mk=()=>{CL.last=new Date().toISOString();CL.lastTs=DB._ts;try{localStorage.setItem(CK,JSON.stringify(CL))}catch(e){}};
+const get=async(id,sel)=>{const r=await fetch(cU()+'?id=eq.'+id+'&select='+sel,{headers:cH(),cache:'no-store'});if(!r.ok)throw new Error('Gagal membaca cloud ('+r.status+')');return r.json()};
+const put=async(id,data,ts)=>{const w=await fetch(cU()+'?on_conflict=id',{method:'POST',headers:Object.assign({},cH(),{Prefer:'resolution=merge-duplicates'}),body:JSON.stringify({id,data,updated_at:ts})});if(!w.ok){const x=await w.text();throw new Error('Gagal mengunggah ('+w.status+') '+x.slice(0,160)+rlsHint(x))}};
+const out=(d,ts)=>Object.assign(core(d),{_ts:ts||d._ts});
+const idle=()=>{if(!me)return true;if(document.querySelector('dialog[open],#edwrap'))return false;if([...document.querySelectorAll('#view textarea')].some(t=>t.value))return false;const a=document.activeElement;return!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest&&a.closest('#view'))};
+/* gabung 3 arah: perangkat ini (l), cloud (c), versi sinkron terakhir (b) */
+function mArr(l,c,b){const bs=new Set(b.map(J)),ls=new Set(l.map(J)),cs=new Set(c.map(J)),seen=new Set(),o=[];
+ c.forEach(x=>{const k=J(x);if(bs.has(k)&&!ls.has(k))return;o.push(x)});
+ l.forEach(x=>{const k=J(x);if(cs.has(k)||bs.has(k)||seen.has(k))return;seen.add(k);o.push(x)});return o}
+function mv(l,c,b,hb){
+ if(Array.isArray(l)&&Array.isArray(c))return mArr(l,c,hb&&Array.isArray(b)?b:[]);
+ if(isO(l)&&isO(c)){const o={},bb=hb&&isO(b)?b:null;
+  new Set(Object.keys(l).concat(Object.keys(c))).forEach(k=>{const iL=k in l,iC=k in c,iB=!!bb&&k in bb;
+   if(iL&&iC){o[k]=mv(l[k],c[k],bb?bb[k]:undefined,iB);return}
+   if(iL){if(!iB||J(l[k])!=J(bb[k]))o[k]=l[k];return}
+   if(!iB||J(c[k])!=J(bb[k]))o[k]=c[k]});
+  return o}
+ if(J(l)==J(c))return c;
+ if(hb)return J(l)!=J(b)?l:c;
+ return cloudNewer?c:l}
+function fixLog(m){if(Array.isArray(m.log)){m.log.sort((x,y)=>{const a=String(x&&x.w||''),b=String(y&&y.w||'');return a<b?-1:a>b?1:0});if(m.log.length>2000)m.log.splice(0,m.log.length-2000)}}
+function refresh(){try{theme();bgRun()}catch(e){}
+ if(!me){try{feats()}catch(e){}return}
+ me=DB.users.find(x=>x.u==me.u&&x.r==me.r)||me;try{_aclK=''}catch(e){}
+ const y=window.scrollY,oa=window.logA;window.logA=function(){};try{go(cur)}catch(e){}finally{window.logA=oa}window.scrollTo(0,y)}
+async function sync(){
+ if(!on())return'Cloud belum aktif.';
+ if(busy){again=true;return'⏳ Sinkronisasi sedang berjalan…'}
+ busy=true;let msg;const s0=sv;
+ try{
+  const a=await get(ID,'data,updated_at');
+  if(!a.length){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(ts);dirty=(s0!=sv);mk();msg='✅ Cloud kosong, data perangkat ini diunggah '+tm()}
+  else{
+   const row=a[0],ct=Date.parse(row.updated_at),lt=Date.parse(DB._ts||0)||0;
+   if(BASE&&ct==cts){
+    if(dirty){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(ts);dirty=(s0!=sv);mk();msg='✅ Tersinkron '+tm()}
+    else msg='✅ Sudah sinkron '+tm()}
+   else if(!BASE&&!dirty&&Math.abs(ct-lt)<2000){BASE=clone(core(row.data||{}));cts=ct;mk();msg='✅ Sudah sinkron '+tm()}
+   else if(!idle()){pend=true;msg='⏳ Menunggu form selesai, sinkron ditunda';setTimeout(tick,3000)}
+   else{
+    pend=false;
+    const cd=clone(row.data||{});delete cd.pres;const C=core(cd),L=core(DB);
+    const clean=!BASE&&!dirty&&CL.lastTs&&DB._ts==CL.lastTs;
+    let m;if(clean)m=C;else{cloudNewer=ct>lt;m=mv(L,C,BASE?core(BASE):undefined,!!BASE);fixLog(m)}
+    const chg=J(m)!=J(L),same=J(m)==J(C);let ts;
+    if(same)ts=new Date(ct).toISOString();else{ts=new Date().toISOString();await put(ID,Object.assign({},m,{_ts:ts}),ts)}
+    if(s0!=sv){dirty=true;again=true;msg='↻ Ada perubahan baru, sinkron ulang'}
+    else{
+     if(chg){const P=DB.pres,n=Object.assign({},m);if(P)n.pres=P;n._ts=ts;DB=n;try{cleanDB()}catch(e){}}else DB._ts=ts;
+     try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}
+     BASE=clone(core(m));cts=Date.parse(ts);dirty=false;mk();
+     if(chg){refresh();msg='✅ Data terbaru diambil dari cloud '+tm()}else msg='✅ Tersinkron '+tm()}
+   }}
+ }catch(e){msg='⚠️ '+e.message}
+ busy=false;setSt(msg);
+ if(again){again=false;setTimeout(tick,500)}
+ return msg}
+function tick(){if(!on())return;if(!BASE||dirty||pend)return sync();
+ return get(ID,'updated_at').then(a=>{if(a.length&&Date.parse(a[0].updated_at)!=cts)return sync()}).catch(e=>setSt('⚠️ '+e.message))}
+/* kehadiran (online) disimpan di baris cloud terpisah agar tidak membebani data utama */
+async function presSync(){if(!on()||pbusy||(!me&&!pk))return;pbusy=true;
+ try{const a=await get(PID,'data');const p=a.length&&isO(a[0].data)?a[0].data:{},now=Date.now();
+  Object.keys(p).forEach(k=>{if(!p[k]||now-(+p[k].t||0)>6e5)delete p[k]});
+  if(me){const k=me.r+':'+me.u;if(DB.pres&&DB.pres[k])p[k]=DB.pres[k];pk=k}else if(pk){delete p[pk];pk=null}
+  await put(PID,p,new Date().toISOString());DB.pres=p}catch(e){}finally{pbusy=false}}
+/* ganti fungsi lama */
+window.beat=function(m){if(!me)return;(DB.pres=DB.pres||{})[me.r+':'+me.u]={r:me.r,n:me.n,u:me.u,m:m||cur,t:Date.now()}};
+const oLog=window.logA;
+window.logA=function(){oLog.apply(this,arguments);try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}if(on()){dirty=true;sv++;if(!tmr)tmr=setTimeout(()=>{tmr=null;tick()},45000)}};
+window.cloudPush=function(now){if(!on())return;dirty=true;sv++;clearTimeout(tmr);tmr=setTimeout(()=>{tmr=null;sync()},now?0:2000)};
+window.cloudSync=()=>sync();
+const oPull=window.cloudPull;
+window.cloudPull=async function(f){const m=await oPull(f);if(/dimuat/.test(m)){BASE=clone(core(DB));cts=Date.parse(DB._ts)||0;dirty=false;mk()}return m};
+setInterval(tick,20000);setInterval(presSync,30000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')tick();else if(dirty&&on())sync()});
+window.addEventListener('focus',tick);window.addEventListener('online',tick);
+setTimeout(()=>{sync().then(()=>{try{feats()}catch(e){}})},300);setTimeout(presSync,4000);
+window.__syncTest={mv,mArr,J,setNewer:v=>{cloudNewer=v}};
+})();
+
+
 (()=>{const b=$('#lcb'),d=$('#lcl');if(!b)return;if(CL.on&&CL.url){d.hidden=true}
  b.onclick=async()=>{const u=$('#lcu').value.trim(),k=$('#lck').value.trim(),st=$('#lcs');if(!/^https?:\/\//i.test(u)||!k){st.textContent='Isi Project URL dan Anon key.';return}
   CL={...CL,url:u,key:k,on:true};localStorage.setItem(CK,JSON.stringify(CL));st.textContent='Menghubungkan...';
