@@ -1567,7 +1567,7 @@ MO.observe(document.body,{childList:true,subtree:true,characterData:true});
 
 /* ===== Cloud Supabase, tema lanjutan (Tampilan) ===== */
 /* Isi dua nilai ini (sekali) agar SEMUA perangkat otomatis terhubung ke Supabase tanpa setup manual. Anon key memang kunci publik. */
-const CLOUD_DEFAULT={url:'',key:''};
+const CLOUD_DEFAULT={https://hvlzduqkksnpevrzasas.supabase.co:'',sb_publishable_qB-Bmor2wHyFW4zaarcwwA_r7AxtUNp:''};
 const CK='mysapansa_cloud';let CL=(()=>{let c={};try{c=JSON.parse(localStorage.getItem(CK))||{}}catch(e){}if(!c.url&&CLOUD_DEFAULT.url&&CLOUD_DEFAULT.key)c={...c,url:CLOUD_DEFAULT.url,key:CLOUD_DEFAULT.key,on:true};return c})(),cT=null;
 const cU=()=>CL.url.replace(/\/$/,'')+'/rest/v1/kv',cH=()=>({apikey:CL.key,Authorization:'Bearer '+CL.key,'content-type':'application/json'});
 const rlsHint=t=>/42501|row-level security/i.test(t)?' → Policy RLS tabel kv belum benar: buka Supabase > SQL Editor, jalankan ulang SQL di "Langkah setup" (menu Master Server > Penyimpanan Cloud), lalu coba lagi. Pastikan juga memakai anon/publishable key, bukan key lain.':'';
