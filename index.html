@@ -336,14 +336,14 @@ function tgl(){if(innerWidth>800)$('#app').classList.toggle('hide');else $('#sid
 function logout(){try{edClose()}catch(e){}if(me){logA('Logout','','Keluar dari aplikasi');delete (DB.pres||{})[me.r+':'+me.u];save()}me=null;try{localStorage.removeItem(RK2)}catch(e){}document.body.classList.remove('in');$('#app').style.display='none';$('#login').style.display='flex';$('#p').value=''}
 
 /* ===== AKSES PER PERAN (ACL): kunci siswa/kelas/mapel/agama/ekskul + mode hanya-lihat ===== */
-const ACL_TKN=/tenaga|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
+const ACL_TKN=/tenaga|koperasi|operator|tata usaha|\btu\b|staf|staff|pustaka|laboran|teknis|bendahara|petugas/i,ACL_AGM=/agama|\bpa[ik]\b|\bpabp\b/i,ACL_EK=['tugasekskul','nilaiekskul','pesertaekskul'];
 const ACL_AGL=[['Islam',/islam|\bpai\b/i],['Kristen',/kristen|protestan|\bpak\b/i],['Katolik',/katolik/i],['Hindu',/hindu/i],['Buddha',/budd?ha/i],['Konghucu',/konghucu/i]];
 const aclNoWK=u=>{const j=(u&&u.jabatan)||'';return /kepala|penjaga/i.test(j)||(ACL_TKN.test(j)&&!/guru/i.test(j))||(/mapel|mata pelajaran|agama|\bpa[ik]\b|pjok|penjas|inggris/i.test(j)&&!/guru kelas|wali/i.test(j))};
 const aclWK=u=>{const w=String(u&&u.walikelas||'').trim();if(!w||aclNoWK(u))return'';return KL2().find(x=>KN(x)==KN(w))||''};
 const aclAgN=a=>{a=String(a||'').trim();if(!a)return'';const f=ACL_AGL.find(x=>x[1].test(a)||x[0].toLowerCase()==a.toLowerCase());return f?f[0]:a};
 function aclAgama(u){const t=(u.jabatan||'')+' '+aclMapel(u).join(' '),f=ACL_AGL.find(x=>x[1].test(t));return f?f[0]:(u.agama||'')}
 function aclMapel(u){const all=MPL();let m=(u.mapelAjar||[]).filter(x=>all.includes(x));if(m.length)return m;const j=(u.jabatan||'').toLowerCase();m=all.filter(x=>j.includes(x.toLowerCase()));if(ACL_AGM.test(u.jabatan||''))m=m.concat(all.filter(x=>ACL_AGM.test(x)));return[...new Set(m)]}
-function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!aclWK(u)&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(aclWK(u))return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
+function aclKat(u){if(!u)return'';if(u.r=='admin')return'adm';if(u.r=='siswa')return'sis';if(u.r=='koperasi')return'tkn';const j=u.jabatan||'';if(/kepala/i.test(j))return'kep';if(/penjaga/i.test(j))return'pnj';if(!aclWK(u)&&ACL_TKN.test(j)&&!/guru/i.test(j)&&!(u.mapelAjar||[]).length)return'tkn';if(aclWK(u))return'kls';if(ACL_AGM.test(j)||aclMapel(u).some(m=>ACL_AGM.test(m)))return'agm';return'mpl'}
 const aclPembina=u=>!!u&&u.r=='guru'&&!['kep','pnj','tkn'].includes(aclKat(u))&&(u.ekskul||[]).length>0&&u.peran!='Bukan Pembina/Pelatih';
 const KN=x=>String(x==null?'':x).trim().toLowerCase().replace(/\s+/g,'');
 let _aclC=null,_aclK='';
@@ -1519,7 +1519,7 @@ function ping(v){
 var LP;
 const AVD='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#e2e8f0"/><circle cx="50" cy="38" r="18" fill="#94a3b8"/><path d="M14 100c0-24 16-38 36-38s36 14 36 38z" fill="#94a3b8"/></svg>');
 const avt=u=>u&&u.foto?u.foto:(u&&u.r=='admin'?(DB.set.logo||LOGO):AVD);
-const isKep=u=>/kepala/i.test(u.jabatan||''),isPnj=u=>/penjaga/i.test(u.jabatan||'');
+const isKep=u=>/kepala/i.test(u.jabatan||''),isPnj=u=>/penjaga|koperasi/i.test(u.jabatan||'');
 const roleLbl=u=>u.r=='admin'?'Super Admin':u.r=='siswa'?'Siswa':u.r=='koperasi'?'Petugas Koperasi · Tenaga Teknis':(u.jabatan||(aclWK(u)?'Guru Kelas':'Guru Mata Pelajaran'));
 const katG=u=>isKep(u)?'kep':isPnj(u)?'pnj':aclWK(u)?'kls':'mpl';
 const MOT0='Tetap semangat belajar, junjung tinggi kejujuran, dan raih cita-citamu!';
