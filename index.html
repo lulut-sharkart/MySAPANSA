@@ -1141,8 +1141,43 @@ function kalkCur(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;let R=null;
  const load=f=>fxLoad(f).then(r=>{R=r;calc()}).catch(()=>{R=null;calc();q('#fi').textContent='⚠️ Kurs tidak dapat diambil (butuh internet). Isi kurs manual di atas.'});
  c.oninput=e=>{if(/^f[am]$/.test(e.target.id))calc()};c.onchange=e=>{if(/^f[ft]$/.test(e.target.id))calc()};
  c.onclick=e=>{const i=e.target.id,r=e.target.closest('[data-q]');if(i=='fw'){const a=q('#ff').value;q('#ff').value=q('#ft').value;q('#ft').value=a;q('#fm').value='';calc()}else if(i=='fr'){q('#fi').textContent='Memuat kurs…';load(true)}else if(r){q('#ft').value=r.dataset.q;q('#fm').value='';calc()}};load(false)}
+const kf2=n=>!isFinite(n)?'—':n!=0&&(Math.abs(n)<1e-6||Math.abs(n)>=1e15)?n.toExponential(4).replace('.',','):kfm(n);
+const KCV={'Panjang':[['kilometer (km)',1e3],['hektometer (hm)',100],['dekameter (dam)',10],['meter (m)',1],['desimeter (dm)',.1],['sentimeter (cm)',.01],['milimeter (mm)',.001],['mikrometer (µm)',1e-6],['mil (mile)',1609.344],['yard',.9144],['kaki (ft)',.3048],['inci (in)',.0254]],
+ 'Massa':[['ton',1e3],['kuintal',100],['kilogram (kg)',1],['hektogram (hg)',.1],['ons (100 g)',.1],['dekagram (dag)',.01],['gram (g)',.001],['miligram (mg)',1e-6],['pon (lb)',.45359237],['ons AS (oz)',.028349523125]],
+ 'Volume':[['kiloliter (kl)',1e3],['hektoliter (hl)',100],['dekaliter (dal)',10],['liter (l)',1],['desiliter (dl)',.1],['sentiliter (cl)',.01],['mililiter (ml)',.001],['meter kubik (m³)',1e3],['desimeter kubik (dm³)',1],['sentimeter kubik (cm³)',.001],['galon AS',3.785411784],['cangkir AS',.2365882365]],
+ 'Luas':[['kilometer persegi (km²)',1e6],['hektare (ha)',1e4],['are (a)',100],['meter persegi (m²)',1],['desimeter persegi (dm²)',.01],['sentimeter persegi (cm²)',1e-4],['milimeter persegi (mm²)',1e-6],['acre',4046.8564224],['kaki persegi (ft²)',.09290304],['inci persegi (in²)',6.4516e-4]],
+ 'Waktu':[['tahun (365,25 hari)',31557600],['bulan (30,44 hari)',2629800],['minggu',604800],['hari',86400],['jam',3600],['menit',60],['detik',1],['milidetik',.001]],
+ 'Kecepatan':[['meter/detik (m/s)',1],['kilometer/jam (km/jam)',1/3.6],['mil/jam (mph)',.44704],['knot',1852/3600],['kaki/detik (ft/s)',.3048]],
+ 'Data digital':[['bit',.125],['byte (B)',1],['kilobyte (KB = 1024 B)',1024],['megabyte (MB)',1048576],['gigabyte (GB)',1073741824],['terabyte (TB)',1099511627776]],
+ 'Sudut':[['derajat (°)',1],['radian (rad)',180/Math.PI],['grad',.9],['putaran',360]]};
+let KCS={c:'Panjang',a:'1',f:3,t:5},KTS={v:'25',u:'C'};
+function kalkKonv(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
+ const op=(L,s)=>L.map((u,i)=>`<option value="${i}" ${i==s?'selected':''}>${esc(u[0])}</option>`).join('');
+ c.innerHTML=`<div class="pnl"><b>📏 Kalkulator Konversi Satuan</b><div class="row" style="align-items:end"><label>Besaran<select id="kc">${Object.keys(KCV).map(k=>`<option ${k==KCS.c?'selected':''}>${k}</option>`).join('')}</select></label><label>Jumlah<input id="ka" inputmode="decimal" value="${esc(KCS.a)}"></label><label>Dari<select id="kf">${op(KCV[KCS.c],KCS.f)}</select></label><button class="g" id="kw" type="button" title="Tukar">⇄</button><label>Ke<select id="kt">${op(KCV[KCS.c],KCS.t)}</select></label></div><div id="ko" style="font-size:36px;font-weight:700;color:var(--c);margin:12px 0;word-break:break-all"></div></div><div class="pnl tw"><b>📋 Nilai di semua satuan</b><table id="kl" style="margin-top:6px"></table></div>`;
+ const q=s=>c.querySelector(s),calc=()=>{const L=KCV[KCS.c];KCS.a=q('#ka').value;KCS.f=+q('#kf').value;KCS.t=+q('#kt').value;const a=parseFloat(String(KCS.a).replace(',','.')),b=a*L[KCS.f][1];
+  if(isNaN(a)){q('#ko').textContent='—';q('#kl').innerHTML='';return}
+  q('#ko').textContent=kf2(b/L[KCS.t][1])+' '+L[KCS.t][0].replace(/ \(.*/,'');
+  q('#kl').innerHTML='<tr><th>Satuan</th><th>Nilai</th></tr>'+L.map((u,i)=>`<tr style="${i==KCS.t?'background:#fde04755':''}"><td>${esc(u[0])}</td><td><b>${kf2(b/u[1])}</b></td></tr>`).join('')};
+ c.onchange=e=>{if(e.target.id=='kc'){KCS.c=e.target.value;KCS.f=0;KCS.t=Math.min(1,KCV[KCS.c].length-1);kalkKonv(c)}else calc()};c.oninput=e=>{if(e.target.id=='ka')calc()};
+ c.onclick=e=>{if(e.target.id=='kw'){const x=q('#kf').value;q('#kf').value=q('#kt').value;q('#kt').value=x;calc()}};calc()}
+function kalkSuhu(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;const U=[['C','Celsius (°C)'],['F','Fahrenheit (°F)'],['K','Kelvin (K)'],['R','Reamur (°R)']];
+ c.innerHTML=`<div class="pnl"><b>🌡️ Kalkulator Suhu</b><div class="row" style="align-items:end"><label>Nilai suhu<input id="sv" inputmode="decimal" value="${esc(KTS.v)}"></label><label>Satuan asal<select id="su">${U.map(u=>`<option value="${u[0]}" ${u[0]==KTS.u?'selected':''}>${u[1]}</option>`).join('')}</select></label></div><div id="so" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px"></div><small>Rumus: °F = °C × 9/5 + 32; K = °C + 273,15; °R = °C × 4/5. Air membeku 0 °C dan mendidih 100 °C (tekanan 1 atm).</small></div>`;
+ const calc=()=>{KTS={v:c.querySelector('#sv').value,u:c.querySelector('#su').value};const v=parseFloat(KTS.v.replace(',','.')),o=c.querySelector('#so');if(isNaN(v)){o.innerHTML='<small>Isi nilai suhu.</small>';return}
+  const C={C:v,F:(v-32)*5/9,K:v-273.15,R:v*5/4}[KTS.u];if(C<-273.15-1e-9){o.innerHTML='<b style="color:#dc2626">Di bawah nol mutlak (−273,15 °C), tidak mungkin.</b>';return}
+  const R={C:C,F:C*9/5+32,K:C+273.15,R:C*4/5};o.innerHTML=U.map(u=>`<div style="padding:12px;border:1px solid #8884;border-radius:10px;text-align:center"><small>${u[1]}</small><div style="font-size:30px;font-weight:700;color:var(--c)">${kfm(R[u[0]])}</div></div>`).join('')};
+ c.oninput=c.onchange=calc;calc()}
+function kalkImt(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
+ c.innerHTML=`<div class="pnl"><b>⚖️ Kalkulator Indeks Massa Tubuh (IMT)</b><div class="row" style="align-items:end"><label>Berat badan (kg)<input id="ib" inputmode="decimal" placeholder="mis. 55"></label><label>Tinggi badan (cm)<input id="it" inputmode="decimal" placeholder="mis. 160"></label><label>Usia (tahun)<input id="iu" inputmode="numeric" placeholder="mis. 25"></label></div><div id="io" style="margin-top:12px"></div><small>Hasil ini hanya gambaran awal, bukan diagnosis. Konsultasikan dengan tenaga kesehatan. Data tidak disimpan.</small></div>`;
+ const q=s=>c.querySelector(s),n=s=>parseFloat(q(s).value.replace(',','.')),calc=()=>{const b=n('#ib'),t=n('#it'),u=n('#iu'),o=q('#io');if(isNaN(b)||isNaN(t)){o.innerHTML='<small>Isi berat dan tinggi badan.</small>';return}
+  if(b<2||b>400||t<50||t>250){o.innerHTML='<b style="color:#dc2626">Nilai di luar rentang wajar (berat 2–400 kg, tinggi 50–250 cm).</b>';return}
+  const h=t/100,im=b/(h*h);let st='',cl='var(--c)';
+  if(isNaN(u))st='Isi usia agar kategori sesuai.';
+  else if(u<19)st='Untuk anak dan remaja (di bawah 19 tahun) status gizi dinilai dengan IMT menurut umur (z-score standar WHO/Kemenkes), bukan kategori dewasa. Tanyakan ke guru UKS, puskesmas, atau tenaga kesehatan.';
+  else{const k=im<17?['Sangat kurus','#dc2626']:im<18.5?['Kurus','#ea580c']:im<=25?['Normal','#16a34a']:im<=27?['Gemuk (kelebihan berat badan)','#ea580c']:['Obesitas','#dc2626'];st='Kategori dewasa (Kemenkes RI): <b style="color:'+k[1]+'">'+k[0]+'</b>';cl=k[1]}
+  o.innerHTML=`<div style="font-size:42px;font-weight:700;color:${cl}">${kfm(Math.round(im*10)/10)} <small style="font-size:16px">kg/m²</small></div><p>${st}</p>${isNaN(u)||u>=19?`<p>Rentang berat normal (IMT 18,5–25) untuk tinggi ${kfm(t)} cm: <b>${kfm(Math.round(18.5*h*h*10)/10)} – ${kfm(Math.round(25*h*h*10)/10)} kg</b>.</p>`:''}<small>Rumus: IMT = berat (kg) ÷ tinggi (m)².</small>`};
+ c.oninput=calc;calc()}
 let KALT='ilm';
-function kalkulatorP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;const T=[['ilm','🧮 Ilmiah',kalkIlm],['mat','📐 Matematika',kalkMat],['cur','💱 Mata Uang',kalkCur]];
+function kalkulatorP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;const T=[['ilm','🧮 Ilmiah',kalkIlm],['mat','📐 Matematika',kalkMat],['kon','📏 Konversi',kalkKonv],['suh','🌡️ Suhu',kalkSuhu],['imt','⚖️ IMT',kalkImt],['cur','💱 Mata Uang',kalkCur]];
  v.innerHTML=`<div class="row np" id="ktb">${T.map(t=>`<button class="${t[0]==KALT?'':'g'}" data-t="${t[0]}" type="button">${t[1]}</button>`).join('')}</div><div id="kb"></div>`;(T.find(t=>t[0]==KALT)||T[0])[2](v.querySelector('#kb'));
  v.onclick=e=>{const b=e.target.closest('#ktb [data-t]');if(b){KALT=b.dataset.t;kalkulatorP(v)}}}
 const KAL_SYS=[['','Tanpa kalender tambahan'],['islamic-umalqura','Hijriah (Islam)'],['pasaran','Jawa (Pasaran)'],['chinese','Tionghoa (Imlek)'],['indian','Saka (India)'],['hebrew','Ibrani (Yahudi)'],['persian','Persia (Iran/Afghanistan)'],['buddhist','Buddha (Thailand)'],['japanese','Jepang (era)'],['roc','Minguo (Taiwan)'],['coptic','Koptik (Mesir)'],['ethiopic','Ethiopia']],
