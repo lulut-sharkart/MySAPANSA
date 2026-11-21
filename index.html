@@ -366,7 +366,7 @@ function aclRow(id,r){const L=aclLock();if(!L||L.k=='adm'||L.k=='sis'||L.ro)retu
  if(L.sAll&&r.Nama&&L.sAll.has(r.Nama)&&!L.siswa.includes(r.Nama))return false;return true}
 const ACL_BLANK=o=>o.value===''||/^\s*(--|—|–)/.test(o.text);
 function aclType(s){if(s.multiple||s.dataset.f)return'';const lb=s.closest('label'),cap=lb?[...lb.childNodes].filter(n=>n.nodeType==3).map(n=>n.textContent).join(' '):'',t=(cap+' '+(s.dataset.c||'')+' '+((s.options[0]||{}).text||'')).toLowerCase();
- if(/guru|staf/.test(t))return'';if(/siswa/.test(t))return'siswa';if(/ekstrakurikuler|ekskul/.test(t))return'ekskul';if(/mapel|mata pelajaran/.test(t))return'mapel';if(/kelas/.test(t)&&!/wali/.test(t))return'kelas';return''}
+ if(/guru|staf/.test(t))return'';if(/agama|jenis kelamin|\bjk\b|wali murid|motivasi/.test(cap.toLowerCase()))return'';if(/siswa/.test(t))return'siswa';if(/ekstrakurikuler|ekskul/.test(t))return'ekskul';if(/mapel|mata pelajaran/.test(t))return'mapel';if(/kelas/.test(t)&&!/wali/.test(t))return'kelas';return''}
 function aclSel(s){const t=s.dataset.aclT||aclType(s);if(!t)return;s.dataset.aclT=t;const L=aclLock(),A=L&&L[t];if(!A)return;
  if(A.length==1){if(s.disabled&&s.options.length==1&&s.options[0].value==A[0])return;const prev=s.value;s.innerHTML='<option>'+esc(A[0])+'</option>';s.value=A[0];if(prev!==A[0])s.dispatchEvent(new Event('change',{bubbles:true}));s.disabled=true;s.title='🔒 Terkunci sesuai akun Anda';return}
  [...s.options].forEach(o=>{if(!ACL_BLANK(o)&&!A.includes(o.value))o.remove()})}
