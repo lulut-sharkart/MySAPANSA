@@ -308,7 +308,9 @@ let DB=load(),me=null,role='siswa',cur='dash';
 function load(){try{const d=JSON.parse(localStorage.getItem(K));if(d){const m=d.data=d.data||{};[['absensiku','absen'],['absenkelas','absen'],['tugasku','tugas'],['tugaskelas','tugas'],['nilaikelas','nilai'],['kaihkelas','kaih']].forEach(([a,b])=>{if(m[a]){m[b]=(m[b]||[]).concat(m[a]);delete m[a]}});if(!m.mapel)m.mapel=[];['kas','infaq','adiwiyata'].forEach(k=>{if(m[k]&&m[k].length){m.keu=(m.keu||[]).concat(m[k].map(r=>({Tanggal:r.Tanggal||'',Kelas:r.Kelas||'',Jenis:r.Keluar?'Pengeluaran':'Pemasukan',Kategori:k[0].toUpperCase()+k.slice(1),Jumlah:+(r.Masuk||r.Keluar||0),Keterangan:r.Uraian||''})));}delete m[k]});if(!m.ekskul)m.ekskul=[];d.set=d.set||{};d.info=d.info||{};if(d.set.gemKey&&!d.set.gem)d.set.gem=[{name:'Kunci 1',key:d.set.gemKey,on:true}];return d}}catch(e){}
  return{users:[{u:'admin',p:'admin123',r:'admin',n:'Administrator'}],
  set:{color:'#0f766e',side:'#12302c',mode:'auto',fs:15,off:0,gmt:7,logo:'',wm:true,op:.08,school:'SD Negeri Ngandul 1'},data:{mapel:[],ekskul:[]},info:{}}}
-function save(){DB._ts=new Date().toISOString();try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){alert('Penyimpanan penuh atau diblokir.')}try{cloudPush()}catch(e){}}
+function kepsekGuru(){const a=(DB.users||[]).filter(u=>u.r=='guru'&&/kepala/i.test(u.jabatan||'')&&!/wakil|waka\b|\bwk\b/i.test(u.jabatan||''));return a.find(u=>/^kepala/i.test(String(u.jabatan).trim()))||a[0]||null}
+function syncKep(){try{const g=kepsekGuru();if(!g)return false;const k=DB.set.kop=DB.set.kop||{},nip=String(g.u||'').trim();let ch=false;if(k.kn!==g.n){k.kn=g.n;ch=true}if(/^\d[\d\s]{6,}$/.test(nip)&&k.kp!==nip){k.kp=nip;ch=true}return ch}catch(e){return false}}
+function save(){syncKep();DB._ts=new Date().toISOString();try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){alert('Penyimpanan penuh atau diblokir.')}try{cloudPush()}catch(e){}}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LOGO='https://raw.githubusercontent.com/lulut-sharkart/MySAPANSA/main/sapansa%20logo%20v2.1.png';
 
@@ -429,7 +431,7 @@ function title(id,a=M[me.r]){for(const i of a){if(i.id==id)return i.t;if(i.c){co
 function cleanDB(){try{if(!DB||typeof DB!='object')return;if(Array.isArray(DB.users))DB.users=DB.users.filter(x=>x&&typeof x=='object');if(DB.data&&typeof DB.data=='object')Object.keys(DB.data).forEach(k=>{const v=DB.data[k];if(Array.isArray(v)&&v.some(x=>x==null||typeof x!='object'))DB.data[k]=v.filter(x=>x&&typeof x=='object')})}catch(e){console.error('cleanDB',e)}}
 function go(id){cleanDB();try{kopStop()}catch(e){}if(aclBlock(id)){alert('Akun Anda tidak memiliki akses ke menu ini.');id='dash'}cur=id;logA('Akses Menu',title(id)||id,'Membuka halaman '+(title(id)||id));document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
  const t=title(id)||'';$('#ttl').textContent=t;const v=$('#view');
- const P={kalkulator:kalkulatorP,kalender:kalenderP,koperasi:koperasiP,koptagih:koptagihP,pesertaekskul:pesertaP,dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t);aclApply(v)}
+ const P={kalkulator:kalkulatorP,kalender:kalenderP,koperasi:koperasiP,koptagih:koptagihP,pesertaekskul:pesertaP,dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};syncKep();P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t);aclApply(v)}
 
 function dashS(v){
  const n=k=>(DB.data[k]||[]).length,ks=Object.keys(DB.data),mx=Math.max(1,...ks.map(n));
@@ -987,10 +989,11 @@ function masterP(v,r){const sw=r=='siswa',P=sw?'ms':'mg',eks=(DB.data.ekskul||[]
  v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ME=+d.e;const u=DB.users[ME];fset(P,sp,u);foto=''}
   if(d.d!==undefined){const u=DB.users[d.d];if(u.u==me.u&&u.r==me.r)return alert('Akun yang sedang dipakai tidak bisa dihapus.');if(confirm('Hapus '+u.n+'?')){DB.users.splice(d.d,1);save();masterP(v,r)}}}}
 /* ---- Cetak Kartu */
-const FLD=['Nama','NIS','NISN','NIP','Kelas','Ruang','No. Meja'],KD0={size:'id1',cw:85.6,ch:53.98,urut:'absen',color:'#4f46e5',rad:12,bd:1,bw:1,bc:'#999999',bs:'solid',show:{Nama:1,NIS:1,NISN:1,NIP:1,Kelas:1,Ruang:1,'No. Meja':1},ord:FLD.slice(),logo:'',judul:'',b2:'SAPANSA',b3:'',la:1,ls:1,tc:'#ffffff',ta:'left',ts:14,tl:36,fh:'#111111',fn:'#111111',fi:'#333333'};
+const FLD=['Nama','NIS','NISN','NIP','Kelas','Ruang','No. Meja'],KD0={size:'id1',cw:85.6,ch:53.98,urut:'absen',color:'#4f46e5',rad:12,bd:1,bw:1,bc:'#999999',bs:'solid',show:{Nama:1,NIS:1,NISN:1,NIP:1,Kelas:1,Ruang:1,'No. Meja':1},ord:FLD.slice(),logo:'',judul:'',b2:'SAPANSA',b3:'',la:1,ls:1,tc:'#ffffff',ta:'left',ts:14,tl:36,fh:'#111111',fn:'#111111',fi:'#333333',gh:['B'],gb:[],gn:['B'],gi:[],ft:1};
 const KSZ={id1:[85.6,53.98,'ATM / KTP / Kartu Pelajar (85,6 x 53,98 mm)'],id2:[105,74,'ID-2 / A7 (105 x 74 mm)'],id3:[125,88,'ID-3 / Paspor (125 x 88 mm)'],a6:[148,105,'A6 (148 x 105 mm)'],bdg:[102,76,'Name badge / ID card besar (102 x 76 mm)'],lan:[100,70,'ID card lanyard (100 x 70 mm)'],nm:[90,55,'Kartu nama (90 x 55 mm)'],mini:[70,45,'Kartu mini (70 x 45 mm)'],a1:[90,55,'ID Card A1 (90 x 55 mm)'],a2:[95,65,'ID Card A2 (95 x 65 mm)'],a3:[100,80,'ID Card A3 (100 x 80 mm)'],b1:[85,55,'ID Card B1 (85 x 55 mm)'],b2:[105,65,'ID Card B2 (105 x 65 mm)'],b3:[105,80,'ID Card B3 (105 x 80 mm)'],b4:[130,90,'ID Card B4 (130 x 90 mm)'],pan:[105,74,'Kartu panitia (105 x 74 mm)'],cus:[0,0,'Kustom (isi sendiri) - mis. B5/B6']};
 let KJ='Kartu Absensi / Pelajar',KCF='',KUR='';
 function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),KU=DB.set.kujian=Object.assign({judul:'KARTU UJIAN',nama:'',th:String((d=>d.getMonth()>=6?d.getFullYear():d.getFullYear()-1)(new Date())),fmt:'{TH}-{KELAS}-{NO3}',st:1,pn:'k',man:{}},DB.set.kujian||{});KU.man=KU.man||{};
+ const GB=(k,l)=>`<div style="display:flex;flex-direction:column;gap:3px;font-size:13px;min-width:150px"><span>${l}</span><span style="display:flex;gap:12px;flex-wrap:wrap">${[['B','<b>B</b> Tebal'],['I','<i>I</i> Miring'],['U','<u>U</u> Garis bawah']].map(([c,t])=>`<label style="display:inline-flex;gap:4px;align-items:center;font-weight:normal"><input type="checkbox" data-g="${k}" data-v="${c}" ${(C[k]||[]).includes(c)?'checked':''} style="width:auto">${t}</label>`).join('')}</span></div>`;
  v.innerHTML=`<h2>Cetak Kartu</h2><div class="pnl np"><div class="row"><label>Jenis Kartu<select id="kj">${opt(['Kartu Absensi / Pelajar','Kartu Guru','Kartu Ujian Biasa','Kartu Ujian Berjadwal'],KJ)}</select></label><label>Filter Kelas<select id="kk2"><option value="">Semua Kelas</option>${opt(KL2(),KCF)}</select></label><label>Urutkan<select id="kur"><option value="absen">Urutan Absensi</option><option value="abjad">Abjad (A-Z)</option></select></label><label>Pilih Siswa / Guru<select id="kp2"></select></label><button id="ktp" type="button">👁 Tampilkan</button><button id="kcp" type="button">🖨️ Cetak</button></div>
  <div class="row"><label>Warna Header<input type="color" id="kcl" value="${C.color}"></label><label>Kelengkungan Sudut Kartu (<span id="krv">${C.rad}</span> px)<input type="range" id="krd" min="0" max="60" value="${C.rad}"></label><label>Ukuran Kartu<select id="ksz">${Object.entries(KSZ).map(([k,x])=>`<option value="${k}">${x[2]}</option>`).join('')}</select></label><label class="kcu">Lebar (mm)<input type="number" id="kcw" min="30" max="300" step="0.1" value="${C.cw}"></label><label class="kcu">Tinggi (mm)<input type="number" id="kch" min="30" max="300" step="0.1" value="${C.ch}"></label><label>Orientasi Kartu<select id="kor"><option value="l">Landscape (mendatar)</option><option value="p">Portrait (tegak)</option></select></label></div>
  <div class="row"><label><span><input type="checkbox" id="kbd" ${C.bd?'checked':''} style="width:auto"> Tampilkan border kartu</span></label><label>Tebal Border (<span id="kbv">${C.bw}</span> px)<input type="range" id="kbw" min="0" max="8" step="0.5" value="${C.bw}"></label><label>Warna Border<input type="color" id="kbc" value="${C.bc}"></label><label>Gaya Border<select id="kbs"><option value="solid">Garis penuh</option><option value="dashed">Putus-putus</option><option value="dotted">Titik-titik</option><option value="double">Ganda</option></select></label></div>
@@ -1002,7 +1005,9 @@ function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),K
  <div class="pnl np"><b>✏️ Edit Header Kartu (Logo & Tulisan)</b><div class="row"><label>Logo (URL)<input id="klg" value="${esc(C.logo.startsWith('data:')?'':C.logo)}" placeholder="https://..."></label><label>Atau unggah logo<input type="file" id="klf" accept="image/*"></label><label>Judul (kosong = otomatis)<input id="kjd" value="${esc(C.judul)}" placeholder="mis. KARTU PELAJAR"></label><label>Baris kedua<input id="kb2" value="${esc(C.b2)}"></label><label>Baris ketiga (opsional)<input id="kb3" value="${esc(C.b3)}" placeholder="mis. Tahun Pelajaran 2026/2027"></label></div>
  <div class="row"><label><span><input type="checkbox" id="kla" ${C.la?'checked':''}> Tampilkan logo aplikasi (kiri header)</span></label><label><span><input type="checkbox" id="kls" ${C.ls?'checked':''}> Tampilkan logo sekolah (kanan header)</span></label><small>Logo aplikasi dan logo sekolah diambil dari menu Tampilan. Isi URL/unggah logo di atas untuk menggantikan logo kiri. Ukuran diatur lewat "Ukuran logo".</small></div>
  <div class="row"><label>Warna tulisan header<input type="color" id="ktc" value="${C.tc}"></label><label>Rata<select id="kta"><option value="left">Kiri</option><option value="center">Tengah</option><option value="right">Kanan</option></select></label><label>Ukuran judul<input type="range" id="kts" min="10" max="24" value="${C.ts}"></label><label>Ukuran logo<input type="range" id="ktl" min="20" max="60" value="${C.tl}"></label></div>
- <div class="row"><label>Warna font header<input type="color" id="kfh" value="${C.fh}"></label><label>Warna font nama<input type="color" id="kfn" value="${C.fn}"></label><label>Warna font isi<input type="color" id="kfi" value="${C.fi}"></label></div><div class="row"><button id="ksv" type="button">💾 Simpan Pengaturan</button><button class="g" id="krs" type="button">Kembalikan Bawaan</button></div></div>
+ <div class="row"><label>Warna font header<input type="color" id="kfh" value="${C.fh}"></label><label>Warna font nama<input type="color" id="kfn" value="${C.fn}"></label><label>Warna font isi<input type="color" id="kfi" value="${C.fi}"></label></div>
+ <div class="row" id="kgy"><b style="flex:1 1 100%">Gaya Teks (Tebal · Miring · Garis Bawah)</b>${GB('gh','Judul header')}${GB('gb','Baris 2 &amp; 3 header')}${GB('gn','Nama')}${GB('gi','Isi data (NIS, kelas, dll.)')}</div>
+ <div class="row"><label><span><input type="checkbox" id="kft" ${C.ft?'checked':''} style="width:auto"> Tampilkan footer tanda tangan Kepala Sekolah di bagian bawah cetakan</span></label><small>Nama &amp; NIP otomatis dari Master Guru (jabatan Kepala Sekolah); format sama dengan footer di Master Dokumen.</small></div><div class="row"><button id="ksv" type="button">💾 Simpan Pengaturan</button><button class="g" id="krs" type="button">Kembalikan Bawaan</button></div></div>
  <div class="pnl"><div id="kpv">Klik Tampilkan untuk melihat kartu.</div></div>`;
  const z=i=>$('#'+i);z('kta').value=C.ta;z('kbs').value=C.bs||'solid';z('kpn').value=KU.pn;z('kor').value=C.or||'l';z('ksz').value=KSZ[C.size]?C.size:'id1';if(!KUR)KUR=C.urut||'absen';z('kur').value=KUR;
  const COL=new Intl.Collator('id',{numeric:true,sensitivity:'base'}),srt=a=>KUR=='abjad'?[...a].sort((x,y)=>COL.compare(String(x.k||x.walikelas||''),String(y.k||y.walikelas||''))||COL.compare(String(x.n||''),String(y.n||''))):a;let OM=null;
@@ -1010,29 +1015,30 @@ function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),K
  const pl=()=>{z('kp2').innerHTML=`<option value="">Semua (${list().length})</option>`+list().map((u,i)=>`<option value="${esc(u.u)}">${esc(u.n)}</option>`).join('')};pl();const tg=()=>{z('kup').hidden=!/Ujian/.test(z('kj').value)};z('kj').onchange=()=>{pl();tg();mt()};z('kk2').onchange=()=>{pl();mt()};z('kur').onchange=()=>{KUR=z('kur').value;pl();mt();if(z('kpv').children.length)show()};
  const fl=()=>{z('kfl').innerHTML=C.ord.map((f,i)=>`<label style="display:inline-flex;gap:4px;align-items:center;border:1px solid var(--ln);padding:3px 6px;border-radius:6px"><input type="checkbox" data-f="${f}" ${C.show[f]?'checked':''} style="width:auto"> ${f} <button class="g" type="button" data-m="${i}" data-s="-1" style="padding:0 5px">◀</button><button class="g" type="button" data-m="${i}" data-s="1" style="padding:0 5px">▶</button></label>`).join('')};fl();
  z('kfl').onclick=e=>{const d=e.target.dataset;if(d.m!==undefined){const i=+d.m,j=i+ +d.s;if(j>=0&&j<C.ord.length){[C.ord[i],C.ord[j]]=[C.ord[j],C.ord[i]];fl()}}};z('kfl').onchange=e=>{if(e.target.dataset.f)C.show[e.target.dataset.f]=e.target.checked?1:0};
- const rd=()=>{OM=null;Object.assign(C,{size:z('ksz').value,cw:+z('kcw').value||85.6,ch:+z('kch').value||53.98,urut:KUR||'absen',la:z('kla').checked?1:0,ls:z('kls').checked?1:0,or:z('kor').value,color:z('kcl').value,rad:+z('krd').value,bd:z('kbd').checked?1:0,bw:+z('kbw').value,bc:z('kbc').value,bs:z('kbs').value,logo:z('klg').value||(C.logo.startsWith('data:')?C.logo:''),judul:z('kjd').value,b2:z('kb2').value,b3:z('kb3').value,tc:z('ktc').value,ta:z('kta').value,ts:+z('kts').value,tl:+z('ktl').value,fh:z('kfh').value,fn:z('kfn').value,fi:z('kfi').value});Object.assign(KU,{judul:z('kuj').value,nama:z('kun').value,th:z('kth').value,fmt:z('kfm').value||'{NO}',st:+z('kst').value||0,pn:z('kpn').value})};
+ const rd=()=>{OM=null;Object.assign(C,{size:z('ksz').value,cw:+z('kcw').value||85.6,ch:+z('kch').value||53.98,urut:KUR||'absen',la:z('kla').checked?1:0,ls:z('kls').checked?1:0,or:z('kor').value,color:z('kcl').value,rad:+z('krd').value,bd:z('kbd').checked?1:0,bw:+z('kbw').value,bc:z('kbc').value,bs:z('kbs').value,logo:z('klg').value||(C.logo.startsWith('data:')?C.logo:''),judul:z('kjd').value,b2:z('kb2').value,b3:z('kb3').value,tc:z('ktc').value,ta:z('kta').value,ts:+z('kts').value,tl:+z('ktl').value,fh:z('kfh').value,fn:z('kfn').value,fi:z('kfi').value});['gh','gb','gn','gi'].forEach(g=>C[g]=[...v.querySelectorAll('[data-g="'+g+'"]:checked')].map(x=>x.dataset.v));C.ft=z('kft').checked?1:0;Object.assign(KU,{judul:z('kuj').value,nama:z('kun').value,th:z('kth').value,fmt:z('kfm').value||'{NO}',st:+z('kst').value||0,pn:z('kpn').value})};
  z('krd').oninput=()=>{z('krv').textContent=z('krd').value;if(z('kpv').children.length)show()};z('kbw').oninput=()=>{z('kbv').textContent=z('kbw').value;if(z('kpv').children.length)show()};['kbd','kbc','kbs'].forEach(i=>z(i).onchange=()=>{if(z('kpv').children.length)show()});
  z('klf').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,u=>{C.logo=u;z('klg').value=''})};
  const om=()=>{if(!OM){OM=new Map();const c={};srt(DB.users.filter(x=>x.r=='siswa')).forEach((x,i)=>{const k=String(x.k);c[k]=(c[k]||0)+1;OM.set(x,[i+1,c[k]])})}return OM},nk=u=>(om().get(u)||[0,0])[1],na=u=>(om().get(u)||[0,0])[0],nomP=u=>{if(KU.man[u.u])return KU.man[u.u];const n=(KU.pn=='a'?na(u):nk(u))+(+KU.st||0)-1,kl=String(u.k||'').replace(/^kelas\s*/i,'').replace(/\s+/g,'');return KU.fmt.replace(/\{NO(\d*)\}/g,(m,d)=>String(n).padStart(+d||0,'0')).replace(/\{KELAS\}/g,kl).replace(/\{NISN\}/g,u.nisn||'').replace(/\{NIS\}/g,u.u).replace(/\{TH\}/g,KU.th||'')};
+ const kFoot=()=>{syncKep();return`<div style="clear:both;display:block;break-inside:avoid;page-break-inside:avoid;background:#fff;color:#000;padding:10px 8px 4px;margin-top:12px">${ttdPrev(DB.set.kop||{},1)}</div>`};
  const kdim=()=>{let [w,h]=C.size=='cus'?[+C.cw||85.6,+C.ch||53.98]:(KSZ[C.size]||KSZ.id1);w=Math.max(30,w);h=Math.max(30,h);if(C.or=='p'&&C.size!='cus'){[w,h]=[h,w]}const s=Math.min(w/(C.or=='p'?53.98:85.6),h/(C.or=='p'?85.6:53.98));return[w,h,s]};
  const kf=i=>{const[w,h,s]=kdim();return`<div style="display:inline-block;width:${w}mm;height:${h}mm;box-sizing:border-box;margin:8px;border:${C.bd&&C.bw>0&&C.bs!='none'?C.bw+'px '+(C.bs||'solid')+' '+(C.bc||'#999'):'0'};border-radius:${C.rad}px;overflow:hidden;background:#fff;vertical-align:top;font-family:Arial,sans-serif;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact"><div style="display:flex;flex-direction:column;width:${(w/s).toFixed(2)}mm;height:${(h/s).toFixed(2)}mm;zoom:${s.toFixed(4)}">${i}</div></div>`};
- const kh=(t,a,b)=>`<div style="flex:0 0 auto;background:${C.color};color:${C.tc};padding:4px 8px;display:flex;align-items:center;gap:6px;text-align:${C.ta}">${kLg(C,'l')}<div style="flex:1;min-width:0"><div style="font-size:${Math.min(C.ts,16)}px;font-weight:bold;line-height:1.15;color:${C.fh==KD0.fh?C.tc:C.fh}">${esc(t)}</div><div style="font-size:10px;line-height:1.2">${esc(a)}</div>${b?`<div style="font-size:9px;line-height:1.2">${esc(b)}</div>`:''}</div>${kLg(C,'r')}</div>`;
+ const kh=(t,a,b)=>`<div style="flex:0 0 auto;background:${C.color};color:${C.tc};padding:4px 8px;display:flex;align-items:center;gap:6px;text-align:${C.ta}">${kLg(C,'l')}<div style="flex:1;min-width:0"><div style="font-size:${Math.min(C.ts,16)}px;${sty(C.gh)}line-height:1.15;color:${C.fh==KD0.fh?C.tc:C.fh}">${esc(t)}</div><div style="font-size:10px;line-height:1.2;${sty(C.gb)}">${esc(a)}</div>${b?`<div style="font-size:9px;line-height:1.2;${sty(C.gb)}">${esc(b)}</div>`:''}</div>${kLg(C,'r')}</div>`;
  const cardA=u=>{const P=C.or=='p',sk=(DB.set.skl&&DB.set.skl.nama)||DB.set.school||'',pw=P?'20mm':'16mm',ph_=P?'26mm':'21mm',
  ph=u.foto?`<img src="${u.foto}" alt="" style="width:${pw};height:${ph_};object-fit:cover;border:1px solid #ccc;border-radius:4px;display:block">`:`<div style="width:${pw};height:${ph_};border:1px dashed #999;border-radius:4px;display:grid;place-items:center;font-size:8px;color:#888;text-align:center">Foto<br>3x4</div>`,
  nis=[C.show.NIS!==0?u.u:'',C.show.NISN!==0&&u.nisn?u.nisn:''].filter(x=>x).join(' / '),
- tx=`<div style="flex:1;min-width:0;font-size:9.5px;line-height:1.3;color:${C.fi}${P?';text-align:center;width:100%':''}"><div style="font-size:12.5px;line-height:1.15;font-weight:bold;color:${C.fn}">${esc(u.n)}</div>${nis?`<div>NIS/NISN: ${esc(nis)}</div>`:''}${C.show.Kelas!==0?`<div>Kelas: ${esc(u.k||'-')}</div>`:''}<div style="font-size:8.5px;margin-top:2px">Terdaftar pada <b>${esc(sk)}</b></div></div>`,
+ tx=`<div style="flex:1;min-width:0;font-size:9.5px;line-height:1.3;color:${C.fi}${P?';text-align:center;width:100%':''}"><div style="font-size:12.5px;line-height:1.15;${sty(C.gn)}color:${C.fn}">${esc(u.n)}</div>${nis?`<div style="${sty(C.gi)}">NIS/NISN: ${esc(nis)}</div>`:''}${C.show.Kelas!==0?`<div style="${sty(C.gi)}">Kelas: ${esc(u.k||'-')}</div>`:''}<div style="font-size:8.5px;margin-top:2px;${sty(C.gi)}">Terdaftar pada <b>${esc(sk)}</b></div></div>`,
  qr=`<div style="flex:0 0 19mm;text-align:center"><img class="qrz" data-q="${esc(u.u)}" alt="" style="width:18mm;height:18mm"><div style="font-size:6px;color:#666;line-height:1.1">QR kartu absensi &amp; koperasi</div></div>`;
  return kf(kh(C.judul||'KARTU ABSENSI & PELAJAR',C.b2,C.b3)+`<div style="flex:1;min-height:0;overflow:hidden;display:flex;${P?'flex-direction:column;gap:5px;justify-content:center':'gap:6px'};padding:4px 8px;align-items:center">${P?`<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:0 0 auto">${ph}</div>${qr}</div>`+tx:ph+tx+qr}</div>`)};
- const cardU=u=>{const P=C.or=='p',ph=u.foto?`<img src="${u.foto}" style="width:16mm;height:21mm;object-fit:cover;border:1px solid #ccc;display:block">`:`<div style="width:16mm;height:21mm;border:1px dashed #999;display:grid;place-items:center;font-size:8px;color:#888;text-align:center">Foto<br>3x4</div>`,tx=`<div style="flex:1;min-width:0;font-size:9.5px;line-height:1.3;color:${C.fi}${P?';text-align:center;width:100%':''}"><div style="font-size:12px;line-height:1.15;font-weight:bold;color:${C.fn}">${esc(u.n)}</div><div>NIS/NISN: ${esc(u.u)}${u.nisn?' / '+esc(u.nisn):''}</div><div>Kelas: ${esc(u.k||'-')}</div><div>No. Peserta: <b>${esc(nomP(u))}</b></div>${u.ruang?'<div>Ruang: <b>'+esc(u.ruang)+'</b></div>':''}</div>`,qr=`<div style="flex:0 0 19mm;text-align:center"><img class="qrz" data-q="${esc(u.u)}" style="width:18mm;height:18mm"><div style="margin-top:1px;line-height:1"><div style="font-size:7px;color:#666">NO. MEJA</div><div style="font-size:22px;font-weight:bold;color:${C.fn}">${nk(u)||'-'}</div></div></div>`;return kf(kh(KU.judul||'KARTU UJIAN',C.b2,KU.nama)+`<div style="flex:1;min-height:0;overflow:hidden;display:flex;${P?'flex-direction:column;gap:5px;justify-content:center':'gap:6px'};padding:4px 8px;align-items:center">${P?`<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:0 0 16mm">${ph}</div>${qr}</div>`+tx:`<div style="flex:0 0 16mm">${ph}</div>`+tx+qr}</div>`)};
- const HR=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'],cardB=u=>{const r=(DB.data.jadwal||[]).filter(x=>x.Jenis=='Jadwal Ujian'&&x.Kelas==u.k).sort((a,b)=>HR.indexOf(a.Hari)-HR.indexOf(b.Hari)||String(a.Mulai||a.Jam||'').localeCompare(String(b.Mulai||b.Jam||''))),n=r.length,fs=(n<=7?9:n<=10?8:n<=13?7:6)-(C.or=='p'?1:0),rows=r.slice(0,16);return kf(kh('JADWAL UJIAN',u.n+' · '+(u.k||''),KU.nama)+`<div style="flex:1;min-height:0;overflow:hidden;padding:3px 8px;font-size:${fs}px;line-height:1.25;color:${C.fi}">${n?`<table style="width:100%;border-collapse:collapse;color:${C.fi}"><tr style="font-weight:bold;animation:none"><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Hari</td><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Jam</td><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Mata Pelajaran</td></tr>${rows.map(x=>`<tr style="animation:none"><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi}">${esc(x.Hari||'')}</td><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi}">${esc(x.Mulai&&x.Selesai?x.Mulai+'-'+x.Selesai:(x.Jam||''))}</td><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi}">${esc(x.Mapel||'')}</td></tr>`).join('')}</table>`:'<i>Belum ada Jadwal Ujian untuk kelas ini (buat di menu Jadwal, jenis Jadwal Ujian).</i>'}</div><div style="flex:0 0 auto;font-size:6.5px;color:#666;padding:0 8px 3px;text-align:center">Kartu wajib dibawa saat ujian</div>`)};
+ const cardU=u=>{const P=C.or=='p',ph=u.foto?`<img src="${u.foto}" style="width:16mm;height:21mm;object-fit:cover;border:1px solid #ccc;display:block">`:`<div style="width:16mm;height:21mm;border:1px dashed #999;display:grid;place-items:center;font-size:8px;color:#888;text-align:center">Foto<br>3x4</div>`,tx=`<div style="flex:1;min-width:0;font-size:9.5px;line-height:1.3;color:${C.fi}${P?';text-align:center;width:100%':''}"><div style="font-size:12px;line-height:1.15;${sty(C.gn)}color:${C.fn}">${esc(u.n)}</div><div style="${sty(C.gi)}">NIS/NISN: ${esc(u.u)}${u.nisn?' / '+esc(u.nisn):''}</div><div style="${sty(C.gi)}">Kelas: ${esc(u.k||'-')}</div><div style="${sty(C.gi)}">No. Peserta: <b>${esc(nomP(u))}</b></div>${u.ruang?'<div style="'+sty(C.gi)+'">Ruang: <b>'+esc(u.ruang)+'</b></div>':''}</div>`,qr=`<div style="flex:0 0 19mm;text-align:center"><img class="qrz" data-q="${esc(u.u)}" style="width:18mm;height:18mm"><div style="margin-top:1px;line-height:1"><div style="font-size:7px;color:#666">NO. MEJA</div><div style="font-size:22px;font-weight:bold;color:${C.fn}">${nk(u)||'-'}</div></div></div>`;return kf(kh(KU.judul||'KARTU UJIAN',C.b2,KU.nama)+`<div style="flex:1;min-height:0;overflow:hidden;display:flex;${P?'flex-direction:column;gap:5px;justify-content:center':'gap:6px'};padding:4px 8px;align-items:center">${P?`<div style="display:flex;gap:10px;align-items:flex-start"><div style="flex:0 0 16mm">${ph}</div>${qr}</div>`+tx:`<div style="flex:0 0 16mm">${ph}</div>`+tx+qr}</div>`)};
+ const HR=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'],cardB=u=>{const r=(DB.data.jadwal||[]).filter(x=>x.Jenis=='Jadwal Ujian'&&x.Kelas==u.k).sort((a,b)=>HR.indexOf(a.Hari)-HR.indexOf(b.Hari)||String(a.Mulai||a.Jam||'').localeCompare(String(b.Mulai||b.Jam||''))),n=r.length,fs=(n<=7?9:n<=10?8:n<=13?7:6)-(C.or=='p'?1:0),rows=r.slice(0,16);return kf(kh('JADWAL UJIAN',u.n+' · '+(u.k||''),KU.nama)+`<div style="flex:1;min-height:0;overflow:hidden;padding:3px 8px;font-size:${fs}px;line-height:1.25;color:${C.fi}">${n?`<table style="width:100%;border-collapse:collapse;color:${C.fi}"><tr style="font-weight:bold;animation:none"><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Hari</td><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Jam</td><td style="padding:1px 2px;border:0;white-space:normal;color:${C.fn}">Mata Pelajaran</td></tr>${rows.map(x=>`<tr style="animation:none"><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi};${sty(C.gi)}">${esc(x.Hari||'')}</td><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi};${sty(C.gi)}">${esc(x.Mulai&&x.Selesai?x.Mulai+'-'+x.Selesai:(x.Jam||''))}</td><td style="border:0;border-top:1px solid #ddd;padding:1px 2px;white-space:normal;color:${C.fi};${sty(C.gi)}">${esc(x.Mapel||'')}</td></tr>`).join('')}</table>`:'<i>Belum ada Jadwal Ujian untuk kelas ini (buat di menu Jadwal, jenis Jadwal Ujian).</i>'}</div><div style="flex:0 0 auto;font-size:6.5px;color:#666;padding:0 8px 3px;text-align:center">Kartu wajib dibawa saat ujian</div>`)};
  const mt=()=>{rd();const a=list();z('kmt').innerHTML=a.length?`<table style="width:100%"><tr><th>Nama</th><th>Kelas</th><th>No. Meja</th><th>No. Peserta</th></tr>${a.map(u=>`<tr><td>${esc(u.n)}</td><td>${esc(u.k||'')}</td><td>${nk(u)}</td><td><input data-u="${esc(u.u)}" value="${esc(nomP(u))}"></td></tr>`).join('')}</table>`:''};
  z('kmt').oninput=e=>{if(e.target.dataset.u)KU.man[e.target.dataset.u]=e.target.value};
  z('kmr').onclick=()=>{rd();list().forEach(u=>delete KU.man[u.u]);mt()};['kfm','kth','kst','kpn'].forEach(i=>z(i).onchange=mt);tg();mt();
  const card=(u,j)=>{if(/Absensi|Pelajar/.test(j))return cardA(u);if(j=='Kartu Ujian Biasa')return cardU(u);if(j=='Kartu Ujian Berjadwal')return cardU(u)+cardB(u);const g=j=='Kartu Guru',jd=C.judul||j.toUpperCase(),val={Nama:u.n,NIS:g?'':u.u,NISN:u.nisn||'',NIP:g?u.u:'',Kelas:(g?u.walikelas:u.k)||'',Ruang:u.ruang||'','No. Meja':u.meja||''};
-  const P=C.or=='p',img=j=='Kartu Pelajar'&&u.foto?`<img src="${u.foto}" style="width:${P?'20mm':'15mm'};height:${P?'26mm':'20mm'};object-fit:cover;border:1px solid #ccc">`:`<img class="qrz" data-q="${esc(u.u)}" style="width:${P?'24mm':'20mm'};height:${P?'24mm':'20mm'}">`,tx=`<div style="flex:${P?'0 1 auto':'1'};min-width:0;font-size:10px;line-height:1.3${P?';text-align:center;width:100%':''}"><div style="font-size:13px;line-height:1.2;font-weight:bold;color:${C.fn}">${esc(u.n)}</div>${C.ord.filter(f=>f!='Nama'&&C.show[f]&&val[f]).map(f=>`<div style="color:${C.fi}">${f}: ${esc(val[f])}</div>`).join('')}</div>`;
+  const P=C.or=='p',img=j=='Kartu Pelajar'&&u.foto?`<img src="${u.foto}" style="width:${P?'20mm':'15mm'};height:${P?'26mm':'20mm'};object-fit:cover;border:1px solid #ccc">`:`<img class="qrz" data-q="${esc(u.u)}" style="width:${P?'24mm':'20mm'};height:${P?'24mm':'20mm'}">`,tx=`<div style="flex:${P?'0 1 auto':'1'};min-width:0;font-size:10px;line-height:1.3${P?';text-align:center;width:100%':''}"><div style="font-size:13px;line-height:1.2;${sty(C.gn)}color:${C.fn}">${esc(u.n)}</div>${C.ord.filter(f=>f!='Nama'&&C.show[f]&&val[f]).map(f=>`<div style="color:${C.fi};${sty(C.gi)}">${f}: ${esc(val[f])}</div>`).join('')}</div>`;
   return kf(kh(jd,C.b2,C.b3)+`<div style="flex:1;min-height:0;overflow:hidden;display:flex;${P?'flex-direction:column;gap:6px;justify-content:center':'gap:8px'};padding:5px 8px;align-items:center">${P?img+tx:tx+img}</div>`)};
- const show=()=>{rd();const j=z('kj').value,id=z('kp2').value,a=list().filter(u=>!id||u.u==id);z('kpv').innerHTML=a.length?a.map(u=>card(u,j)).join(''):'Tidak ada data.';z('kpv').querySelectorAll('.qrz').forEach(i=>{const u=qrUrl(i.dataset.q);if(u)i.src=u;else i.alt=i.dataset.q})};
- const cu=()=>{const c=z('ksz').value=='cus';v.querySelectorAll('.kcu').forEach(x=>x.hidden=!c)};cu();['ksz','kcw','kch'].forEach(i=>z(i).onchange=()=>{cu();rd();if(z('kpv').children.length)show()});z('ktp').onclick=show;z('kor').onchange=()=>{if(z('kpv').children.length)show()};z('kcp').onclick=()=>{show();openPrint(z('kpv').innerHTML,'Kartu')};
+ const show=()=>{rd();const j=z('kj').value,id=z('kp2').value,a=list().filter(u=>!id||u.u==id);z('kpv').innerHTML=a.length?a.map(u=>card(u,j)).join('')+(C.ft?kFoot():''):'Tidak ada data.';z('kpv').querySelectorAll('.qrz').forEach(i=>{const u=qrUrl(i.dataset.q);if(u)i.src=u;else i.alt=i.dataset.q})};
+ const cu=()=>{const c=z('ksz').value=='cus';v.querySelectorAll('.kcu').forEach(x=>x.hidden=!c)};cu();['ksz','kcw','kch'].forEach(i=>z(i).onchange=()=>{cu();rd();if(z('kpv').children.length)show()});z('kgy').onchange=()=>{if(z('kpv').children.length)show()};z('kft').onchange=()=>{if(z('kpv').children.length)show()};z('ktp').onclick=show;z('kor').onchange=()=>{if(z('kpv').children.length)show()};z('kcp').onclick=()=>{show();openPrint(z('kpv').innerHTML,'Kartu')};
  z('ksv').onclick=()=>{rd();DB.set.kartu=C;DB.set.kujian=KU;save();alert('Pengaturan kartu tersimpan.')};z('krs').onclick=()=>{delete DB.set.kartu;KUR='';save();kartuP(v)}}
 /* ---- LJK & Scan AI */
 const _isK=s=>s.dataset.c=='Kelas'||aclType(s)=='kelas',_isS=s=>(s.dataset.c=='Nama'&&!/guru/.test(cur))||aclType(s)=='siswa';
@@ -1308,16 +1314,17 @@ const DKS=[[['on','Pakai KOP ini pada semua dokumen cetak','check']],[['i1','Bar
 [['td','Tanggal dokumen','select',['Ikuti dokumen (otomatis)','Manual']],['tm','Tanggal manual','date'],['tp','Tempat / lokasi (mis. Ngandul)','text']],[['mg','Tulisan "Mengetahui"','text'],['sk','Nama sekolah','text']],[['kn','Nama Kepala Sekolah','text'],['kp','NIP Kepala Sekolah','text']],[['gk','Guru kelas berapa','text'],['gn','Nama Guru','text'],['gp','NIP Guru','text']],
 [['y1','Gaya Nama Kepala Sekolah','multi',BIU],['y2','Gaya NIP Kepala Sekolah','multi',BIU],['y3','Gaya Nama Guru','multi',BIU],['y4','Gaya NIP Guru','multi',BIU]],[['rt','Rata tanggal','select',AL3],['rk','Rata blok Kepala Sekolah','select',AL3],['rg','Rata blok Guru Kelas','select',AL3]],[['fo','Footer (tampil di dasar halaman cetak)','text']]];
 const DKG=[DKS.slice(0,6),DKS.slice(6,9),DKS.slice(9,16),DKS.slice(16)];
-const ttdPrev=k=>{const al={Kiri:'left',Tengah:'center',Kanan:'right'},mg={Kiri:'0 auto 0 0',Tengah:'0 auto',Kanan:'0 0 0 auto'},ph=(t,x)=>t?esc(t):`<span style="color:#999">${x}</span>`,tg=k.td=='Manual'&&k.tm?fd(k.tm):fd(SD()),ks=k.jb||(k.sk?'Kepala '+k.sk:'Kepala Sekolah'),gl='Guru Kelas'+(k.gk?' '+k.gk:''),
-  blk=(top,jab,n,p,sn,sp,a)=>`<td style="width:50%;border:0;vertical-align:top;padding:0"><div style="width:250px;max-width:100%;text-align:center;margin:${mg[a]||mg.Kiri}">${top?esc(top):'&nbsp;'}<br>${esc(jab)}<br><br><br><br><span style="${sty(sn)}">${ph(n,'(Nama)')}</span><br>${p?`<span style="${sty(sp)}">NIP. ${esc(p)}</span>`:'<span style="color:#999">NIP. -</span>'}</div></td>`;
-  return`<div style="font-family:'${k.ft||'Times New Roman'}',serif;font-size:${k.ss||12}pt;color:#000"><div style="text-align:${al[k.rt||'Kanan']}">${k.tp?esc(k.tp)+', ':''}${tg}</div><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr>${blk(k.mg||'Mengetahui,',ks,k.kn,k.kp,k.y1||['B','U'],k.y2,k.rk||'Kiri')}${blk('',gl,k.gn,k.gp,k.y3||['B','U'],k.y4,k.rg||'Kanan')}</tr></table></div>`};
+const ttdPrev=(k,solo)=>{const al={Kiri:'left',Tengah:'center',Kanan:'right'},mg={Kiri:'0 auto 0 0',Tengah:'0 auto',Kanan:'0 0 0 auto'},ph=(t,x)=>t?esc(t):solo?'':`<span style="color:#999">${x}</span>`,tg=k.td=='Manual'&&k.tm?fd(k.tm):fd(SD()),ks=k.jb||(k.sk?'Kepala '+k.sk:'Kepala Sekolah'),gl='Guru Kelas'+(k.gk?' '+k.gk:''),
+  blk=(top,jab,n,p,sn,sp,a)=>`<td style="width:50%;border:0;vertical-align:top;padding:0"><div style="width:250px;max-width:100%;text-align:center;margin:${mg[a]||mg.Kiri}">${top?esc(top):'&nbsp;'}<br>${esc(jab)}<br><br><br><br><span style="${sty(sn)}">${ph(n,'(Nama)')}</span><br>${p?`<span style="${sty(sp)}">NIP. ${esc(p)}</span>`:solo?'':'<span style="color:#999">NIP. -</span>'}</div></td>`;
+  return`<div style="font-family:'${k.ft||'Times New Roman'}',serif;font-size:${k.ss||12}pt;color:#000"><div style="text-align:${al[k.rt||'Kanan']}">${k.tp?esc(k.tp)+', ':''}${tg}</div><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr>${blk(k.mg||'Mengetahui,',ks,k.kn,k.kp,k.y1||['B','U'],k.y2,k.rk||'Kiri')}${solo?'':blk('',gl,k.gn,k.gp,k.y3||['B','U'],k.y4,k.rg||'Kanan')}</tr></table></div>`};
 const kop=()=>{const k=DB.set.kop||{};if(k.on===false)return'';const ra={Tengah:'center',Kiri:'left',Kanan:'right'}[k.ra||'Tengah'],ln=k.gb=='Tidak ada'?'':k.gb=='Tunggal'?'border-bottom:2px solid #000;':'border-bottom:3px double #000;';
  const L=(t,s,g)=>t?`<div style="font-size:${s}pt;${sty(g)}">${esc(t)}</div>`:'',lg=u=>u?`<img src="${u}" style="height:${k.ls||65}px">`:'';
  return`<div style="display:flex;align-items:center;gap:12px;${ln}padding-bottom:6px;margin-bottom:12px;font-family:'${k.fk||'Times New Roman'}',serif">${lg(k.lgk||k.logo)}<div style="flex:1;text-align:${ra};line-height:1.3">${L(k.i1,k.s1||12,k.g1)}${L(k.i2,k.s2||14,k.g2||['B'])}${L(k.i3,k.s3||12,k.g3||['B'])}${L(k.al,k.sa||9,[])}</div>${lg(k.lgr||DB.set.logoDok)}</div>`};
 const ttd=(jab,n,p)=>{const k=DB.set.kop||{},m={Kiri:'24px auto 0 0',Tengah:'24px auto 0',Kanan:'24px 0 0 auto'}[k.rk||'Kanan'];return`<div style="text-align:center;width:270px;margin:${m};font-family:'${k.ft||'Times New Roman'}',serif;font-size:${k.ss||12}pt">${esc(k.jb&&jab=='Kepala Sekolah'?k.jb:jab)}<br><br><br><br><span style="${sty(k.y1||['B','U'])}">${esc(n||'')}</span><br>${p?`<span style="${sty(k.y2)}">NIP. ${esc(p)}</span>`:''}</div>`};
 function dokP(v){const k=DB.set.kop=Object.assign({on:true,ls:65,ra:'Tengah',gb:'Ganda',g2:['B'],g3:['B'],s1:12,s2:14,s3:12,sa:9,sj:14,st:12,si:12,ss:12,fk:FONTS[0],ft:FONTS[0],fi:FONTS[0],y1:['B','U'],y2:['B'],y3:['B','U'],y4:['B'],rt:'Kanan',rk:'Kiri',rg:'Kanan',td:'Ikuti dokumen (otomatis)',sk:DB.set.school},DB.set.kop||{});
- v.innerHTML=`<h2>Master Dokumen</h2><div class="pnl"><small>Template KOP (header), footer, jenis & ukuran font, serta tanda tangan untuk surat/dokumen cetak (Surat, Modul Ajar, Soal Ujian).</small>${fh('dk',DKG[0])}<div class="row"><label>Unggah logo kiri (dinas)<input type="file" id="dklf" accept="image/*"></label><button class="g" id="dkrl" type="button">Hapus logo kiri</button><label>Unggah logo kanan (sekolah)<input type="file" id="dklr" accept="image/*"></label><button class="g" id="dkrr" type="button">Hapus logo kanan</button></div></div><div class="pnl">${fh('dk',DKG[1])}</div><div class="pnl">${fh('dk',DKG[2])}</div><div class="pnl">${fh('dk',DKG[3])}</div><div class="pnl np"><div class="row"><button id="dksv" type="button">💾 Simpan KOP</button></div></div><div class="pnl"><b>Pratinjau KOP</b><div id="dkpv" style="background:#fff;color:#000;padding:12px"></div></div><div class="pnl"><b>Pratinjau Footer Tanda Tangan</b><br><small>Tampilan blok tanda tangan pada cetakan (rekap absensi, KHS, penilaian, surat, dan dokumen lain). Berubah langsung saat Anda mengedit isian di atas.</small><div id="dkpt" style="background:#fff;color:#000;padding:12px;margin-top:6px"></div></div>`;
- fset('dk',DKS,{...k,lgk:k.lgk&&!k.lgk.startsWith('data:')?k.lgk:'',lgr:k.lgr&&!k.lgr.startsWith('data:')?k.lgr:''});let logo=k.lgk&&k.lgk.startsWith('data:')?k.lgk:'',logoR=k.lgr&&k.lgr.startsWith('data:')?k.lgr:'';
+ v.innerHTML=`<h2>Master Dokumen</h2><div class="pnl"><small>Template KOP (header), footer, jenis & ukuran font, serta tanda tangan untuk surat/dokumen cetak (Surat, Modul Ajar, Soal Ujian).</small>${fh('dk',DKG[0])}<div class="row"><label>Unggah logo kiri (dinas)<input type="file" id="dklf" accept="image/*"></label><button class="g" id="dkrl" type="button">Hapus logo kiri</button><label>Unggah logo kanan (sekolah)<input type="file" id="dklr" accept="image/*"></label><button class="g" id="dkrr" type="button">Hapus logo kanan</button></div></div><div class="pnl">${fh('dk',DKG[1])}</div><div class="pnl">${fh('dk',DKG[2])}<small id="dkkh"></small></div><div class="pnl">${fh('dk',DKG[3])}</div><div class="pnl np"><div class="row"><button id="dksv" type="button">💾 Simpan KOP</button></div></div><div class="pnl"><b>Pratinjau KOP</b><div id="dkpv" style="background:#fff;color:#000;padding:12px"></div></div><div class="pnl"><b>Pratinjau Footer Tanda Tangan</b><br><small>Tampilan blok tanda tangan pada cetakan (rekap absensi, KHS, penilaian, surat, dan dokumen lain). Berubah langsung saat Anda mengedit isian di atas.</small><div id="dkpt" style="background:#fff;color:#000;padding:12px;margin-top:6px"></div></div>`;
+ fset('dk',DKS,{...k,lgk:k.lgk&&!k.lgk.startsWith('data:')?k.lgk:'',lgr:k.lgr&&!k.lgr.startsWith('data:')?k.lgr:''});{const kg=kepsekGuru(),h=$('#dkkh');if(kg){['dkkn','dkkp'].forEach(i=>{const e=$('#'+i);if(e){e.readOnly=true;e.style.opacity='.75';e.title='Otomatis dari Master Guru'}});h.textContent='✅ Nama & NIP Kepala Sekolah otomatis dari Master Guru ('+kg.n+'). Untuk mengubahnya, edit di Master Guru.'}else h.textContent='⚠️ Belum ada guru berjabatan Kepala Sekolah di Master Guru. Isi manual, atau isi jabatan di Master Guru agar tersinkron otomatis.'}
+ let logo=k.lgk&&k.lgk.startsWith('data:')?k.lgk:'',logoR=k.lgr&&k.lgr.startsWith('data:')?k.lgr:'';
  const cur2=()=>{const o=fv('dk',DKS);return{...o,lgk:o.lgk||logo,lgr:o.lgr||logoR}};const pv=()=>{const t=DB.set.kop;DB.set.kop={...t,...cur2()};$('#dkpv').innerHTML=kop();$('#dkpt').innerHTML=ttdPrev(DB.set.kop);DB.set.kop=t};pv();v.oninput=pv;v.onchange=pv;
  $('#dklf').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,u=>{logo=u;$('#dklgk').value='';pv()})};$('#dkrl').onclick=()=>{logo='';$('#dklgk').value='';pv()};$('#dklr').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,u=>{logoR=u;$('#dklgr').value='';pv()})};$('#dkrr').onclick=()=>{logoR='';$('#dklgr').value='';pv()};
  $('#dksv').onclick=()=>{DB.set.kop={...DB.set.kop,...cur2()};delete DB.set.kop.logo;save();alert('KOP tersimpan.')}}
@@ -1400,87 +1407,23 @@ function dbp(v){
  <div class="row"><label>Mode impor<select id="fsm"><option value="gabung">Gabung: perbarui & tambah (aman)</option><option value="ganti">Ganti total data menu terkait</option></select></label></div>
  <div id="fsz" style="border:2px dashed var(--c);border-radius:12px;padding:18px;text-align:center;margin:8px 0">📂 Tarik & lepas berkas XLSX / XLS / CSV ke sini<br><label class="bl" style="margin-top:8px">Pilih berkas (bisa banyak)<input type="file" id="fsf" accept=".xlsx,.xls,.csv" multiple hidden></label></div>
  <div class="row"><label style="flex:3 1 300px">URL / ID Google Spreadsheet (akses "Siapa saja yang memiliki link: Pelihat"; dipakai juga untuk ekspor dan sinkron riwayat)<input id="fsu" value="${esc(DB.set.sheetUrl||'')}" placeholder="https://docs.google.com/spreadsheets/d/..."></label><button id="fsg" type="button">⚡ Tarik dari Google Sheets</button><button class="g" id="sus" type="button">💾 Simpan ID Sheet</button><button class="g" id="suo" type="button">↗ Buka Spreadsheet</button></div>
- <div class="row"><label style="flex:3 1 300px">URL Web App Apps Script (opsional, untuk ekspor langsung ke Google Sheets)<input id="gas" value="${esc(DB.set.gasUrl||'')}" placeholder="https://script.google.com/macros/s/.../exec"></label><button id="gass" type="button">💾 Simpan URL Web App</button></div><details><summary>Kode Apps Script (Extensions › Apps Script, tempel, lalu Deploy › Web app, akses: Anyone)</summary><pre style="white-space:pre-wrap;font-size:12px">-- =====================================================================
--- MySAPANSA - setup Supabase agar SEMUA fitur sinkron di SEMUA perangkat
--- Cara pakai: Supabase &gt; SQL Editor &gt; New query &gt; tempel semua &gt; Run.
--- Aman dijalankan berulang kali (idempotent) dan TIDAK menghapus data.
---
--- Pengaturan baru (ukuran kartu A1-A3 / B1-B4 / kustom, border kartu,
--- kelengkungan sudut, ukuran kertas cetak) disimpan di dalam dokumen JSON
--- "mysapansa_db" (DB.set.kartu dan DB.set.kertas), jadi TIDAK butuh tabel
--- atau kolom baru. Cukup tabel kv di bawah, lalu data ikut tersinkron.
--- =====================================================================
-
--- 1. Tabel penyimpanan (satu baris per dokumen: mysapansa_db, mysapansa_pres)
-create table if not exists public.kv (
-  id         text primary key,
-  data       jsonb,
-  updated_at timestamptz default now()
-);
-
--- Pastikan kolom &amp; default benar bila tabel lama sudah ada
-alter table public.kv add column if not exists data jsonb;
-alter table public.kv add column if not exists updated_at timestamptz default now();
-alter table public.kv alter column updated_at set default now();
-
--- 2. Penanda waktu otomatis: updated_at selalu diperbarui di server,
---    sehingga urutan "data terbaru" konsisten walau jam perangkat berbeda.
-create or replace function public.kv_touch_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at := now();
-  return new;
-end;
-$$;
-
-drop trigger if exists kv_touch on public.kv;
-create trigger kv_touch
-  before update on public.kv
-  for each row execute function public.kv_touch_updated_at();
-
--- 3. Row Level Security + kebijakan akses (kunci anon/publishable dipakai semua perangkat)
-alter table public.kv enable row level security;
-
-drop policy if exists "app_all"    on public.kv;
-drop policy if exists "kv_select"  on public.kv;
-drop policy if exists "kv_insert"  on public.kv;
-drop policy if exists "kv_update"  on public.kv;
-
-create policy "kv_select" on public.kv
-  for select to anon, authenticated using (true);
-
-create policy "kv_insert" on public.kv
-  for insert to anon, authenticated with check (true);
-
-create policy "kv_update" on public.kv
-  for update to anon, authenticated using (true) with check (true);
-
--- 4. Hak akses tabel untuk peran anon / authenticated
-grant usage on schema public to anon, authenticated;
-grant select, insert, update on public.kv to anon, authenticated;
-
--- 5. Muat ulang skema API agar perubahan langsung berlaku
-notify pgrst, 'reload schema';
-
--- 6. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
-select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
-
--- 7. Cek pengaturan cetak yang tersimpan (opsional; kosong sebelum pertama kali dipakai)
-select id,
-       data-&gt;'set'-&gt;'kertas'            as ukuran_kertas,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'size'    as ukuran_kartu,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'bw'      as tebal_border,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'rad'     as kelengkungan
-from public.kv
-where id = 'mysapansa_db';
-
--- CATATAN
--- * Jangan menambahkan baris awal kosong ke tabel kv: aplikasi akan membuat
---   baris mysapansa_db sendiri saat pertama kali sinkron.
--- * Karena aplikasi berjalan tanpa server, siapa pun yang memegang anon key bisa
---   membaca isi tabel kv (termasuk sandi akun). Jangan bagikan key tersebut.</pre></details>
+ <div class="row"><label style="flex:3 1 300px">URL Web App Apps Script (opsional, untuk ekspor langsung ke Google Sheets)<input id="gas" value="${esc(DB.set.gasUrl||'')}" placeholder="https://script.google.com/macros/s/.../exec"></label><button id="gass" type="button">💾 Simpan URL Web App</button></div><details><summary>Kode Apps Script (Extensions › Apps Script, tempel, lalu Deploy › Web app, akses: Anyone)</summary><pre style="white-space:pre-wrap;font-size:12px">// Google Apps Script - Web App penerima ekspor MySAPANSA ke Google Sheets
+// Deploy &gt; New deployment &gt; Web app &gt; Execute as: Me &gt; Who has access: Anyone
+function doPost(e) {
+  var d = JSON.parse(e.postData.contents);
+  var ss = SpreadsheetApp.openById(d.id);
+  (d.sheets || []).forEach(function (s) {
+    var sh = ss.getSheetByName(s.name) || ss.insertSheet(s.name);
+    sh.clear();
+    var rows = s.rows || [];
+    var cols = rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+    if (!rows.length || !cols) return;
+    rows = rows.map(function (r) { while (r.length &lt; cols) r.push(''); return r; });
+    sh.getRange(1, 1, rows.length, cols).setValues(rows);
+  });
+  return ContentService.createTextOutput('OK');
+}
+</pre></details>
  <b>⚡ Aksi cepat</b><div class="row"><button class="g" id="atp" type="button">1. Buat Template Sheet</button><label>2. Impor Massal Semua Data (ganti)<input type="file" id="aim" accept=".xlsx,.xls"></label><button class="g" id="aex" type="button">3. Ekspor ke File (.xlsx)</button><button class="g" id="aes" type="button">3b. Ekspor ke Google Sheets</button></div>
  <div class="row"><label>Jenis data tempelan<select id="fsk"><option value="">Deteksi otomatis dari header</option>${DS.map(d=>`<option value="${d[0]}">${d[1]}</option>`).join('')}</select></label></div>
  <label>Tempel dari spreadsheet (salin sel termasuk baris header, lalu Ctrl+V)<textarea id="fsp" rows="4"></textarea></label><div class="row"><button id="fsb" type="button">📋 Impor data tempelan</button></div><div id="fsl" style="font-size:13px;margin-top:6px"></div></div>
@@ -1894,9 +1837,20 @@ function cloudP(el){el.innerHTML=`<b>☁️ Penyimpanan Cloud (Supabase)</b> <sm
  <div class="row"><label style="flex:2 1 240px">Project URL<input id="cu" placeholder="https://xxxx.supabase.co" value="${esc(CL.url||'')}"></label><label style="flex:3 1 260px">Anon public key<input id="ck" type="password" value="${esc(CL.key||'')}"></label><label><span><input type="checkbox" id="co2" ${CL.on?'checked':''} style="width:auto"> Aktifkan sinkron</span></label></div>
  <div class="row"><button id="csy" type="button">🔄 Sinkronisasi Manual</button><button class="g" id="cs" type="button">Simpan & Uji</button><button class="g" id="cup" type="button">⬆ Unggah sekarang</button><button class="g" id="cdn" type="button">⬇ Ambil dari cloud</button><button class="g" id="cin2" type="button">📊 Cek Penyimpanan</button><small id="cst">${esc(CL.st||'')}</small></div><div id="cin"></div>
  <details><summary>Langkah setup (sekali saja)</summary><small>Di Supabase buka SQL Editor, tempel, lalu Run (aman diulang). Kunci Project URL &amp; anon key yang sama dipakai di semua perangkat:</small><pre style="white-space:pre-wrap;font-size:12px">-- =====================================================================
--- MySAPANSA - setup Supabase agar data sinkron di SEMUA perangkat
--- Cara pakai: Supabase > SQL Editor > New query > tempel semua > Run.
+-- MySAPANSA - setup Supabase agar SEMUA fitur sinkron di SEMUA perangkat
+-- Cara pakai: Supabase &gt; SQL Editor &gt; New query &gt; tempel semua &gt; Run.
 -- Aman dijalankan berulang kali (idempotent) dan TIDAK menghapus data.
+--
+-- Semua pengaturan disimpan di dalam SATU dokumen JSON "mysapansa_db"
+-- pada tabel kv, jadi fitur baru TIDAK butuh tabel/kolom baru:
+--   set.kartu   -&gt; pengaturan Cetak Kartu (ukuran, border, sudut,
+--                  gaya teks tebal/miring/garis bawah gh/gb/gn/gi,
+--                  footer tanda tangan ft)
+--   set.kop     -&gt; Master Dokumen (KOP, font, footer, kn/kp = nama &amp;
+--                  NIP Kepala Sekolah yang otomatis dari Master Guru)
+--   set.kertas  -&gt; ukuran kertas cetak
+--   users       -&gt; Master Siswa &amp; Master Guru
+-- Cukup tabel kv di bawah, lalu semua data ikut tersinkron.
 -- =====================================================================
 
 -- 1. Tabel penyimpanan (satu baris per dokumen: mysapansa_db, mysapansa_pres)
@@ -1906,12 +1860,29 @@ create table if not exists public.kv (
   updated_at timestamptz default now()
 );
 
--- Pastikan kolom & default benar bila tabel lama sudah ada
+-- Pastikan kolom &amp; default benar bila tabel lama sudah ada
 alter table public.kv add column if not exists data jsonb;
 alter table public.kv add column if not exists updated_at timestamptz default now();
 alter table public.kv alter column updated_at set default now();
 
--- 2. Row Level Security + kebijakan akses (kunci anon/publishable dipakai semua perangkat)
+-- 2. Penanda waktu otomatis: updated_at selalu diperbarui di server,
+--    sehingga urutan "data terbaru" konsisten walau jam perangkat berbeda.
+create or replace function public.kv_touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+drop trigger if exists kv_touch on public.kv;
+create trigger kv_touch
+  before update on public.kv
+  for each row execute function public.kv_touch_updated_at();
+
+-- 3. Row Level Security + kebijakan akses (kunci anon/publishable dipakai semua perangkat)
 alter table public.kv enable row level security;
 
 drop policy if exists "app_all"    on public.kv;
@@ -1928,21 +1899,52 @@ create policy "kv_insert" on public.kv
 create policy "kv_update" on public.kv
   for update to anon, authenticated using (true) with check (true);
 
--- 3. Hak akses tabel untuk peran anon / authenticated
+-- 4. Hak akses tabel untuk peran anon / authenticated
 grant usage on schema public to anon, authenticated;
 grant select, insert, update on public.kv to anon, authenticated;
 
--- 4. Muat ulang skema API agar perubahan langsung berlaku
+-- 5. Muat ulang skema API agar perubahan langsung berlaku
 notify pgrst, 'reload schema';
 
--- 5. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
+-- 6. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
 select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
+
+-- 7. Cek pengaturan cetak yang tersimpan (opsional; kosong sebelum pertama kali dipakai)
+select id,
+       data-&gt;'set'-&gt;'kertas'              as ukuran_kertas,
+       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'size'      as ukuran_kartu,
+       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'bw'        as tebal_border,
+       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'rad'       as kelengkungan,
+       data-&gt;'set'-&gt;'kartu'-&gt;'gh'         as gaya_judul_header,
+       data-&gt;'set'-&gt;'kartu'-&gt;'gn'         as gaya_nama,
+       data-&gt;'set'-&gt;'kartu'-&gt;'gi'         as gaya_isi,
+       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'ft'        as footer_ttd_kartu
+from public.kv
+where id = 'mysapansa_db';
+
+-- 8. Cek sinkron Kepala Sekolah (opsional):
+--    kolom guru_* = sumber di Master Guru, kolom kop_* = yang dipakai di dokumen.
+--    Keduanya harus sama setelah aplikasi dibuka &amp; disimpan sekali.
+select g-&gt;&gt;'n'  as guru_nama,
+       g-&gt;&gt;'u'  as guru_nip,
+       g-&gt;&gt;'jabatan' as guru_jabatan,
+       d.data-&gt;'set'-&gt;'kop'-&gt;&gt;'kn' as kop_nama,
+       d.data-&gt;'set'-&gt;'kop'-&gt;&gt;'kp' as kop_nip
+from public.kv d
+cross join lateral jsonb_array_elements(coalesce(d.data-&gt;'users', '[]'::jsonb)) g
+where d.id = 'mysapansa_db'
+  and g-&gt;&gt;'r' = 'guru'
+  and g-&gt;&gt;'jabatan' ilike '%kepala%'
+  and g-&gt;&gt;'jabatan' !~* '(wakil|waka|\mwk\M)';
 
 -- CATATAN
 -- * Jangan menambahkan baris awal kosong ke tabel kv: aplikasi akan membuat
 --   baris mysapansa_db sendiri saat pertama kali sinkron.
+-- * Di setiap perangkat pakai Project URL &amp; anon/publishable key yang sama
+--   (menu Server &gt; Penyimpanan Cloud), lalu klik Sinkronisasi Manual.
 -- * Karena aplikasi berjalan tanpa server, siapa pun yang memegang anon key bisa
---   membaca isi tabel kv (termasuk sandi akun). Jangan bagikan key tersebut.</pre><small>Catatan keamanan: aplikasi ini tanpa server, jadi siapa pun yang memegang anon key dapat membaca data (termasuk password akun). Jangan bagikan key tersebut.</small></details><div id="crs"></div>`;
+--   membaca isi tabel kv (termasuk sandi akun). Jangan bagikan key tersebut.
+</pre><small>Catatan keamanan: aplikasi ini tanpa server, jadi siapa pun yang memegang anon key dapat membaca data (termasuk password akun). Jangan bagikan key tersebut.</small></details><div id="crs"></div>`;
  resetUI($('#crs'));const sv=()=>{CL={...CL,url:$('#cu').value.trim(),key:$('#ck').value.trim(),on:$('#co2').checked};localStorage.setItem(CK,JSON.stringify(CL))};
  $('#cs').onclick=async()=>{sv();$('#cst').textContent='Menguji...';try{const r=await fetch(cU()+'?select=id&limit=1',{headers:cH()});CL.st=r.ok?'✅ Terhubung. Klik Unggah sekarang.':'⚠️ Gagal ('+r.status+'). Cek URL, key, dan tabel kv.'}catch(e){CL.st='⚠️ '+e.message}$('#cst').textContent=CL.st};
  $('#cup').onclick=()=>{sv();DB._ts=new Date().toISOString();localStorage.setItem(K,JSON.stringify(DB));cloudPush(1);$('#cst').textContent='Mengunggah...'};
