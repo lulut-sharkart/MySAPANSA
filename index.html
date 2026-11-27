@@ -963,10 +963,10 @@ function masterP(v,r){const sw=r=='siswa',P=sw?'ms':'mg',eks=(DB.data.ekskul||[]
  v.onclick=e=>{const d=e.target.dataset;if(d.e!==undefined){ME=+d.e;const u=DB.users[ME];fset(P,sp,u);foto=''}
   if(d.d!==undefined){const u=DB.users[d.d];if(u.u==me.u&&u.r==me.r)return alert('Akun yang sedang dipakai tidak bisa dihapus.');if(confirm('Hapus '+u.n+'?')){DB.users.splice(d.d,1);save();masterP(v,r)}}}}
 /* ---- Cetak Kartu */
-const FLD=['Nama','NIS','NISN','NIP','Kelas','Ruang','No. Meja'],KD0={color:'#4f46e5',rad:12,show:{Nama:1,NIS:1,NISN:1,NIP:1,Kelas:1,Ruang:1,'No. Meja':1},ord:FLD.slice(),logo:'',judul:'',b2:'SAPANSA',b3:'',la:1,ls:1,tc:'#ffffff',ta:'left',ts:14,tl:36,fh:'#111111',fn:'#111111',fi:'#333333'};
-let KJ='Kartu Absensi / Pelajar',KCF='';
+const FLD=['Nama','NIS','NISN','NIP','Kelas','Ruang','No. Meja'],KD0={urut:'absen',color:'#4f46e5',rad:12,show:{Nama:1,NIS:1,NISN:1,NIP:1,Kelas:1,Ruang:1,'No. Meja':1},ord:FLD.slice(),logo:'',judul:'',b2:'SAPANSA',b3:'',la:1,ls:1,tc:'#ffffff',ta:'left',ts:14,tl:36,fh:'#111111',fn:'#111111',fi:'#333333'};
+let KJ='Kartu Absensi / Pelajar',KCF='',KUR='';
 function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),KU=DB.set.kujian=Object.assign({judul:'KARTU UJIAN',nama:'',th:String((d=>d.getMonth()>=6?d.getFullYear():d.getFullYear()-1)(new Date())),fmt:'{TH}-{KELAS}-{NO3}',st:1,pn:'k',man:{}},DB.set.kujian||{});KU.man=KU.man||{};
- v.innerHTML=`<h2>Cetak Kartu</h2><div class="pnl np"><div class="row"><label>Jenis Kartu<select id="kj">${opt(['Kartu Absensi / Pelajar','Kartu Guru','Kartu Ujian Biasa','Kartu Ujian Berjadwal'],KJ)}</select></label><label>Filter Kelas<select id="kk2"><option value="">Semua Kelas</option>${opt(KL2(),KCF)}</select></label><label>Pilih Siswa / Guru<select id="kp2"></select></label><button id="ktp" type="button">👁 Tampilkan</button><button id="kcp" type="button">🖨️ Cetak</button></div>
+ v.innerHTML=`<h2>Cetak Kartu</h2><div class="pnl np"><div class="row"><label>Jenis Kartu<select id="kj">${opt(['Kartu Absensi / Pelajar','Kartu Guru','Kartu Ujian Biasa','Kartu Ujian Berjadwal'],KJ)}</select></label><label>Filter Kelas<select id="kk2"><option value="">Semua Kelas</option>${opt(KL2(),KCF)}</select></label><label>Urutkan<select id="kur"><option value="absen">Urutan Absensi</option><option value="abjad">Abjad (A-Z)</option></select></label><label>Pilih Siswa / Guru<select id="kp2"></select></label><button id="ktp" type="button">👁 Tampilkan</button><button id="kcp" type="button">🖨️ Cetak</button></div>
  <div class="row"><label>Warna Header<input type="color" id="kcl" value="${C.color}"></label><label>Kelengkungan Header<input type="range" id="krd" min="0" max="30" value="${C.rad}"></label><label>Orientasi Kartu<select id="kor"><option value="l">Landscape (mendatar)</option><option value="p">Portrait (tegak)</option></select></label></div>
  <b>Isi & urutan kartu</b><div class="row" id="kfl"></div></div>
  <div class="pnl np" id="kup" hidden><b>🎓 Pengaturan Kartu Ujian</b><div class="row"><label>Judul kartu<input id="kuj" value="${esc(KU.judul)}"></label><label style="flex:2 1 220px">Nama ujian (baris ketiga header &amp; jadwal)<input id="kun" value="${esc(KU.nama)}" placeholder="mis. Penilaian Akhir Semester Ganjil 2026/2027"></label></div>
@@ -978,14 +978,15 @@ function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),K
  <div class="row"><label>Warna tulisan header<input type="color" id="ktc" value="${C.tc}"></label><label>Rata<select id="kta"><option value="left">Kiri</option><option value="center">Tengah</option><option value="right">Kanan</option></select></label><label>Ukuran judul<input type="range" id="kts" min="10" max="24" value="${C.ts}"></label><label>Ukuran logo<input type="range" id="ktl" min="20" max="60" value="${C.tl}"></label></div>
  <div class="row"><label>Warna font header<input type="color" id="kfh" value="${C.fh}"></label><label>Warna font nama<input type="color" id="kfn" value="${C.fn}"></label><label>Warna font isi<input type="color" id="kfi" value="${C.fi}"></label></div><div class="row"><button id="ksv" type="button">💾 Simpan Pengaturan</button><button class="g" id="krs" type="button">Kembalikan Bawaan</button></div></div>
  <div class="pnl"><div id="kpv">Klik Tampilkan untuk melihat kartu.</div></div>`;
- const z=i=>$('#'+i);z('kta').value=C.ta;z('kpn').value=KU.pn;z('kor').value=C.or||'l';
- const list=()=>{const g=z('kj').value=='Kartu Guru',k=z('kk2').value;return DB.users.filter(u=>u.r==(g?'guru':'siswa')&&(!k||u.k==k||u.walikelas==k))};
- const pl=()=>{z('kp2').innerHTML=`<option value="">Semua (${list().length})</option>`+list().map((u,i)=>`<option value="${esc(u.u)}">${esc(u.n)}</option>`).join('')};pl();const tg=()=>{z('kup').hidden=!/Ujian/.test(z('kj').value)};z('kj').onchange=()=>{pl();tg();mt()};z('kk2').onchange=()=>{pl();mt()};
+ const z=i=>$('#'+i);z('kta').value=C.ta;z('kpn').value=KU.pn;z('kor').value=C.or||'l';if(!KUR)KUR=C.urut||'absen';z('kur').value=KUR;
+ const srt=a=>KUR=='abjad'?[...a].sort((x,y)=>String(x.k||x.walikelas||'').localeCompare(String(y.k||y.walikelas||''),'id',{numeric:true})||String(x.n||'').localeCompare(String(y.n||''),'id',{sensitivity:'base'})):a;
+ const list=()=>{const g=z('kj').value=='Kartu Guru',k=z('kk2').value;return srt(DB.users.filter(u=>u.r==(g?'guru':'siswa')&&(!k||u.k==k||u.walikelas==k)))};
+ const pl=()=>{z('kp2').innerHTML=`<option value="">Semua (${list().length})</option>`+list().map((u,i)=>`<option value="${esc(u.u)}">${esc(u.n)}</option>`).join('')};pl();const tg=()=>{z('kup').hidden=!/Ujian/.test(z('kj').value)};z('kj').onchange=()=>{pl();tg();mt()};z('kk2').onchange=()=>{pl();mt()};z('kur').onchange=()=>{KUR=z('kur').value;pl();mt();if(z('kpv').children.length)show()};
  const fl=()=>{z('kfl').innerHTML=C.ord.map((f,i)=>`<label style="display:inline-flex;gap:4px;align-items:center;border:1px solid var(--ln);padding:3px 6px;border-radius:6px"><input type="checkbox" data-f="${f}" ${C.show[f]?'checked':''} style="width:auto"> ${f} <button class="g" type="button" data-m="${i}" data-s="-1" style="padding:0 5px">◀</button><button class="g" type="button" data-m="${i}" data-s="1" style="padding:0 5px">▶</button></label>`).join('')};fl();
  z('kfl').onclick=e=>{const d=e.target.dataset;if(d.m!==undefined){const i=+d.m,j=i+ +d.s;if(j>=0&&j<C.ord.length){[C.ord[i],C.ord[j]]=[C.ord[j],C.ord[i]];fl()}}};z('kfl').onchange=e=>{if(e.target.dataset.f)C.show[e.target.dataset.f]=e.target.checked?1:0};
- const rd=()=>{Object.assign(C,{la:z('kla').checked?1:0,ls:z('kls').checked?1:0,or:z('kor').value,color:z('kcl').value,rad:+z('krd').value,logo:z('klg').value||(C.logo.startsWith('data:')?C.logo:''),judul:z('kjd').value,b2:z('kb2').value,b3:z('kb3').value,tc:z('ktc').value,ta:z('kta').value,ts:+z('kts').value,tl:+z('ktl').value,fh:z('kfh').value,fn:z('kfn').value,fi:z('kfi').value});Object.assign(KU,{judul:z('kuj').value,nama:z('kun').value,th:z('kth').value,fmt:z('kfm').value||'{NO}',st:+z('kst').value||0,pn:z('kpn').value})};
+ const rd=()=>{Object.assign(C,{urut:KUR||'absen',la:z('kla').checked?1:0,ls:z('kls').checked?1:0,or:z('kor').value,color:z('kcl').value,rad:+z('krd').value,logo:z('klg').value||(C.logo.startsWith('data:')?C.logo:''),judul:z('kjd').value,b2:z('kb2').value,b3:z('kb3').value,tc:z('ktc').value,ta:z('kta').value,ts:+z('kts').value,tl:+z('ktl').value,fh:z('kfh').value,fn:z('kfn').value,fi:z('kfi').value});Object.assign(KU,{judul:z('kuj').value,nama:z('kun').value,th:z('kth').value,fmt:z('kfm').value||'{NO}',st:+z('kst').value||0,pn:z('kpn').value})};
  z('klf').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,u=>{C.logo=u;z('klg').value=''})};
- const sis=()=>DB.users.filter(x=>x.r=='siswa'),nk=u=>sis().filter(x=>x.k==u.k).indexOf(u)+1,na=u=>sis().indexOf(u)+1,nomP=u=>{if(KU.man[u.u])return KU.man[u.u];const n=(KU.pn=='a'?na(u):nk(u))+(+KU.st||0)-1,kl=String(u.k||'').replace(/^kelas\s*/i,'').replace(/\s+/g,'');return KU.fmt.replace(/\{NO(\d*)\}/g,(m,d)=>String(n).padStart(+d||0,'0')).replace(/\{KELAS\}/g,kl).replace(/\{NISN\}/g,u.nisn||'').replace(/\{NIS\}/g,u.u).replace(/\{TH\}/g,KU.th||'')};
+ const sis=()=>srt(DB.users.filter(x=>x.r=='siswa')),nk=u=>sis().filter(x=>x.k==u.k).indexOf(u)+1,na=u=>sis().indexOf(u)+1,nomP=u=>{if(KU.man[u.u])return KU.man[u.u];const n=(KU.pn=='a'?na(u):nk(u))+(+KU.st||0)-1,kl=String(u.k||'').replace(/^kelas\s*/i,'').replace(/\s+/g,'');return KU.fmt.replace(/\{NO(\d*)\}/g,(m,d)=>String(n).padStart(+d||0,'0')).replace(/\{KELAS\}/g,kl).replace(/\{NISN\}/g,u.nisn||'').replace(/\{NIS\}/g,u.u).replace(/\{TH\}/g,KU.th||'')};
  const kf=i=>`<div style="display:inline-flex;flex-direction:column;width:${C.or=='p'?'53.98mm':'85.6mm'};height:${C.or=='p'?'85.6mm':'53.98mm'};box-sizing:border-box;margin:8px;border:1px solid #999;border-radius:${C.rad}px;overflow:hidden;background:#fff;vertical-align:top;font-family:Arial,sans-serif;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact">${i}</div>`;
  const kh=(t,a,b)=>`<div style="flex:0 0 auto;background:${C.color};color:${C.tc};padding:4px 8px;display:flex;align-items:center;gap:6px;text-align:${C.ta}">${kLg(C,'l')}<div style="flex:1;min-width:0"><div style="font-size:${Math.min(C.ts,16)}px;font-weight:bold;line-height:1.15;color:${C.fh==KD0.fh?C.tc:C.fh}">${esc(t)}</div><div style="font-size:10px;line-height:1.2">${esc(a)}</div>${b?`<div style="font-size:9px;line-height:1.2">${esc(b)}</div>`:''}</div>${kLg(C,'r')}</div>`;
  const cardA=u=>{const P=C.or=='p',sk=(DB.set.skl&&DB.set.skl.nama)||DB.set.school||'',pw=P?'20mm':'16mm',ph_=P?'26mm':'21mm',
@@ -1004,7 +1005,7 @@ function kartuP(v){const C=DB.set.kartu=Object.assign({},KD0,DB.set.kartu||{}),K
   return kf(kh(jd,C.b2,C.b3)+`<div style="flex:1;min-height:0;overflow:hidden;display:flex;${P?'flex-direction:column;gap:6px;justify-content:center':'gap:8px'};padding:5px 8px;align-items:center">${P?img+tx:tx+img}</div>`)};
  const show=()=>{rd();const j=z('kj').value,id=z('kp2').value,a=list().filter(u=>!id||u.u==id);z('kpv').innerHTML=a.length?a.map(u=>card(u,j)).join(''):'Tidak ada data.';z('kpv').querySelectorAll('.qrz').forEach(i=>{const u=qrUrl(i.dataset.q);if(u)i.src=u;else i.alt=i.dataset.q})};
  z('ktp').onclick=show;z('kor').onchange=()=>{if(z('kpv').children.length)show()};z('kcp').onclick=()=>{show();openPrint(z('kpv').innerHTML,'Kartu')};
- z('ksv').onclick=()=>{rd();DB.set.kartu=C;DB.set.kujian=KU;save();alert('Pengaturan kartu tersimpan.')};z('krs').onclick=()=>{delete DB.set.kartu;save();kartuP(v)}}
+ z('ksv').onclick=()=>{rd();DB.set.kartu=C;DB.set.kujian=KU;save();alert('Pengaturan kartu tersimpan.')};z('krs').onclick=()=>{delete DB.set.kartu;KUR='';save();kartuP(v)}}
 /* ---- LJK & Scan AI */
 const _isK=s=>s.dataset.c=='Kelas'||aclType(s)=='kelas',_isS=s=>(s.dataset.c=='Nama'&&!/guru/.test(cur))||aclType(s)=='siswa';
 document.addEventListener('change',e=>{const k=e.target;if(!me||!k.tagName||k.tagName!='SELECT'||k.multiple||!_isK(k))return;const box=k.closest('.pnl')||k.closest('#view');if(!box)return;const kv=k.value,nm=new Set(DB.users.filter(u=>u.r=='siswa'&&(!kv||KN(u.k)==KN(kv))).map(u=>u.n));
@@ -1361,7 +1362,7 @@ function dbp(v){
  const HPK=[...DS.map(d=>[d[0],d[1]]),...RSTK.filter(x=>!DS.some(d=>d[0]==x[0])).map(x=>[x[0],x[1]])],hpN=k=>k=='siswa'||k=='guru'?dsGet(k).length:rstArr(k).length;
  const stat=()=>`<div class="tw"><table><tr><th>Data</th><th>Jumlah di aplikasi</th><th>Operasi terakhir</th></tr>${DS.map(d=>`<tr><td>${d[1]}</td><td>${dsGet(d[0]).length}</td><td>${esc((DB.set.ie||{})[d[0]]||'-')}</td></tr>`).join('')}</table></div>`;
  v.innerHTML=`<h2>DataBase IE</h2><div class="pnl" id="ej0"><b>💾 Cadangan</b><p><small>Cadangkan seluruh data aplikasi. JSON = cadangan penuh yang bisa diimpor kembali; format lain (XLSX, Word, PDF, HTML, CSV) untuk arsip/dibaca manusia.</small></p><div class="row"><button id="ej" type="button">💾 Cadangkan JSON</button><button id="bkx" type="button">📊 Cadangkan XLSX</button><button id="bkw" type="button">📝 Cadangkan Word</button><button id="bkp" type="button">📄 Cadangkan PDF</button><button id="bkh" type="button">🌐 Cadangkan HTML</button><button id="bkc" type="button">📋 Cadangkan CSV</button><label class="bl noan">⬆ Impor JSON<input type="file" id="ij" accept=".json" hidden></label></div></div>
- <div class="pnl" id="hps"><b>🗑 Hapus</b><p><small>Centang menu/halaman yang datanya ingin dihapus (Hapus Parsial), atau hapus seluruh data aplikasi dan pengguna tambahan. Data yang tidak dicentang tidak disentuh.</small></p><div class="row" id="hpk">${HPK.map(x=>`<label class="rl"><input type="checkbox" value="${x[0]}"> ${x[1]} (${hpN(x[0])})</label>`).join('')}</div><label class="rl"><input type="checkbox" id="hpb" checked> Unduh cadangan JSON dulu</label><div class="row"><button id="hpx" type="button" style="background:#dc2626">🗑 Hapus yang dipilih</button><button id="rs" type="button" style="background:#7f1d1d">Hapus seluruh data</button></div></div>
+ <div class="pnl" id="hps"><b>🗑 Hapus</b><p><small>Satu-satunya fitur hapus data. Centang menu/halaman yang datanya ingin dihapus; data yang tidak dicentang tidak disentuh. Untuk menghapus semuanya, klik Pilih semua. Akun admin dan pengaturan tampilan tetap aman. Perubahan ikut diunggah ke cloud bila sinkron aktif.</small></p><div class="row" id="hpk">${HPK.map(x=>`<label class="rl"><input type="checkbox" value="${x[0]}"> ${x[1]} (${hpN(x[0])})</label>`).join('')}</div><label class="rl"><input type="checkbox" id="hpb" checked> Unduh cadangan JSON dulu</label><div class="row"><button class="g" id="hpa" type="button">☑ Pilih semua</button><button class="g" id="hpn" type="button">☐ Kosongkan pilihan</button><button id="hpx" type="button" style="background:#dc2626">🗑 Hapus yang dipilih</button></div></div>
  <div class="pnl" id="fsi"><b>⚡ Impor Super Cepat & Spreadsheet Integration / Template (Super Admin)</b><p><small>Tarik banyak berkas/sheet sekaligus. Sheet dikenali dari nama ("SAPANSA Siswa", "SAPANSA Guru", dst. dari Buat Template Sheet) atau dari header kolom. Mode Gabung memperbarui data yang sama (kunci: NIS/NIP, nama mapel, tanggal+nama, dll.) dan menambah yang baru tanpa menghapus apa pun. Header Siswa dan Guru mirip: bila ragu, pakai nama sheet standar.</small></p>
  <div class="row"><label>Mode impor<select id="fsm"><option value="gabung">Gabung: perbarui & tambah (aman)</option><option value="ganti">Ganti total data menu terkait</option></select></label></div>
  <div id="fsz" style="border:2px dashed var(--c);border-radius:12px;padding:18px;text-align:center;margin:8px 0">📂 Tarik & lepas berkas XLSX / XLS / CSV ke sini<br><label class="bl" style="margin-top:8px">Pilih berkas (bisa banyak)<input type="file" id="fsf" accept=".xlsx,.xls,.csv" multiple hidden></label></div>
@@ -1388,7 +1389,7 @@ function dbp(v){
   z('bkh').onclick=()=>dl(new Blob(['<!doctype html><html><head><meta charset="utf-8"><title>Cadangan MySAPANSA</title></head><body style="font-family:Arial,sans-serif">'+bkH+bkT()+'</body></html>'],{type:'text/html'}),'cadangan-mysapansa-'+SD()+'.html');
   z('bkc').onclick=()=>dl(new Blob(['\ufeff'+bkS().map(([n,a])=>'"'+n+'"\n'+a.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n')).join('\n\n')],{type:'text/csv'}),'cadangan-mysapansa-'+SD()+'.csv');
  z('ij').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.users||!d.data)throw 0;DB=d;save();theme();alert('Impor JSON berhasil.')}catch(x){alert('Berkas JSON tidak valid.')}};r.readAsText(f)};
- z('rs').onclick=()=>{if(confirm('Hapus semua data dan pengguna tambahan?')){localStorage.removeItem(K);DB=load();theme();alert('Data direset.');logout()}};
+ z('hpa').onclick=()=>v.querySelectorAll('#hpk input').forEach(x=>x.checked=true);z('hpn').onclick=()=>v.querySelectorAll('#hpk input').forEach(x=>x.checked=false);
  z('sus').onclick=()=>{DB.set.sheetUrl=z('fsu').value.trim();save();alert('ID sheet tersimpan.')};z('suo').onclick=()=>{const u=z('fsu').value.trim(),m=u.match(/\/d\/([\w-]+)/),id=m?m[1]:u;if(!id)return alert('Isi URL / ID spreadsheet.');window.open(/^https?:/.test(u)?u:'https://docs.google.com/spreadsheets/d/'+id,'_blank')};
  z('atp').onclick=()=>{if(need())XLSX.writeFile(wbOf(DS,true),'template-sapansa.xlsx')};z('aex').onclick=()=>{if(!need())return;XLSX.writeFile(wbOf(DS),'data-sapansa-'+SD()+'.xlsx');DS.forEach(d=>mark(d[0],'Ekspor'));save();dbp(v)};
  z('aim').onchange=e=>{const f=e.target.files[0];if(!f||!need())return;if(!confirm('Impor menggantikan seluruh data pada sheet yang ditemukan. Lanjutkan?'))return;const r=new FileReader();r.onload=()=>{const n=impWb(XLSX.read(r.result,{type:'array'}),DS);alert(n+' sheet diimpor.');dbp(v)};r.readAsArrayBuffer(f)};
@@ -1771,17 +1772,56 @@ function resetUI(el){if(!el)return;
 function cloudP(el){el.innerHTML=`<b>☁️ Penyimpanan Cloud (Supabase)</b> <small>Data aplikasi otomatis disalin ke Supabase setiap ada perubahan, sehingga tidak bergantung pada satu perangkat.</small>
  <div class="row"><label style="flex:2 1 240px">Project URL<input id="cu" placeholder="https://xxxx.supabase.co" value="${esc(CL.url||'')}"></label><label style="flex:3 1 260px">Anon public key<input id="ck" type="password" value="${esc(CL.key||'')}"></label><label><span><input type="checkbox" id="co2" ${CL.on?'checked':''} style="width:auto"> Aktifkan sinkron</span></label></div>
  <div class="row"><button id="csy" type="button">🔄 Sinkronisasi Manual</button><button class="g" id="cs" type="button">Simpan & Uji</button><button class="g" id="cup" type="button">⬆ Unggah sekarang</button><button class="g" id="cdn" type="button">⬇ Ambil dari cloud</button><button class="g" id="cin2" type="button">📊 Cek Penyimpanan</button><small id="cst">${esc(CL.st||'')}</small></div><div id="cin"></div>
- <details><summary>Langkah setup (sekali saja)</summary><small>Di Supabase buka SQL Editor lalu jalankan:</small><pre style="white-space:pre-wrap;font-size:12px">create table if not exists kv (id text primary key, data jsonb, updated_at timestamptz);
-alter table kv enable row level security;
-drop policy if exists "app_all" on kv;
-drop policy if exists "kv_select" on kv;
-drop policy if exists "kv_insert" on kv;
-drop policy if exists "kv_update" on kv;
-create policy "kv_select" on kv for select to anon, authenticated using (true);
-create policy "kv_insert" on kv for insert to anon, authenticated with check (true);
-create policy "kv_update" on kv for update to anon, authenticated using (true) with check (true);
+ <details><summary>Langkah setup (sekali saja)</summary><small>Di Supabase buka SQL Editor, tempel, lalu Run (aman diulang). Kunci Project URL &amp; anon key yang sama dipakai di semua perangkat:</small><pre style="white-space:pre-wrap;font-size:12px">-- =====================================================================
+-- MySAPANSA - setup Supabase agar data sinkron di SEMUA perangkat
+-- Cara pakai: Supabase > SQL Editor > New query > tempel semua > Run.
+-- Aman dijalankan berulang kali (idempotent) dan TIDAK menghapus data.
+-- =====================================================================
+
+-- 1. Tabel penyimpanan (satu baris per dokumen: mysapansa_db, mysapansa_pres)
+create table if not exists public.kv (
+  id         text primary key,
+  data       jsonb,
+  updated_at timestamptz default now()
+);
+
+-- Pastikan kolom & default benar bila tabel lama sudah ada
+alter table public.kv add column if not exists data jsonb;
+alter table public.kv add column if not exists updated_at timestamptz default now();
+alter table public.kv alter column updated_at set default now();
+
+-- 2. Row Level Security + kebijakan akses (kunci anon/publishable dipakai semua perangkat)
+alter table public.kv enable row level security;
+
+drop policy if exists "app_all"    on public.kv;
+drop policy if exists "kv_select"  on public.kv;
+drop policy if exists "kv_insert"  on public.kv;
+drop policy if exists "kv_update"  on public.kv;
+
+create policy "kv_select" on public.kv
+  for select to anon, authenticated using (true);
+
+create policy "kv_insert" on public.kv
+  for insert to anon, authenticated with check (true);
+
+create policy "kv_update" on public.kv
+  for update to anon, authenticated using (true) with check (true);
+
+-- 3. Hak akses tabel untuk peran anon / authenticated
 grant usage on schema public to anon, authenticated;
-grant select, insert, update on public.kv to anon, authenticated;</pre><small>Catatan keamanan: aplikasi ini tanpa server, jadi siapa pun yang memegang anon key dapat membaca data (termasuk password akun). Jangan bagikan key tersebut.</small></details><div id="crs"></div>`;
+grant select, insert, update on public.kv to anon, authenticated;
+
+-- 4. Muat ulang skema API agar perubahan langsung berlaku
+notify pgrst, 'reload schema';
+
+-- 5. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
+select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
+
+-- CATATAN
+-- * Jangan menambahkan baris awal kosong ke tabel kv: aplikasi akan membuat
+--   baris mysapansa_db sendiri saat pertama kali sinkron.
+-- * Karena aplikasi berjalan tanpa server, siapa pun yang memegang anon key bisa
+--   membaca isi tabel kv (termasuk sandi akun). Jangan bagikan key tersebut.</pre><small>Catatan keamanan: aplikasi ini tanpa server, jadi siapa pun yang memegang anon key dapat membaca data (termasuk password akun). Jangan bagikan key tersebut.</small></details><div id="crs"></div>`;
  resetUI($('#crs'));const sv=()=>{CL={...CL,url:$('#cu').value.trim(),key:$('#ck').value.trim(),on:$('#co2').checked};localStorage.setItem(CK,JSON.stringify(CL))};
  $('#cs').onclick=async()=>{sv();$('#cst').textContent='Menguji...';try{const r=await fetch(cU()+'?select=id&limit=1',{headers:cH()});CL.st=r.ok?'✅ Terhubung. Klik Unggah sekarang.':'⚠️ Gagal ('+r.status+'). Cek URL, key, dan tabel kv.'}catch(e){CL.st='⚠️ '+e.message}$('#cst').textContent=CL.st};
  $('#cup').onclick=()=>{sv();DB._ts=new Date().toISOString();localStorage.setItem(K,JSON.stringify(DB));cloudPush(1);$('#cst').textContent='Mengunggah...'};
