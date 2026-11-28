@@ -230,6 +230,18 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
 .cvpw{position:relative;margin:8px 0;max-width:100%;overflow:auto}.cvpw canvas{display:block}#cvpv{position:absolute;left:0;top:0;touch-action:none}#cvpl .cvpw,.cvpl .cvpw{border:1px solid var(--ln)}
 .cvtb button{flex:0 0 auto}.cvop label,.cvpo label{min-width:130px}.cvck{display:flex;gap:6px;align-items:center}.cvck input{width:auto}
 .cvcmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.cvcmp img{width:100%;border:1px solid var(--ln)}.cvdf{font:12px/1.4 monospace;padding:1px 6px}.cvdf.ad{background:#16a34a22}.cvdf.dl{background:#dc262622}.cvwf{border:1px solid var(--ln);border-radius:8px;padding:8px;margin:6px 0}
+
+/* indikator aktif: semua sub menu & tab */
+#side details:has(a.on)>summary{box-shadow:inset 4px 0 0 var(--a1,#ea7a0a);font-weight:700}
+#ktb button:not(.g),#cvtb button:not(.g),.tabs button.on{box-shadow:inset 4px 0 0 #fff8}
+/* kalkulator matematika */
+.mw{display:grid;grid-template-columns:230px 1fr;gap:14px;align-items:start}
+.mwn{background:var(--card,#fff);border:1px solid var(--ln,#ddd);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:2px;position:sticky;top:8px}
+.mwn button{background:transparent;color:inherit;text-align:left;display:flex;gap:14px;align-items:center;padding:11px 12px;border-radius:10px;font-size:15px;box-shadow:none}
+.mwn button span{width:22px;text-align:center;color:#ea7a0a;font-weight:700;flex:none}
+.mwn button.on{background:#ffe9d9;font-weight:700;color:#c25e00;box-shadow:inset 4px 0 0 #ea7a0a}
+@media(prefers-color-scheme:dark){.mwn button.on{background:#3a2a1c;color:#ffb066}}
+@media(max-width:800px){.mw{grid-template-columns:1fr}.mwn{flex-direction:row;overflow-x:auto;position:static}.mwn button{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -1337,7 +1349,190 @@ function kalkFoto(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
   d.onclick=e=>{const k=e.target.dataset.k;if(k=='x')end();else if(k=='snap'){if(!vd.videoWidth)return;const m=Math.min(1,1600/Math.max(vd.videoWidth,vd.videoHeight)),cv=document.createElement('canvas');cv.width=Math.round(vd.videoWidth*m);cv.height=Math.round(vd.videoHeight*m);cv.getContext('2d').drawImage(vd,0,0,cv.width,cv.height);const u=cv.toDataURL('image/jpeg',.85);b64=u.split(',')[1];mime='image/jpeg';const p=c.querySelector('#kfp');p.src=u;p.style.display='block';end()}};d.oncancel=end;d.showModal()};
  c.querySelector('#kfg').onclick=async()=>{if(!b64)return alert('Pilih foto soal dulu.');if(!(DB.set.gem||[]).some(k=>k.key&&k.on!==false))return alert('Kunci AI belum diatur. Tambahkan di Pengaturan > Server.');const btn=c.querySelector('#kfg');btn.disabled=true;r.textContent='AI sedang membaca soal…';AIL='Membaca foto soal…';
   try{const n=c.querySelector('#kfn').value.trim(),t=await gemCall([{text:'Kamu guru SD yang sabar. Baca soal pada foto ini, tulis ulang soalnya singkat, lalu jawab dengan langkah penyelesaian yang jelas dan mudah dipahami anak SD, dan tutup dengan "Jawaban akhir: ...". Gunakan bahasa Indonesia dan teks biasa tanpa markdown/LaTeX.'+(n?' Catatan: '+n:'')},{inline_data:{mime_type:mime,data:b64}}],false);r.textContent=t||'AI tidak memberi jawaban.'}catch(e){r.textContent='Gagal: '+e.message}finally{btn.disabled=false}}}
-function kalkulatorP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;const T=[['ilm','🧮 Ilmiah',kalkIlm],['mat','📐 Matematika',kalkMat],['kon','📏 Konversi',kalkKonv],['suh','🌡️ Suhu',kalkSuhu],['imt','⚖️ IMT',kalkImt],['cur','💱 Mata Uang',kalkCur],['ft','📷 Foto Soal (AI)',kalkFoto]];
+/* ============ Kalkulator Matematika bergaya Mathway (kategori + operasi) ============ */
+async function mwLoad(){
+ const get=async us=>{for(const u of us){try{await cvScript(u);return}catch(e){}}throw new Error('Gagal memuat pustaka matematika. Periksa koneksi internet lalu coba lagi.')};
+ if(!window.math)await get(['https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js','https://cdn.jsdelivr.net/npm/mathjs@12.4.2/lib/browser/math.js']);
+ if(!window.nerdamer)for(const f of['nerdamer.core.js','Algebra.js','Calculus.js','Solve.js','Extra.js'])await get(['https://cdnjs.cloudflare.com/ajax/libs/nerdamer/1.1.13/'+f,'https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/'+f])}
+const mwN=s=>String(s||'').replace(/×/g,'*').replace(/÷/g,'/').replace(/²/g,'^2').replace(/³/g,'^3').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/\bln\(/g,'log(').replace(/,/g,'.').replace(/\s+/g,''),
+ mwD=s=>s.replace(/\b(a?)(sin|cos|tan)\(/g,(m,a,f)=>a+f+'d('),
+ mwSc=()=>({sind:x=>Math.sin(x*Math.PI/180),cosd:x=>Math.cos(x*Math.PI/180),tand:x=>Math.tan(x*Math.PI/180),asind:x=>Math.asin(x)*180/Math.PI,acosd:x=>Math.acos(x)*180/Math.PI,atand:x=>Math.atan(x)*180/Math.PI}),
+ mwF=n=>{try{return typeof n=='number'?String(parseFloat(n.toPrecision(12))):math.format(n,{precision:12})}catch(e){return String(n)}},
+ mwRow=(l,v)=>`<div><small>${l}</small> <b>${esc(String(v))}</b></div>`,
+ mwNum=(o,k)=>{const v=parseFloat(String(o[k]).replace(',','.'));if(!isFinite(v))throw new Error('Isi semua angka dengan benar.');return v},
+ mwND=(s,sub)=>nerdamer(s,sub),
+ mwSol=(eq,v)=>{const r=nerdamer.solve(eq,v),e=r.symbol&&r.symbol.elements;return e?e.map(x=>x.toString()):[r.toString()]},
+ mwDec=x=>{try{const d=nerdamer(x).evaluate().text('decimals');return d!=x?' ≈ '+d:''}catch(e){return''}},
+ mwMat=s=>{const m=String(s).trim().split(/\n+/).map(r=>r.trim().split(/[\s,;]+/).map(Number));if(!m.length||m.some(r=>r.length!=m[0].length||r.some(x=>!isFinite(x))))throw new Error('Format matriks salah: tiap baris harus sama panjang dan berisi angka.');return m},
+ mwTab=m=>'<div class="tw"><table>'+m.map(r=>'<tr>'+[].concat(r).map(x=>`<td>${esc(mwF(x))}</td>`).join('')+'</tr>').join('')+'</table></div>';
+const mwK=k=>({id:k,t:KMT[k].t,get f(){return KMT[k].f().map(f=>f[2]=='select'?[f[0],f[1],'','select',f[3],f[4]?'g':'']:[f[0],f[1],f[2]])},run:async o=>KMT[k].run(o)});
+const MW_EL={H:1.008,He:4.0026,Li:6.94,Be:9.0122,B:10.81,C:12.011,N:14.007,O:15.999,F:18.998,Ne:20.18,Na:22.99,Mg:24.305,Al:26.982,Si:28.085,P:30.974,S:32.06,Cl:35.45,Ar:39.948,K:39.098,Ca:40.078,Sc:44.956,Ti:47.867,V:50.942,Cr:51.996,Mn:54.938,Fe:55.845,Co:58.933,Ni:58.693,Cu:63.546,Zn:65.38,Ga:69.723,Ge:72.63,As:74.922,Se:78.971,Br:79.904,Kr:83.798,Rb:85.468,Sr:87.62,Zr:91.224,Mo:95.95,Ag:107.87,Pd:106.42,Cd:112.41,Sn:118.71,Sb:121.76,I:126.9,Xe:131.29,Cs:132.91,Ba:137.33,W:183.84,Pt:195.08,Au:196.97,Hg:200.59,Pb:207.2,Bi:208.98,U:238.03};
+function chemParse(f){const st=[{}];let i=0;const num=()=>{const m=/^\d+/.exec(f.slice(i));if(m){i+=m[0].length;return+m[0]}return 1};
+ while(i<f.length){const c=f[i];
+  if(c=='('||c=='['){st.push({});i++}
+  else if(c==')'||c==']'){i++;const n=num(),t=st.pop(),p=st[st.length-1];if(!p)throw new Error('Tanda kurung tidak seimbang.');for(const k in t)p[k]=(p[k]||0)+t[k]*n}
+  else{const m=/^[A-Z][a-z]?/.exec(f.slice(i));if(!m)throw new Error('Rumus tidak dikenali: '+f);i+=m[0].length;const n=num(),p=st[st.length-1];p[m[0]]=(p[m[0]]||0)+n}}
+ if(st.length!=1)throw new Error('Tanda kurung tidak seimbang.');return st[0]}
+function chemBal(rx){const[L,R]=rx.split(/->|=>|→|=/).map(s=>s.split('+').map(x=>x.trim()).filter(Boolean));
+ if(!L||!R||!L.length||!R.length)throw new Error('Tulis seperti: H2 + O2 -> H2O');
+ const sp=[...L,...R],ps=sp.map(x=>chemParse(x.replace(/^\d+/,''))),els=[...new Set(ps.flatMap(Object.keys))],n=sp.length,A=els.map(e=>ps.map((p,j)=>(p[e]||0)*(j<L.length?1:-1))),rows=A.length,piv=[];
+ let r=0;for(let c=0;c<n&&r<rows;c++){let p=r;for(let i=r+1;i<rows;i++)if(Math.abs(A[i][c])>Math.abs(A[p][c]))p=i;if(Math.abs(A[p][c])<1e-9)continue;[A[r],A[p]]=[A[p],A[r]];const d=A[r][c];A[r]=A[r].map(x=>x/d);for(let i=0;i<rows;i++)if(i!=r){const f=A[i][c];A[i]=A[i].map((x,k)=>x-f*A[r][k])}piv.push(c);r++}
+ const free=[...Array(n).keys()].filter(c=>!piv.includes(c));if(free.length!=1)throw new Error('Reaksi tidak dapat disetarakan secara unik; periksa rumus.');
+ const v=Array(n).fill(0);v[free[0]]=1;piv.forEach((c,i)=>v[c]=-A[i][free[0]]);
+ let m=1;for(;m<=500;m++)if(v.every(x=>Math.abs(x*m-Math.round(x*m))<1e-6))break;
+ let k=v.map(x=>Math.round(x*m));if(k.some(x=>x<=0))throw new Error('Reaksi tidak dapat disetarakan; periksa rumus.');
+ const g=k.reduce((a,b)=>{while(b)[a,b]=[b,a%b];return a});k=k.map(x=>x/g);
+ const f=(a,o)=>a.map((s,i)=>{const q=k[o+i];return(q>1?q+' ':'')+s}).join(' + ');return f(L,0)+' → '+f(R,L.length)}
+const MW_FIS=[['Kecepatan (GLB): v = s/t','v=s/t'],['GLBB: v = u + a·t','v=u+a*t'],['GLBB: s = u·t + ½·a·t²','s=u*t+a*t^2/2'],['GLBB: v² = u² + 2·a·s','v^2=u^2+2*a*s'],['Hukum II Newton: F = m·a','F=m*a'],['Berat: W = m·g','W=m*g'],['Energi kinetik: Ek = ½·m·v²','Ek=m*v^2/2'],['Energi potensial: Ep = m·g·h','Ep=m*g*h'],['Usaha: W = F·s','W=F*s'],['Daya: P = W/t','P=W/t'],['Tekanan: P = F/A','P=F/A'],['Massa jenis: ρ = m/V','rho=m/V'],['Hukum Ohm: V = Ia·R','V=Ia*R'],['Daya listrik: P = V·Ia','P=V*Ia'],['Gelombang: v = f·λ (λ ditulis lam)','v=f*lam'],['Momentum: p = m·v','p=m*v'],['Hukum Hooke: F = k·x','F=k*x']];
+const MWS={c:'dasar',o:{},fz:MW_FIS[0][0]};
+const MW_C=[
+['dasar','Matematika Dasar','+',[
+ {id:'hit',t:'Hitung ekspresi',f:[['e','Ekspresi','(12+8)*3/4-2^3'],['a','Satuan sudut (untuk sin, cos, tan)','Derajat','select',['Derajat','Radian']]],
+  run:async o=>{await mwLoad();let e=mwN(o.e);if(o.a=='Derajat')e=mwD(e);const r=math.evaluate(e,mwSc());let fr='';try{if(typeof r=='number'&&!Number.isInteger(r)){const q=math.fraction(r);if(q.d<=10000)fr=' = '+q.s*q.n+'/'+q.d}}catch(x){}return mwRow('Hasil',mwF(r)+fr)}},
+ mwK('pec'),mwK('per')]],
+['pra','Pra-Aljabar','÷',[
+ mwK('bil'),
+ {id:'pow',t:'Pangkat, akar & notasi ilmiah',f:[['a','Bilangan','2500'],['n','Pangkat / akar ke-','3']],
+  run:async o=>{await mwLoad();const a=mwNum(o,'a'),n=mwNum(o,'n');let ak;try{ak=math.nthRoot(a,n)}catch(e){ak=NaN}return mwRow(a+'<sup>'+n+'</sup>',mwF(Math.pow(a,n)))+mwRow('Akar ke-'+n,isFinite(ak)?mwF(ak):'tidak real')+mwRow('Notasi ilmiah',a.toExponential().replace('e+',' × 10^').replace('e-',' × 10^-'))}},
+ {id:'rasio',t:'Perbandingan senilai / berbalik nilai',f:[['a','a','2'],['b','b','5'],['c','c','8'],['j','Jenis','Senilai (a : b = c : x)','select',['Senilai (a : b = c : x)','Berbalik nilai (a × b = c × x)']]],
+  run:async o=>{const a=mwNum(o,'a'),b=mwNum(o,'b'),c=mwNum(o,'c');if(!a||!c)throw new Error('a dan c tidak boleh nol.');return mwRow('x',mwF(/^Senilai/.test(o.j)?b*c/a:a*b/c))}}]],
+['alj','Aljabar','×',[
+ {id:'simp',t:'Sederhanakan',f:[['e','Ekspresi','(x^2-9)/(x-3)']],run:async o=>{await mwLoad();return mwRow('Hasil',mwND('simplify('+mwN(o.e)+')').toString())}},
+ {id:'exp',t:'Jabarkan (expand)',f:[['e','Ekspresi','(x+2)(x-3)^2']],run:async o=>{await mwLoad();return mwRow('Hasil',mwND('expand('+mwN(o.e)+')').toString())}},
+ {id:'fac',t:'Faktorkan',f:[['e','Ekspresi','x^2-5x+6']],run:async o=>{await mwLoad();return mwRow('Hasil',mwND('factor('+mwN(o.e)+')').toString())}},
+ {id:'solve',t:'Selesaikan persamaan',f:[['e','Persamaan','x^2-5x+6=0'],['v','Variabel','x']],
+  run:async o=>{await mwLoad();const q=mwN(o.e).split('='),v=o.v||'x',s=mwSol(q.length>1?`(${q[0]})-(${q[1]})`:q[0],v);return s.length?s.map((x,i)=>mwRow(v+(s.length>1?(i+1):''),x+mwDec(x))).join(''):'Tidak ada solusi.'}},
+ {id:'sys',t:'Sistem persamaan',f:[['e','Persamaan (satu per baris)','2x+y=8\nx-y=1','area']],
+  run:async o=>{await mwLoad();const r=nerdamer.solveEquations(o.e.split(/\n+/).map(mwN).filter(Boolean));return Array.isArray(r)?r.map(p=>mwRow(p[0],p[1]+mwDec(String(p[1])))).join(''):mwRow('Hasil',JSON.stringify(r))}},
+ {id:'sub',t:'Hitung nilai (substitusi)',f:[['e','Ekspresi','x^2+3y'],['s','Nilai variabel','x=2; y=5']],
+  run:async o=>{await mwLoad();const sc=mwSc();o.s.split(/;/).forEach(p=>{const m=p.split('=');if(m.length==2)sc[m[0].trim()]=math.evaluate(mwN(m[1]))});return mwRow('Hasil',mwF(math.evaluate(mwN(o.e),sc)))}}]],
+['trig','Trigonometri','◺',[
+ {id:'val',t:'Nilai trigonometri suatu sudut',f:[['a','Sudut','30'],['u','Satuan','Derajat','select',['Derajat','Radian']]],
+  run:async o=>{const a=mwNum(o,'a'),r=o.u=='Derajat'?a*Math.PI/180:a,s=Math.sin(r),c=Math.cos(r),z=x=>Math.abs(x)<1e-12,f=x=>mwF(parseFloat(x.toPrecision(12)));
+   return mwRow('sin',f(s))+mwRow('cos',f(c))+mwRow('tan',z(c)?'tak terdefinisi':f(s/c))+mwRow('csc',z(s)?'tak terdefinisi':f(1/s))+mwRow('sec',z(c)?'tak terdefinisi':f(1/c))+mwRow('cot',z(s)?'tak terdefinisi':f(c/s))}},
+ {id:'teq',t:'Persamaan trigonometri',f:[['e','Persamaan','sin(x)=1/2'],['v','Variabel','x']],
+  run:async o=>{await mwLoad();const q=mwN(o.e).split('='),v=o.v||'x',s=mwSol(q.length>1?`(${q[0]})-(${q[1]})`:q[0],v);if(!s.length)return'Tidak ada solusi.';
+   return s.map(x=>{let d='';try{d=' ≈ '+parseFloat((nerdamer(x).evaluate().text('decimals')*180/Math.PI).toPrecision(8))+'°'}catch(e){}return mwRow(v,x+' rad'+d)}).join('')+'<small>Solusi pokok; tambahkan kelipatan periode (2π atau 360°) untuk solusi lain.</small>'}},
+ {id:'konv',t:'Derajat ↔ radian',f:[['a','Nilai','180'],['d','Arah','Derajat → radian','select',['Derajat → radian','Radian → derajat']]],
+  run:async o=>{const a=mwNum(o,'a');if(/^Derajat/.test(o.d)){const r=a*Math.PI/180;let fr='';try{const q=math.fraction(a/180);if(q.d<=360)fr=' = '+(q.n*q.s)+'/'+q.d+' π'}catch(e){}return mwRow('Radian',mwF(r)+fr)}return mwRow('Derajat',mwF(a*180/Math.PI))}},
+ {id:'segi',t:'Segitiga siku-siku',f:[['a','Alas (a)','3'],['b','Tinggi (b)','4'],['c','Sisi miring (c) — kosongkan yang dicari','']],
+  run:async o=>{let a=parseFloat(o.a),b=parseFloat(o.b),c=parseFloat(o.c);const k=[a,b,c].filter(isFinite).length;if(k!=2)throw new Error('Isi tepat dua sisi, kosongkan satu.');
+   if(!isFinite(c)){if(a<=0||b<=0)throw new Error('Sisi harus positif.');c=Math.hypot(a,b)}else if(!isFinite(a)){if(c<=b)throw new Error('Sisi miring harus terpanjang.');a=Math.sqrt(c*c-b*b)}else{if(c<=a)throw new Error('Sisi miring harus terpanjang.');b=Math.sqrt(c*c-a*a)}
+   const A=Math.atan2(a,b)*180/Math.PI;return mwRow('a',mwF(a))+mwRow('b',mwF(b))+mwRow('c',mwF(c))+mwRow('Sudut di depan a',mwF(A)+'°')+mwRow('Sudut di depan b',mwF(90-A)+'°')+mwRow('Luas',mwF(a*b/2))+mwRow('Keliling',mwF(a+b+c))}}]],
+['prak','Prakalkulus','⌒',[
+ {id:'komp',t:'Fungsi komposisi',f:[['f','f(x)','2x+1'],['g','g(x)','x^2']],
+  run:async o=>{await mwLoad();const f=mwN(o.f),g=mwN(o.g);return mwRow('(f ∘ g)(x)',mwND('expand('+f+')',{x:'('+g+')'}).toString())+mwRow('(g ∘ f)(x)',mwND('expand('+g+')',{x:'('+f+')'}).toString())}},
+ {id:'inv',t:'Invers fungsi',f:[['e','f(x)','(2x+3)/(x-1)']],
+  run:async o=>{await mwLoad();const s=mwSol('y-('+mwN(o.e)+')','x');return s.length?s.map(x=>mwRow('f⁻¹(x)',x.replace(/\by\b/g,'x'))).join(''):'Invers tidak ditemukan.'}},
+ {id:'par',t:'Parabola y = ax² + bx + c',f:[['a','a','1'],['b','b','-4'],['c','c','3']],
+  run:async o=>{const a=mwNum(o,'a'),b=mwNum(o,'b'),c=mwNum(o,'c');if(!a)throw new Error('a tidak boleh nol.');const D=b*b-4*a*c,xp=-b/(2*a),yp=a*xp*xp+b*xp+c;
+   return mwRow('Diskriminan',mwF(D))+mwRow('Akar',D<0?'tidak real':D==0?mwF(xp):mwF((-b-Math.sqrt(D))/(2*a))+' dan '+mwF((-b+Math.sqrt(D))/(2*a)))+mwRow('Titik puncak','('+mwF(xp)+', '+mwF(yp)+')'+(a>0?' (minimum)':' (maksimum)'))+mwRow('Sumbu simetri','x = '+mwF(xp))+mwRow('Titik potong sumbu y','(0, '+mwF(c)+')')}},
+ {id:'tab',t:'Tabel nilai fungsi',f:[['e','f(x)','x^2-4'],['a','x awal','-3'],['b','x akhir','3'],['s','Langkah','1']],
+  run:async o=>{await mwLoad();const f=math.compile(mwN(o.e)),a=mwNum(o,'a'),b=mwNum(o,'b'),s=mwNum(o,'s');if(s<=0||b<a||(b-a)/s>300)throw new Error('Rentang/langkah tidak valid (maks. 300 baris).');const r=[['x','f(x)']];for(let x=a;x<=b+1e-9;x+=s){let y;try{y=f.evaluate({x})}catch(e){y='—'}r.push([+x.toPrecision(10),y])}return mwTab(r)}}]],
+['kalk','Kalkulus','∫',[
+ {id:'dif',t:'Turunan',f:[['e','f(x)','x^3*sin(x)'],['v','Variabel','x'],['n','Orde turunan','1'],['p','Hitung di titik (opsional)','']],
+  run:async o=>{await mwLoad();const v=o.v||'x',d=mwND('diff('+mwN(o.e)+','+v+','+(o.n||1)+')'),s=d.toString();let h=mwRow('Turunan',s);if(o.p.trim())h+=mwRow('Nilai di '+v+' = '+o.p,mwF(math.evaluate(mwN(s),{[v]:math.evaluate(mwN(o.p))})));return h}},
+ {id:'int',t:'Integral tak tentu',f:[['e','f(x)','x*e^x'],['v','Variabel','x']],run:async o=>{await mwLoad();return mwRow('∫ f dx',mwND('integrate('+mwN(o.e)+','+(o.v||'x')+')').toString()+' + C')}},
+ {id:'dint',t:'Integral tentu',f:[['e','f(x)','x^2'],['a','Batas bawah','0'],['b','Batas atas','3'],['v','Variabel','x']],
+  run:async o=>{await mwLoad();const v=o.v||'x',a=mwNum(o,'a'),b=mwNum(o,'b');let r;try{r=nerdamer('defint('+mwN(o.e)+','+a+','+b+','+v+')').evaluate().text('decimals');if(!isFinite(+r))throw 0}catch(e){const f=math.compile(mwN(o.e)),n=2000,h=(b-a)/n;let s=0;for(let i=0;i<=n;i++){const y=f.evaluate({[v]:a+i*h});s+=(i==0||i==n?1:i%2?4:2)*y}r=String(s*h/3)+' (numerik)'}
+   return mwRow('Hasil',parseFloat(r)?String(parseFloat(parseFloat(r).toPrecision(12)))+(/numerik/.test(r)?' (numerik)':''):r)}},
+ {id:'lim',t:'Limit',f:[['e','f(x)','sin(x)/x'],['v','Variabel','x'],['a','Mendekati (angka, oo, -oo)','0']],
+  run:async o=>{await mwLoad();const v=o.v||'x',a=o.a.trim().replace(/∞/g,'oo'),inf=/oo/.test(a),A=inf?'Infinity':a.replace(/oo/g,'Infinity');let s;
+   try{s=nerdamer('limit('+mwN(o.e)+','+v+','+(inf?(a[0]=='-'?'-Infinity':'Infinity'):A)+')').toString();if(/limit/.test(s))throw 0}catch(e){const f=math.compile(mwN(o.e)),ev=x=>f.evaluate({[v]:x});
+    if(inf){const x=a[0]=='-'?-1e8:1e8;s=mwF(ev(x))+' (numerik)'}else{const p=math.evaluate(mwN(a)),l=ev(p-1e-7),r=ev(p+1e-7);s=Math.abs(l-r)<1e-4*(1+Math.abs(l))?mwF((l+r)/2)+' (numerik)':'limit kiri ≈ '+mwF(l)+', limit kanan ≈ '+mwF(r)+' (tidak ada)'}}
+   return mwRow('Limit',s)}},
+ {id:'tang',t:'Garis singgung',f:[['e','f(x)','x^2+1'],['p','Di titik x =','2']],
+  run:async o=>{await mwLoad();const x0=mwNum(o,'p'),f=math.compile(mwN(o.e)),d=mwND('diff('+mwN(o.e)+',x)').toString(),m=math.evaluate(mwN(d),{x:x0}),y0=f.evaluate({x:x0});return mwRow('f\'(x)',d)+mwRow('Gradien',mwF(m))+mwRow('Titik','('+mwF(x0)+', '+mwF(y0)+')')+mwRow('Garis singgung','y = '+mwF(m)+'x '+(y0-m*x0<0?'− ':'+ ')+mwF(Math.abs(y0-m*x0)))}}]],
+['stat','Statistika','ılı',[
+ {id:'desk',t:'Statistik deskriptif',f:[['a','Data (pisahkan spasi/koma)','7 8 8 9 10 6 7']],
+  run:async o=>{await mwLoad();const d=knums(o.a);if(!d.length||d.some(x=>!isFinite(x)))throw new Error('Isi data berupa angka.');const q=p=>math.quantileSeq(d,p);let mo;try{mo=math.mode(d).join(', ')}catch(e){mo='—'}
+   return mwRow('Banyak data (n)',d.length)+mwRow('Jumlah',mwF(math.sum(d)))+mwRow('Rata-rata',mwF(math.mean(d)))+mwRow('Median',mwF(math.median(d)))+mwRow('Modus',mo)+mwRow('Min / Maks',mwF(Math.min(...d))+' / '+mwF(Math.max(...d)))+mwRow('Jangkauan',mwF(Math.max(...d)-Math.min(...d)))+mwRow('Q1 / Q3',mwF(q(.25))+' / '+mwF(q(.75)))+mwRow('Varians populasi / sampel',mwF(math.variance(d,'uncorrected'))+' / '+(d.length>1?mwF(math.variance(d,'unbiased')):'—'))+mwRow('Simpangan baku populasi / sampel',mwF(math.std(d,'uncorrected'))+' / '+(d.length>1?mwF(math.std(d,'unbiased')):'—'))}},
+ {id:'reg',t:'Regresi linear',f:[['x','Data x','1 2 3 4 5'],['y','Data y','2 4 5 4 6']],
+  run:async o=>{const x=knums(o.x),y=knums(o.y),n=x.length;if(n<2||n!=y.length||[...x,...y].some(v=>!isFinite(v)))throw new Error('x dan y harus berjumlah sama (minimal 2) dan berupa angka.');const mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let sxy=0,sxx=0,syy=0;x.forEach((v,i)=>{sxy+=(v-mx)*(y[i]-my);sxx+=(v-mx)**2;syy+=(y[i]-my)**2});if(!sxx)throw new Error('Semua nilai x sama.');const m=sxy/sxx,b=my-m*mx,r=syy?sxy/Math.sqrt(sxx*syy):1;
+   return mwRow('Persamaan','y = '+mwF(m)+'x '+(b<0?'− ':'+ ')+mwF(Math.abs(b)))+mwRow('Korelasi (r)',mwF(r))+mwRow('R²',mwF(r*r))}},
+ {id:'norm',t:'Distribusi normal',f:[['m','Rata-rata (μ)','100'],['s','Simpangan baku (σ)','15'],['x','Nilai x','115']],
+  run:async o=>{await mwLoad();const m=mwNum(o,'m'),s=mwNum(o,'s'),x=mwNum(o,'x');if(s<=0)throw new Error('σ harus positif.');const z=(x-m)/s,p=.5*(1+math.erf(z/Math.SQRT2));return mwRow('z',mwF(z))+mwRow('P(X ≤ x)',mwF(p)+' ('+mwF(p*100)+'%)')+mwRow('P(X > x)',mwF(1-p)+' ('+mwF((1-p)*100)+'%)')}},
+ {id:'bin',t:'Distribusi binomial',f:[['n','Jumlah percobaan (n)','10'],['p','Peluang sukses (p)','0.5'],['k','Jumlah sukses (k)','4']],
+  run:async o=>{await mwLoad();const n=mwNum(o,'n'),p=mwNum(o,'p'),k=mwNum(o,'k');if(n<0||n>1000||k<0||k>n||p<0||p>1||n%1||k%1)throw new Error('Pastikan 0 ≤ k ≤ n ≤ 1000 dan 0 ≤ p ≤ 1.');let c=0,e=0;
+   const lc=(n,i)=>{let s=0;for(let j=1;j<=i;j++)s+=Math.log((n-i+j)/j);return s},P=i=>p==0?(i==0?1:0):p==1?(i==n?1:0):Math.exp(lc(n,i)+i*Math.log(p)+(n-i)*Math.log(1-p));for(let i=0;i<=k;i++)c+=P(i);
+   return mwRow('P(X = k)',mwF(P(k)))+mwRow('P(X ≤ k)',mwF(c))+mwRow('P(X ≥ k)',mwF(1-c+P(k)))+mwRow('Rata-rata / simpangan baku',mwF(n*p)+' / '+mwF(Math.sqrt(n*p*(1-p))))}}]],
+['berh','Matematika Berhingga','Σ',[
+ {id:'komb',t:'Faktorial, permutasi & kombinasi',f:[['n','n','10'],['r','r','3']],
+  run:async o=>{await mwLoad();const n=mwNum(o,'n'),r=mwNum(o,'r');if(n<0||r<0||r>n||n%1||r%1||n>170)throw new Error('Pastikan bilangan bulat, 0 ≤ r ≤ n ≤ 170.');return mwRow('n!',mwF(math.factorial(n)))+mwRow('P(n, r)',mwF(math.permutations(n,r)))+mwRow('C(n, r)',mwF(math.combinations(n,r)))}},
+ {id:'der',t:'Barisan & deret',f:[['j','Jenis','Aritmetika','select',['Aritmetika','Geometri']],['a','Suku pertama (a)','2'],['b','Beda (b) atau rasio (r)','3'],['n','Banyak suku (n)','10']],
+  run:async o=>{const a=mwNum(o,'a'),b=mwNum(o,'b'),n=mwNum(o,'n');if(n<1||n%1)throw new Error('n harus bilangan bulat positif.');
+   if(o.j=='Aritmetika')return mwRow('Un',mwF(a+(n-1)*b))+mwRow('Sn',mwF(n*(2*a+(n-1)*b)/2));
+   return mwRow('Un',mwF(a*Math.pow(b,n-1)))+mwRow('Sn',mwF(b==1?a*n:a*(Math.pow(b,n)-1)/(b-1)))+(Math.abs(b)<1?mwRow('S∞',mwF(a/(1-b))):'')}},
+ {id:'sig',t:'Notasi sigma (Σ)',f:[['e','Suku (variabel i)','2*i+1'],['a','Dari i =','1'],['b','Sampai i =','10']],
+  run:async o=>{await mwLoad();const a=mwNum(o,'a'),b=mwNum(o,'b');if(b<a||b-a>1e6)throw new Error('Rentang tidak valid (maks. 1.000.000 suku).');const f=math.compile(mwN(o.e));let s=0;for(let i=a;i<=b;i++)s+=f.evaluate({i});return mwRow('Σ',mwF(s))+mwRow('Banyak suku',b-a+1)}},
+ {id:'bng',t:'Bunga majemuk & tabungan berkala',f:[['p','Modal awal','1000000'],['r','Bunga per periode (%)','1'],['n','Banyak periode','12'],['s','Setoran tiap periode (opsional)','0']],
+  run:async o=>{const P=mwNum(o,'p'),r=mwNum(o,'r')/100,n=mwNum(o,'n'),A=o.s.trim()?mwNum(o,'s'):0,g=Math.pow(1+r,n),fv=P*g+A*(r?(g-1)/r:n),tot=P+A*n;return mwRow('Nilai akhir',mwF(fv))+mwRow('Total setoran',mwF(tot))+mwRow('Total bunga',mwF(fv-tot))}}]],
+['alin','Aljabar Linear','[·]',[
+ {id:'mat',t:'Operasi matriks',f:[['op','Operasi','Determinan','select',['Determinan','Invers','Transpose','Nilai eigen','A + B','A × B','Selesaikan Ax = b']],['A','Matriks A (satu baris per baris, pisahkan spasi/koma)','1 2\n3 4','area'],['B','Matriks B / vektor b (bila diperlukan)','5 6\n7 8','area']],
+  run:async o=>{await mwLoad();const A=mwMat(o.A);let r;const sq=()=>{if(A.length!=A[0].length)throw new Error('Matriks A harus persegi.')};
+   switch(o.op){case'Determinan':sq();return mwRow('det(A)',mwF(math.det(A)));
+    case'Invers':sq();if(Math.abs(math.det(A))<1e-12)throw new Error('Matriks singular (determinan 0), tidak punya invers.');return mwTab(math.inv(A));
+    case'Transpose':return mwTab(math.transpose(A));
+    case'Nilai eigen':sq();r=math.eigs(A).values;return mwTab([[].concat(r.toArray?r.toArray():r)]);
+    case'A + B':r=math.add(A,mwMat(o.B));return mwTab(r);
+    case'A × B':r=math.multiply(A,mwMat(o.B));return mwTab(r);
+    default:sq();r=math.lusolve(A,mwMat(o.B).flat());return mwTab(r.toArray?r.toArray():r)}}}]],
+['kimia','Kimia','⚗',[
+ {id:'mm',t:'Massa molar & mol',f:[['r','Rumus kimia','Ca(OH)2'],['g','Massa (gram, opsional)','']],
+  run:async o=>{const c=chemParse(o.r.replace(/\s+/g,'').replace(/[·.]/g,'')),un=Object.keys(c).filter(k=>!MW_EL[k]);if(un.length)throw new Error('Unsur belum dikenal: '+un.join(', '));const M=Object.keys(c).reduce((s,k)=>s+MW_EL[k]*c[k],0);
+   let h=mwRow('Massa molar (Mr)',mwF(M)+' g/mol')+Object.keys(c).map(k=>mwRow(k+' ×'+c[k],mwF(MW_EL[k]*c[k]/M*100)+'%')).join('');
+   if(o.g.trim()){const g=mwNum(o,'g'),n=g/M;h+=mwRow('Jumlah mol',mwF(n)+' mol')+mwRow('Jumlah partikel',mwF(n*6.02214076e23))}return h}},
+ {id:'bal',t:'Setarakan persamaan reaksi',f:[['e','Reaksi (pakai -> ), huruf besar-kecil unsur harus tepat','Fe + O2 -> Fe2O3']],run:async o=>mwRow('Hasil',chemBal(o.e))},
+ {id:'mol',t:'Molaritas & pengenceran (M₁V₁ = M₂V₂)',f:[['m1','M₁','1'],['v1','V₁','','' ],['m2','M₂','0.1'],['v2','V₂','500']],
+  run:async o=>{const k=['m1','v1','m2','v2'],b=k.filter(x=>!String(o[x]).trim());if(b.length!=1)throw new Error('Kosongkan tepat satu nilai yang dicari.');const v={};k.filter(x=>x!=b[0]).forEach(x=>v[x]=mwNum(o,x));
+   const r={m1:()=>v.m2*v.v2/v.v1,v1:()=>v.m2*v.v2/v.m1,m2:()=>v.m1*v.v1/v.v2,v2:()=>v.m1*v.v1/v.m2}[b[0]]();return mwRow({m1:'M₁',v1:'V₁',m2:'M₂',v2:'V₂'}[b[0]],mwF(r))}},
+ {id:'ph',t:'Menghitung pH',f:[['j','Jenis larutan','Asam kuat','select',['Asam kuat','Basa kuat','Asam lemah','Basa lemah']],['c','Konsentrasi (M)','0.01'],['v','Valensi (kuat) atau Ka/Kb (lemah)','1']],
+  run:async o=>{const c=mwNum(o,'c'),v=mwNum(o,'v');if(c<=0||v<=0)throw new Error('Nilai harus positif.');const x=o.j=='Asam kuat'||o.j=='Basa kuat'?c*v:Math.sqrt(v*c),p=-Math.log10(x),acid=/^Asam/.test(o.j);return mwRow(acid?'[H⁺]':'[OH⁻]',mwF(x)+' M')+mwRow('pH',mwF(acid?p:14-p))+mwRow('pOH',mwF(acid?14-p:p))+mwRow('Sifat',acid?'asam':'basa')}}]],
+['fis','Fisika','⚛',[
+ {id:'rum',t:'Rumus fisika',get f(){const q=MW_FIS.find(x=>x[0]==MWS.fz)||MW_FIS[0],vs=[...new Set(q[1].match(/[A-Za-z_]\w*/g))];return[['z','Rumus','','select',MW_FIS.map(x=>x[0]),'fz'],...vs.map(v=>[v,v+(v=='g'?' (percepatan gravitasi, m/s²)':''),v=='g'?'9.8':''])]},
+  run:async o=>{await mwLoad();const q=MW_FIS.find(x=>x[0]==MWS.fz)||MW_FIS[0],vs=[...new Set(q[1].match(/[A-Za-z_]\w*/g))],bl=vs.filter(v=>!String(o[v]).trim());if(bl.length!=1)throw new Error('Kosongkan tepat satu variabel yang dicari, isi yang lain.');
+   const sub={};vs.filter(v=>v!=bl[0]).forEach(v=>sub[v]=mwNum(o,v));const[l,r]=q[1].split('='),s=mwSol('('+l+')-('+r+')',bl[0]).map(x=>nerdamer(x,sub).evaluate().text('decimals')).filter(x=>isFinite(+x));if(!s.length)throw new Error('Tidak ada solusi real.');
+   return s.map(x=>mwRow(bl[0],mwF(+x))).join('')}}]],
+['geo','Geometri','△',[mwK('geo')]],
+['graf','Membuat Grafik','📈',[
+ {id:'gr',t:'Grafik fungsi y = f(x)',f:[['f1','y₁ =','x^2-4'],['f2','y₂ = (opsional)','sin(x)*3'],['f3','y₃ = (opsional)',''],['a','x minimum','-10'],['b','x maksimum','10']],
+  run:async(o,el)=>{await mwLoad();const src=[o.f1,o.f2,o.f3].filter(s=>s.trim()),fs=src.map(s=>math.compile(mwN(s))),a=mwNum(o,'a'),b=mwNum(o,'b');if(!fs.length||b<=a)throw new Error('Isi minimal satu fungsi dan rentang x yang benar.');
+   const W=640,H=400,N=500,col=['#ea7a0a','#2563eb','#16a34a'],pts=fs.map(f=>{const p=[];for(let i=0;i<=N;i++){const x=a+(b-a)*i/N;let y;try{y=f.evaluate({x})}catch(e){y=NaN}p.push([x,typeof y=='number'&&isFinite(y)?y:NaN])}return p}),ys=pts.flat().map(p=>p[1]).filter(isFinite).sort((p,q)=>p-q);
+   if(!ys.length)throw new Error('Fungsi tidak menghasilkan nilai pada rentang ini.');let lo=ys[Math.floor(ys.length*.02)],hi=ys[Math.ceil(ys.length*.98)-1];if(hi-lo<1e-9){lo-=1;hi+=1}const mg=(hi-lo)*.1;lo-=mg;hi+=mg;
+   el.innerHTML='<canvas width="640" height="400" style="width:100%;max-width:640px;border:1px solid var(--ln);border-radius:8px;background:#fff"></canvas>';
+   const g=el.firstChild.getContext('2d'),X=x=>(x-a)/(b-a)*W,Y=y=>H-(y-lo)/(hi-lo)*H,tk=(s,e)=>{const st=Math.pow(10,Math.floor(Math.log10((e-s)/6))),k=[1,2,5,10].map(t=>t*st).find(t=>(e-s)/t<=8),r=[];for(let v=Math.ceil(s/k)*k;v<=e;v+=k)r.push(+v.toPrecision(10));return r};
+   g.strokeStyle='#e5e7eb';g.fillStyle='#374151';g.font='11px sans-serif';g.lineWidth=1;
+   tk(a,b).forEach(v=>{g.beginPath();g.moveTo(X(v),0);g.lineTo(X(v),H);g.stroke();g.fillText(v,X(v)+2,Math.min(H-4,Math.max(12,Y(0)+12)))});
+   tk(lo,hi).forEach(v=>{g.beginPath();g.moveTo(0,Y(v));g.lineTo(W,Y(v));g.stroke();g.fillText(v,Math.min(W-34,Math.max(2,X(0)+3)),Y(v)-2)});
+   g.strokeStyle='#111';g.lineWidth=1.5;if(lo<0&&hi>0){g.beginPath();g.moveTo(0,Y(0));g.lineTo(W,Y(0));g.stroke()}if(a<0&&b>0){g.beginPath();g.moveTo(X(0),0);g.lineTo(X(0),H);g.stroke()}
+   pts.forEach((p,j)=>{g.strokeStyle=col[j];g.lineWidth=2;g.beginPath();let on=false;p.forEach(([x,y])=>{if(!isFinite(y)||y<lo-(hi-lo)||y>hi+(hi-lo)){on=false;return}on?g.lineTo(X(x),Y(y)):g.moveTo(X(x),Y(y));on=true});g.stroke()});
+   el.insertAdjacentHTML('beforeend','<div>'+src.map((s,j)=>`<span style="color:${col[j]}">● y = ${esc(s)}</span>`).join(' &nbsp; ')+'</div>')}}]]];
+/* riwayat hitung: lokal + cloud (kv id mysapansa_calc) */
+const MWH_K='mysapansa_mwh',mwUser=()=>(me&&(me.n||me.u))||'';
+async function mwCloud(a){if(!CL.on||!CL.url||!CL.key)return;try{const r=await fetch(cU()+'?id=eq.mysapansa_calc&select=data',{headers:cH()}),x=r.ok?await r.json():[],old=(x[0]&&x[0].data&&x[0].data.h)||[],m=[...a,...old.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t).slice(0,200);
+ await fetch(cU()+'?on_conflict=id',{method:'POST',headers:{...cH(),Prefer:'resolution=merge-duplicates'},body:JSON.stringify({id:'mysapansa_calc',data:{h:m},updated_at:new Date().toISOString()})})}catch(e){}}
+function mwLog(c,i,r){try{const a=JSON.parse(localStorage.getItem(MWH_K)||'[]');a.unshift({t:Date.now(),u:mwUser(),c,i:String(i).slice(0,120),r:String(r).slice(0,160)});const b=a.slice(0,60);localStorage.setItem(MWH_K,JSON.stringify(b));mwCloud(b);mwShow()}catch(e){}}
+async function mwShow(){const el=document.querySelector('#mwh');if(!el)return;let a=[];try{a=JSON.parse(localStorage.getItem(MWH_K)||'[]')}catch(e){}
+ if(CL.on&&CL.url&&CL.key){try{const r=await fetch(cU()+'?id=eq.mysapansa_calc&select=data',{headers:cH()}),x=r.ok?await r.json():[],c=(x[0]&&x[0].data&&x[0].data.h)||[];a=[...a,...c.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t)}catch(e){}}
+ a=a.filter(r=>me&&me.r=='admin'||r.u==mwUser());if(document.querySelector('#mwh')!==el)return;
+ el.innerHTML=a.length?a.slice(0,10).map(r=>`<div class="cvfi"><span><b>${esc(r.c)}</b> <small>${esc(r.i)}</small><br>→ ${esc(r.r)}</span><small>${new Date(r.t).toLocaleString('id-ID')}</small></div>`).join(''):'<small>Belum ada riwayat.</small>'}
+function kalkMw(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
+ const C=MW_C.find(x=>x[0]==MWS.c)||MW_C[0],ops=C[3],O=ops.find(x=>x.id==MWS.o[C[0]])||ops[0],
+ fh=O.f.map(([k,l,d,t,ch,fl])=>t=='select'?`<label>${esc(l)}<select data-f="${k}" ${fl?`data-fl="${fl}"`:''}>${ch.map(x=>`<option ${(fl?(fl=='g'?KMS:MWS)[fl]:d)==x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`
+  :t=='area'?`<label style="flex:1 1 100%">${esc(l)}<textarea data-f="${k}" rows="3" style="font-family:monospace">${esc(d)}</textarea></label>`
+  :`<label>${esc(l)}<input data-f="${k}" value="${esc(d)}" placeholder="${esc(d)}" autocomplete="off"></label>`).join('');
+ c.innerHTML=`<div class="mw"><nav class="mwn" aria-label="Kategori matematika">${MW_C.map(x=>`<button type="button" data-c="${x[0]}" class="${x[0]==C[0]?'on':''}"><span>${x[2]}</span>${x[1]}</button>`).join('')}</nav>
+ <div><div class="pnl"><b>${C[1]}</b>${ops.length>1?`<div class="row"><label>Pilih operasi<select id="mwo">${ops.map(x=>`<option value="${x.id}" ${x.id==O.id?'selected':''}>${esc(x.t)}</option>`).join('')}</select></label></div>`:`<div><small>${esc(O.t)}</small></div>`}
+ <div class="row">${fh}</div><button type="button" id="mwgo">Hitung</button><div id="mwr" style="margin-top:12px;line-height:1.9;font-size:18px;padding:12px;border-radius:8px;background:#8881;min-height:48px" aria-live="polite"></div>
+ <small>Ketik ekspresi seperti 3x^2+2x, sqrt(16), ln(x) (log alami), pi, e. Hasil dihitung di perangkat Anda.</small></div>
+ <div class="pnl"><b>🕘 Riwayat hitung</b> <small>(tersinkron antar perangkat bila cloud aktif)</small><div id="mwh"></div></div></div></div>`;
+ const go=async()=>{const o={};c.querySelectorAll('[data-f]').forEach(e=>o[e.dataset.f]=e.value.trim());const r=c.querySelector('#mwr');r.innerHTML='<small>Menghitung…</small>';
+  try{const h=await O.run(o,r);if(typeof h=='string'){r.innerHTML=h;mwLog(C[1]+' › '+O.t,Object.values(o).join(' ; '),r.textContent)}else mwLog(C[1]+' › '+O.t,Object.values(o).join(' ; '),'grafik')}
+  catch(e){r.innerHTML='<div class="cvst er">⚠️ '+esc((e&&e.message)||'Ekspresi tidak dapat dihitung. Periksa penulisannya.')+'</div>'}};
+ c.onchange=e=>{const t=e.target;if(t.id=='mwo'){MWS.o[C[0]]=t.value;kalkMw(c)}else if(t.dataset.fl){(t.dataset.fl=='g'?KMS:MWS)[t.dataset.fl]=t.value;kalkMw(c)}};
+ c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){MWS.c=b.dataset.c;kalkMw(c);return}if(e.target.id=='mwgo')go()};
+ c.onkeydown=e=>{if(e.key=='Enter'&&e.target.tagName=='INPUT'){e.preventDefault();go()}};mwShow()}
+function kalkulatorP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;const T=[['ilm','🧮 Ilmiah',kalkIlm],['mat','📐 Matematika',kalkMw],['kon','📏 Konversi',kalkKonv],['suh','🌡️ Suhu',kalkSuhu],['imt','⚖️ IMT',kalkImt],['cur','💱 Mata Uang',kalkCur],['ft','📷 Foto Soal (AI)',kalkFoto]];
  v.innerHTML=`<div class="row np" id="ktb">${T.map(t=>`<button class="${t[0]==KALT?'':'g'}" data-t="${t[0]}" type="button">${t[1]}</button>`).join('')}</div><div id="kb"></div>`;(T.find(t=>t[0]==KALT)||T[0])[2](v.querySelector('#kb'));
  v.onclick=e=>{const b=e.target.closest('#ktb [data-t]');if(b){KALT=b.dataset.t;kalkulatorP(v)}}}
 const KAL_SYS=[['','Tanpa kalender tambahan'],['islamic-umalqura','Hijriah (Islam)'],['pasaran','Jawa (Pasaran)'],['chinese','Tionghoa (Imlek)'],['indian','Saka (India)'],['hebrew','Ibrani (Yahudi)'],['persian','Persia (Iran/Afghanistan)'],['buddhist','Buddha (Thailand)'],['japanese','Jepang (era)'],['roc','Minguo (Taiwan)'],['coptic','Koptik (Mesir)'],['ethiopic','Ethiopia']],
@@ -1969,7 +2164,8 @@ function cloudP(el){el.innerHTML=`<b>☁️ Penyimpanan Cloud (Supabase)</b> <sm
 -- Menu Convert (Video Audio, Gambar, Dokumen &amp; Utilitas) memproses file di
 -- perangkat masing-masing, jadi file TIDAK disimpan di sini. Yang disimpan hanya
 -- riwayat singkat (nama file, ukuran, waktu) pada baris kv id = mysapansa_cv
--- agar Riwayat Convert sama di semua perangkat. Tidak ada tabel/kolom baru.
+-- agar Riwayat Convert sama di semua perangkat. Riwayat Kalkulator Matematika
+-- disimpan serupa pada baris kv id = mysapansa_calc. Tidak ada tabel/kolom baru.
 -- =====================================================================
 
 -- 1. Tabel penyimpanan utama
@@ -2048,9 +2244,9 @@ drop policy if exists "kv_update" on public.kv;
 create policy "kv_select" on public.kv
   for select to anon, authenticated using (true);
 create policy "kv_insert" on public.kv
-  for insert to anon, authenticated with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv'));
+  for insert to anon, authenticated with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv','mysapansa_calc'));
 create policy "kv_update" on public.kv
-  for update to anon, authenticated using (true) with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv'));
+  for update to anon, authenticated using (true) with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv','mysapansa_calc'));
 
 -- 5. Hak akses (tanpa hak hapus: data tidak bisa terhapus lewat API)
 grant usage on schema public to anon, authenticated;
@@ -2140,7 +2336,7 @@ where id = 'mysapansa_db' and data is distinct from public.kv_buang_contoh(data)
 
 -- 7b. Baris riwayat Convert (dibaca/ditulis menu Convert &gt; Dokumen &amp; Utilitas &gt; Riwayat)
 insert into public.kv (id, data)
-values ('mysapansa_cv', '{"h": []}'::jsonb)
+values ('mysapansa_cv', '{"h": []}'::jsonb), ('mysapansa_calc', '{"h": []}'::jsonb)
 on conflict (id) do nothing;
 
 -- 8. Muat ulang skema API agar perubahan langsung berlaku
