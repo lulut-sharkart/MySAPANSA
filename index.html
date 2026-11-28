@@ -242,6 +242,14 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
 .mwn button.on{background:#ffe9d9;font-weight:700;color:#c25e00;box-shadow:inset 4px 0 0 #ea7a0a}
 @media(prefers-color-scheme:dark){.mwn button.on{background:#3a2a1c;color:#ffb066}}
 @media(max-width:800px){.mw{grid-template-columns:1fr}.mwn{flex-direction:row;overflow-x:auto;position:static}.mwn button{white-space:nowrap}}
+
+/* daftar kategori matematika: gaya datar; efek kaca saat Liquid Glass aktif */
+#view .mwn button{background:transparent!important;color:inherit!important;box-shadow:none!important;border:0!important;text-shadow:none!important}
+#view .mwn button.on{background:#ffe9d9!important;color:#c25e00!important;font-weight:700;box-shadow:inset 4px 0 0 #ea7a0a!important}
+@media(prefers-color-scheme:dark){#view .mwn button.on{background:#3a2a1c!important;color:#ffb066!important}}
+body.glass .mwn{background:color-mix(in srgb,var(--card) var(--go,68%),transparent);backdrop-filter:blur(var(--gb,10px)) saturate(160%);-webkit-backdrop-filter:blur(var(--gb,10px)) saturate(160%);border:1px solid color-mix(in srgb,#fff 45%,transparent);box-shadow:0 8px 28px #0002,inset 0 1px 0 #fff6}
+body.glass #view .mwn button:hover{background:color-mix(in srgb,#fff 28%,transparent)!important}
+body.glass #view .mwn button.on{background:color-mix(in srgb,var(--c) 30%,transparent)!important;color:inherit!important;box-shadow:inset 4px 0 0 var(--c),inset 0 0 0 1px color-mix(in srgb,#fff 40%,transparent)!important}
 </style>
 </head>
 <body>
@@ -307,7 +315,7 @@ guru:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajarku Terintegrasi AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan')]),TENTANG],
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan')]),TENTANG],
 admin:[L('dash','Dashboard'),
  G('Master Database',[L('users','Manajemen Pengguna'),L('m_siswa','Master Siswa'),L('m_guru','Master Guru'),L('mapel','Master Mata Pelajaran'),L('cpatp','Master CP & ATP'),L('ekskul','Master Ekstrakurikuler'),L('prestasi','Master Prestasi'),L('game','Master Permainan'),L('dokumen','Master Dokumen'),L('db','DataBase IE')]),
  G('Administrasi',[L('tugas','Tugas'),L('nilai','Penilaian'),L('khs','Kartu Hasil Studi')]),
@@ -316,7 +324,7 @@ admin:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajar AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan'),L('urutmenu','Urutkan Menu'),L('server','Server')]),TENTANG],
+ L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('server','Server')]),TENTANG],
 koperasi:[L('dash','Dashboard'),L('koperasi','Koperasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG]};
 const AB=['Tanggal','Nama','Status','Keterangan'],NOFORM={nilai:['Sumber']},
 COL={bahan:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],media:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],modul:['Judul','Mapel','Kelas','Fase','Alokasi','Pemilik'],soal:['Judul','Kelas','Mapel','Tanggal','Menit','Jumlah Soal','Pemilik'],surat:['Tanggal','Jenis','Nomor','Hal','Kepada','Lampiran','Pemilik'],prestasi:['Kelas','Nama','Prestasi','Tingkat','Tahun','Keterangan'],absen:['Tanggal','Kelas','Nama','Status','Poin','Keterangan'],absenguru:['Tanggal','Nama','Jenis','Status','Jam','Keterangan','Lokasi'],tugasekskul:['Kelas','Ekskul','Pertemuan','Judul','Tenggat','Metode','Status'],nilaiekskul:['Kelas','Nama','Ekskul','Nilai','Catatan'],pesertaekskul:['Ekskul','Kelas','Nama'],ekskul:['Ekstrakurikuler','Pembina'],tugas:['Kelas','Mapel','Pertemuan','Judul','Kategori','Semester','Tenggat','Lampiran','Status'],cpatp:['Mapel','CP','ATP'],nilai:['Nama','Tugas','Jenis','Mapel','Nilai','Sumber'],
@@ -1515,7 +1523,12 @@ function mwLog(c,i,r){try{const a=JSON.parse(localStorage.getItem(MWH_K)||'[]');
 async function mwShow(){const el=document.querySelector('#mwh');if(!el)return;let a=[];try{a=JSON.parse(localStorage.getItem(MWH_K)||'[]')}catch(e){}
  if(CL.on&&CL.url&&CL.key){try{const r=await fetch(cU()+'?id=eq.mysapansa_calc&select=data',{headers:cH()}),x=r.ok?await r.json():[],c=(x[0]&&x[0].data&&x[0].data.h)||[];a=[...a,...c.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t)}catch(e){}}
  a=a.filter(r=>me&&me.r=='admin'||r.u==mwUser());if(document.querySelector('#mwh')!==el)return;
- el.innerHTML=a.length?a.slice(0,10).map(r=>`<div class="cvfi"><span><b>${esc(r.c)}</b> <small>${esc(r.i)}</small><br>→ ${esc(r.r)}</span><small>${new Date(r.t).toLocaleString('id-ID')}</small></div>`).join(''):'<small>Belum ada riwayat.</small>'}
+ el.innerHTML=a.length?a.slice(0,10).map(r=>`<div class="cvfi"><span><b>${esc(r.c)}</b> <small>${esc(r.i)}</small><br>→ ${esc(r.r)}</span><span style="white-space:nowrap"><small>${new Date(r.t).toLocaleString('id-ID')}</small> <button type="button" class="g" data-del="${r.t}|${esc(r.u)}" title="Hapus" aria-label="Hapus riwayat ini">✕</button></span></div>`).join(''):'<small>Belum ada riwayat.</small>'}
+async function mwDel(pred){const adm=me&&me.r=='admin',rm=r=>pred(r)&&(adm||r.u==mwUser());
+ try{localStorage.setItem(MWH_K,JSON.stringify(JSON.parse(localStorage.getItem(MWH_K)||'[]').filter(r=>!rm(r))))}catch(e){}
+ if(CL.on&&CL.url&&CL.key){try{const r=await fetch(cU()+'?id=eq.mysapansa_calc&select=data',{headers:cH()}),x=r.ok?await r.json():[],old=(x[0]&&x[0].data&&x[0].data.h)||[];
+  await fetch(cU()+'?on_conflict=id',{method:'POST',headers:{...cH(),Prefer:'resolution=merge-duplicates'},body:JSON.stringify({id:'mysapansa_calc',data:{h:old.filter(r=>!rm(r))},updated_at:new Date().toISOString()})})}catch(e){}}
+ mwShow()}
 function kalkMw(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
  const C=MW_C.find(x=>x[0]==MWS.c)||MW_C[0],ops=C[3],O=ops.find(x=>x.id==MWS.o[C[0]])||ops[0],
  fh=O.f.map(([k,l,d,t,ch,fl])=>t=='select'?`<label>${esc(l)}<select data-f="${k}" ${fl?`data-fl="${fl}"`:''}>${ch.map(x=>`<option ${(fl?(fl=='g'?KMS:MWS)[fl]:d)==x?'selected':''}>${esc(x)}</option>`).join('')}</select></label>`
@@ -1525,13 +1538,16 @@ function kalkMw(c){c.onclick=c.onchange=c.oninput=c.onkeydown=null;
  <div><div class="pnl"><b>${C[1]}</b>${ops.length>1?`<div class="row"><label>Pilih operasi<select id="mwo">${ops.map(x=>`<option value="${x.id}" ${x.id==O.id?'selected':''}>${esc(x.t)}</option>`).join('')}</select></label></div>`:`<div><small>${esc(O.t)}</small></div>`}
  <div class="row">${fh}</div><button type="button" id="mwgo">Hitung</button><div id="mwr" style="margin-top:12px;line-height:1.9;font-size:18px;padding:12px;border-radius:8px;background:#8881;min-height:48px" aria-live="polite"></div>
  <small>Ketik ekspresi seperti 3x^2+2x, sqrt(16), ln(x) (log alami), pi, e. Hasil dihitung di perangkat Anda.</small></div>
- <div class="pnl"><b>🕘 Riwayat hitung</b> <small>(tersinkron antar perangkat bila cloud aktif)</small><div id="mwh"></div></div></div></div>`;
+ <div class="pnl"><div class="row" style="align-items:center"><b style="flex:1">🕘 Riwayat hitung</b><button type="button" class="g" id="mwclr">🗑️ Hapus semua</button></div><small>Tersinkron antar perangkat bila cloud aktif.</small><div id="mwh"></div></div></div></div>`;
  const go=async()=>{const o={};c.querySelectorAll('[data-f]').forEach(e=>o[e.dataset.f]=e.value.trim());const r=c.querySelector('#mwr');r.innerHTML='<small>Menghitung…</small>';
   try{const h=await O.run(o,r);if(typeof h=='string'){r.innerHTML=h;mwLog(C[1]+' › '+O.t,Object.values(o).join(' ; '),r.textContent)}else mwLog(C[1]+' › '+O.t,Object.values(o).join(' ; '),'grafik')}
   catch(e){r.innerHTML='<div class="cvst er">⚠️ '+esc((e&&e.message)||'Ekspresi tidak dapat dihitung. Periksa penulisannya.')+'</div>'}};
  c.onchange=e=>{const t=e.target;if(t.id=='mwo'){MWS.o[C[0]]=t.value;kalkMw(c)}else if(t.dataset.fl){(t.dataset.fl=='g'?KMS:MWS)[t.dataset.fl]=t.value;kalkMw(c)}};
- c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){MWS.c=b.dataset.c;kalkMw(c);return}if(e.target.id=='mwgo')go()};
+ c.onclick=e=>{const b=e.target.closest('[data-c]');if(b){MWS.c=b.dataset.c;kalkMw(c);return}const d=e.target.closest('[data-del]');if(d){const[t,u]=d.dataset.del.split('|');mwDel(r=>String(r.t)==t&&r.u==u);return}if(e.target.id=='mwclr'){if(confirm('Hapus semua riwayat hitung?'))mwDel(()=>true);return}if(e.target.id=='mwgo')go()};
  c.onkeydown=e=>{if(e.key=='Enter'&&e.target.tagName=='INPUT'){e.preventDefault();go()}};mwShow()}
+/* Ping Jaringan menjadi tab di halaman Server; Urutkan Menu menjadi tab di halaman Tampilan (memakai sistem TABS bawaan) */
+function server(v){serverMain(v);const d=document.createElement('div');d.id='pgp';v.appendChild(d);ping(d)}
+function setp(v){setpMain(v);if(me&&me.r=='admin'){const d=document.createElement('div');d.id='urw';v.appendChild(d);urutP(d)}}
 function kalkulatorP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;const T=[['ilm','🧮 Ilmiah',kalkIlm],['mat','📐 Matematika',kalkMw],['kon','📏 Konversi',kalkKonv],['suh','🌡️ Suhu',kalkSuhu],['imt','⚖️ IMT',kalkImt],['cur','💱 Mata Uang',kalkCur],['ft','📷 Foto Soal (AI)',kalkFoto]];
  v.innerHTML=`<div class="row np" id="ktb">${T.map(t=>`<button class="${t[0]==KALT?'':'g'}" data-t="${t[0]}" type="button">${t[1]}</button>`).join('')}</div><div id="kb"></div>`;(T.find(t=>t[0]==KALT)||T[0])[2](v.querySelector('#kb'));
  v.onclick=e=>{const b=e.target.closest('#ktb [data-t]');if(b){KALT=b.dataset.t;kalkulatorP(v)}}}
@@ -1667,7 +1683,7 @@ function riw(el){logAuto();const L=(DB.log||[]).slice().reverse(),us=f=>[...new 
 function pant(el){const P=Object.values(DB.pres||{}).filter(x=>Date.now()-x.t<12e4),tot=r=>DB.users.filter(u=>u.r==r).length,on=r=>P.filter(x=>x.r==r).length;
  el.innerHTML=`<div class="row np"><b style="flex:1">📡 Pantau Pengakses</b><button class="g" id="pnr" type="button">⟳ Refresh</button></div><small>Yang sedang aktif membuka aplikasi di perangkat ini (diperbarui otomatis tiap 15 detik).</small><div class="cards"><div class="cd"><small>Sedang Online</small><b style="color:#dc2626">${P.length}</b></div><div class="cd"><small>Siswa Online</small><b>${on('siswa')} / ${tot('siswa')}</b></div><div class="cd"><small>Guru Online</small><b>${on('guru')} / ${tot('guru')}</b></div><div class="cd"><small>Admin Online</small><b>${on('admin')}</b></div></div>
  <div class="tw"><table><tr><th>Peran</th><th>Nama</th><th>ID</th><th>Menu Aktif</th><th>Terakhir Aktif</th></tr>${P.map(x=>`<tr><td>${esc(x.r)}</td><td>${esc(x.n)}</td><td>${esc(x.u)}</td><td>${esc(x.m)}</td><td>${Math.max(0,Math.round((Date.now()-x.t)/60000))} mnt lalu</td></tr>`).join('')||'<tr><td colspan="5">Tidak ada yang online.</td></tr>'}</table></div>`;$('#pnr').onclick=()=>pant(el)}
-function server(v){const sz=(localStorage.getItem(K)||'').length,adm=me.r=='admin';
+function serverMain(v){const sz=(localStorage.getItem(K)||'').length,adm=me.r=='admin';
  v.innerHTML=`<h2>Server</h2><div class="cards"><div class="cd"><b>Aktif</b>Status layanan</div><div class="cd"><b>${(sz/1024).toFixed(1)} KB</b>Ukuran database</div><div class="cd"><b>${DB.users.length}</b>Akun terdaftar</div><div class="cd"><b style="font-size:20px">${GL()}</b>Zona waktu server</div></div>
  <div class="pnl"><b>🕐 Jam server</b><p id="sk" style="font-size:24px;margin:8px 0"></p>${adm?`<div class="row"><select id="gz">${GM.map(g=>`<option value="${g}" ${g==gv()?'selected':''}>${GL(g)}</option>`).join('')}</select><button id="ap" type="button">Terapkan zona waktu</button><button class="g" id="z7" type="button">WIB</button><button class="g" id="z8" type="button">WITA</button><button class="g" id="z9" type="button">WIT</button><button class="g" id="sy" type="button">Ikuti zona perangkat</button></div><small>Jam server dihitung dari jam perangkat lalu disesuaikan dengan GMT yang dipilih.</small>`:'<small>Hanya admin yang dapat mengubah zona waktu.</small>'}</div>
  ${adm?'<div class="pnl" id="gmp"></div><div class="pnl" id="cld"></div><div class="pnl" id="riw"></div><div class="pnl" id="pnt"></div>':''}`;
@@ -1684,7 +1700,7 @@ function umumP(v){const p=PF(),b=(id,t)=>`<button class="g" type="button" id="${
  $('#pws').onclick=()=>{const a=$('#pw0').value,b2=$('#pw1').value;if(a!==me.p)return alert('Sandi lama salah.');if(b2.length<4)return alert('Sandi baru minimal 4 karakter.');if(b2!==$('#pw2').value)return alert('Pengulangan sandi tidak sama.');me.p=b2;save();logA('Ubah Sandi','Pengaturan Umum','Mengubah sandi akun');alert('Sandi berhasil diubah.');umumP(v)}}
 let UR='siswa';
 function urutP(v){const k=i=>i.id||i.t;let arr=ordM(M[UR],UR,1).map(k);const hide=new Set((DB.set.mhide||{})[UR]||[]),ttl=x=>{const f=M[UR].find(i=>k(i)==x);return f?f.t:x};
- v.innerHTML=`<h2>Urutkan Menu</h2><div class="pnl"><div class="row"><label>Atur menu untuk peran<select id="ur">${opt(['siswa','guru','admin','koperasi'],UR)}</select></label></div><p><small>Geser urutan dengan ▲▼ dan hilangkan centang untuk menyembunyikan menu dari sidebar peran tersebut. Hanya admin yang dapat mengubah ini.</small></p><div id="url"></div><div class="row"><button id="urs" type="button">💾 Simpan Urutan</button><button class="g" id="urr" type="button">Kembalikan Default</button></div></div>`;
+ v.innerHTML=`<div class="pnl"><div class="row"><label>Atur menu untuk peran<select id="ur">${opt(['siswa','guru','admin','koperasi'],UR)}</select></label></div><p><small>Geser urutan dengan ▲▼ dan hilangkan centang untuk menyembunyikan menu dari sidebar peran tersebut. Hanya admin yang dapat mengubah ini.</small></p><div id="url"></div><div class="row"><button id="urs" type="button">💾 Simpan Urutan</button><button class="g" id="urr" type="button">Kembalikan Default</button></div></div>`;
  const dr=()=>{$('#url').innerHTML=arr.map((x,i)=>`<div class="row" style="align-items:center;flex-wrap:nowrap"><label style="flex:1;display:flex;gap:8px;align-items:center"><input type="checkbox" data-h="${esc(x)}" ${hide.has(x)?'':'checked'} ${x=='dash'||x=='umum'?'disabled':''} style="width:auto"> ${ic(ttl(x),x)} ${esc(ttl(x))}</label><button class="g" type="button" data-m="${i}" data-s="-1">▲</button><button class="g" type="button" data-m="${i}" data-s="1">▼</button></div>`).join('')};dr();
  $('#url').onclick=e=>{const d=e.target.dataset;if(d.m!==undefined){const i=+d.m,j=i+ +d.s;if(j>=0&&j<arr.length){[arr[i],arr[j]]=[arr[j],arr[i]];dr()}}};$('#url').onchange=e=>{const h=e.target.dataset.h;if(h!==undefined){e.target.checked?hide.delete(h):hide.add(h)}};
  $('#ur').onchange=e=>{UR=e.target.value;urutP(v)};
@@ -1831,7 +1847,7 @@ function infoP(v,id){
  if($('#sv'))$('#sv').onclick=()=>{DB.info[id]=$('#ta').value;save();infoP(v,id)}}
 
 /* ---------- tampilan */
-function setp(v){const s=DB.set;
+function setpMain(v){const s=DB.set;
  v.innerHTML=`<h2>Tampilan</h2><div class="pnl"><div class="row"><label>Warna tema<input type="color" id="co" value="${s.color}"></label><label>Warna sidebar<input type="color" id="sd" value="${s.side||'#12302c'}"></label>
  <label>Mode<select id="md"><option value="auto">Otomatis</option><option value="light">Terang</option><option value="dark">Gelap</option></select></label>
  <label>Ukuran huruf <b id="fv">${s.fs||15}</b>px<input type="range" id="fs" min="13" max="20" value="${s.fs||15}"></label></div>
@@ -1887,7 +1903,7 @@ function users(v,rf){
 
 /* ---------- ping jaringan */
 function ping(v){
- v.innerHTML=`<h2>Ping Jaringan</h2><div class="pnl"><p id="ns"></p>
+ v.innerHTML=`<div class="pnl"><p id="ns"></p>
  <div class="row"><input id="ph" value="https://www.google.com/generate_204" list="pl" placeholder="Alamat (URL)"><datalist id="pl"><option value="https://www.google.com/generate_204"><option value="https://1.1.1.1/cdn-cgi/trace"><option value="https://github.com/favicon.ico"><option value="https://cdnjs.cloudflare.com/"></datalist>
  <select id="pn"><option>4</option><option>10</option><option>20</option></select><button id="pg">Mulai ping</button></div>
  <small>Mengukur waktu tempuh permintaan HTTP dari browser ke alamat tujuan (bukan ICMP). Cocok untuk menilai kualitas sambungan internet.</small></div>
@@ -2755,13 +2771,13 @@ const TABS={
  m_guru:()=>({t:[['📝 Form Data','#msv'],['👥 Daftar','#mq,.tw']]}),
  mapel:MC_T,cpatp:MC_T,ekskul:MC_T,prestasi:MC_T,game:MC_T,
  keu:()=>({t:[['📈 Ringkasan','>.cards,[data-kc]'],['➕ Input Transaksi','#ku5'],['📋 Daftar Transaksi','[data-kt]']]}),
- server:()=>({t:[['🕐 Status & Jam','>.cards,#sk'],['🔑 API Key AI','#gmp'],['☁️ Cloud Supabase','#cld'],['🕘 Riwayat','#riw'],['📡 Pantau','#pnt']]}),
+ server:()=>({t:[['🕐 Status & Jam','>.cards,#sk'],['🔑 API Key AI','#gmp'],['☁️ Cloud Supabase','#cld'],['🕘 Riwayat','#riw'],['📡 Pantau','#pnt'],['📶 Ping Jaringan','#pgp']]}),
  db:()=>({t:[['💾 Cadangan','#ej0'],['🗑 Hapus','#hps'],['⚡ Impor Super Cepat & Spreadsheet','#fsi'],['⬆ Impor/Ekspor Parsial','#pip'],['🔄 Status Sinkron','#sst']]}),
  umum:()=>({t:[['⚙️ Preferensi','#pl'],['🔒 Ubah Sandi','#pws']]}),
  kartu:()=>({al:'#kpv',t:[['🪪 Pilih & Cetak','#ktp'],['🎨 Desain Header','#ksv']]}),
  ljk:()=>({t:[['🖨️ Cetak LJK','#lp'],['🤖 Scan AI','#sgo'],['📋 Riwayat','#rf']]}),
  dokumen:()=>({al:'#dkpv,#dkpt,#dksv',t:[['🏛️ KOP & Logo','#dkon'],['🔤 Font & Ukuran','#dks1'],['✍️ Tanda Tangan','#dkjb'],['📄 Footer','#dkfo']]}),
- tampilan:()=>({t:[['🧩 Tema & Warna','#co,#tyb0,#tyb3'],['🎨 Material You & Liquid Glass','#xmy'],['🖼️ Latar Berganti','#tyb1'],['💧 Watermark','#wmp,#tyb2'],['🏷️ Identitas','#scp,#ldu,#tyb4']]})
+ tampilan:()=>({t:[['🧩 Tema & Warna','#co,#tyb0,#tyb3'],['🎨 Material You & Liquid Glass','#xmy'],['🖼️ Latar Berganti','#tyb1'],['💧 Watermark','#wmp,#tyb2'],['🏷️ Identitas','#scp,#ldu,#tyb4'],['↕️ Urutkan Menu','#urw']]})
 };
 const tbHas=(el,sel)=>sel.split(',').some(t=>{t=t.trim();if(!t||t=='*')return false;if(t[0]=='>')return el.matches(t.slice(1));return el.matches(t)||!!el.querySelector(t)});
 const TMO=new MutationObserver(()=>applyTabs());
