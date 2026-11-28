@@ -288,7 +288,7 @@ body.glass .dvbox{background:color-mix(in srgb,var(--card) var(--go,68%),transpa
   <header><div><button class="g" id="burger" onclick="tgl()">☰ Menu</button> <b id="ttl"></b></div>
    <div><span id="clk" class="np"></span> &middot; <span id="who"></span> <button class="g" onclick="logout()">Keluar</button></div></header>
   <div id="view"></div>
-  <footer>MySAPANSA &copy; 2026 &middot; Dikembangkan oleh <b>SharkArt.evo Education</b></footer>
+  <footer>MySAPANSA &copy; <span id="ftver">v2026 rev12</span> &middot; Dikembangkan oleh <b>SharkArt.evo Education</b></footer>
  </main>
 </div>
 
@@ -299,7 +299,7 @@ const L=(id,t)=>({id,t}), G=(t,c)=>({t,c});
 const TENTANG=G('Tentang',[L('profilsaya','Profil Saya'),L('profilguru','Profil Guru'),L('sapansa','SAPANSA'),L('sekolah','Sekolah')]);
 const IC=[[/^alat$/i,'🧰'],[/dash/i,'🏠'],[/absen/i,'🗓️'],[/ekstra/i,'⚽'],[/tugas|administrasi|nilai|penilaian/i,'📝'],[/7kaih/i,'🌟'],[/agenda|jadwal|jurnal|mata pelajaran/i,'📚'],[/permainan/i,'🎮'],[/atur/i,'⚙️'],[/tentang|profil|sekolah|sapansa/i,'ℹ️'],[/ajar|modul|bahan|media/i,'🤖'],[/keuangan|kas|infaq|adiwiyata/i,'💰'],[/umum/i,'📢'],[/pengguna/i,'👥'],[/database/i,'🗄️'],[/server/i,'🖥️'],[/masa depan|studi|kartu/i,'🎓'],[/data/i,'📂']],ICID={kalkulator:'🧮',kalender:'📅',dash:'🏠',users:'👥',mapel:'📘',m_siswa:'🎒',m_guru:'👩‍🏫',db:'💾',tugas:'📝',nilai:'🏅',khs:'🎓',absen:'✅',absenguru:'🧑‍🏫',rekab:'📊',jurnal:'📖',jadwal:'🕒',kaih:'🌟',tugasekskul:'⚽',nilaiekskul:'🥇',pesertaekskul:'🧑‍🤝‍🧑',modul:'📘',bahan:'📚',media:'🎬',keu:'💰',kas:'💵',adiwiyata:'🌱',infaq:'🤲',game:'🎮',pengumuman:'📢',tampilan:'🎨',soal:'🧾',umum:'⚙️',urutmenu:'↕️',ljk:'🖨️',kartu:'🪪',surat:'✉️',prestasi:'🏆',dokumen:'📁',ekskul:'🏅',cpatp:'🎯',ping:'📡',server:'🖥️',profilsaya:'🙋',profilguru:'👩‍🏫',sapansa:'🔗',sekolah:'🏫',koperasi:'🛒',koptagih:'💳'},
 ic=(t,id)=>ICID[id]||(IC.find(x=>x[0].test(t))||[0,'📁'])[1];
-Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬',cv_img:'🖼️',cv_util:'🧰',cv_arc:'🗄️',cv_view:'👁️'});IC.unshift([/^convert$/i,'🧾']);
+Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬',cv_img:'🖼️',cv_util:'🧰',cv_arc:'🗄️',cv_view:'👁️',gamelaunch:'🕹️'});IC.unshift([/^convert$/i,'🧾']);
 let FL={},UF='',KS='',KSM='',KKH='',KD='',KK='',JK='',JB=[{a:4,m:15}],RM='',RK='siswa',PW=false,EI=null;
 const JENIS=['Ulangan Harian','Praktek','UTS/ASTS','UAS/ASAS'];
 const HAB=['Bangun Pagi','Beribadah','Berolahraga','Makan Sehat dan Bergizi','Gemar Belajar','Bermasyarakat','Tidur Cepat'];
@@ -317,7 +317,7 @@ siswa:[L('dash','Dashboard'),
  G('Masa Depanku',[L('absen','Absensiku'),L('tugas','Tugasku'),L('tugasekskul','Tugas Ekstrakurikuler'),L('khs','Perkembanganku / Kartu Hasil Studi')]),
  L('kaih','7KAIH (7 Kebiasaan Anak Indonesia Hebat)'),L('koptagih','Koperasiku (Tagihan)'),
  G('Agendaku',[L('jadwal','Jadwal Pelajaran'),L('jurnal','Agenda Jurnal Kelas'),L('mapel','Mata Pelajaran Dipelajari')]),
- L('game','Permainan Edukasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG],
+ L('game','Permainan Edukasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),L('gamelaunch','Game Launcher'),L('cuaca','Cuaca')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG],
 guru:[L('dash','Dashboard'),
  G('Administrasiku',[G('Tugas & Penilaian',[L('tugas','Tugas Kelas'),L('nilai','Penilaian Kelas'),L('khs','Kartu Hasil Studi')])]),
  G('Absensiku',[L('absen','Absensi Kelasku'),L('absenguru','Absensi Guruku'),L('rekab','Rekap Absensi')]),
@@ -326,7 +326,7 @@ guru:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajarku Terintegrasi AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan')]),TENTANG],
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),L('gamelaunch','Game Launcher'),L('cuaca','Cuaca')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan')]),TENTANG],
 admin:[L('dash','Dashboard'),
  G('Master Database',[L('users','Manajemen Pengguna'),L('m_siswa','Master Siswa'),L('m_guru','Master Guru'),L('mapel','Master Mata Pelajaran'),L('cpatp','Master CP & ATP'),L('ekskul','Master Ekstrakurikuler'),L('prestasi','Master Prestasi'),L('game','Master Permainan'),L('dokumen','Master Dokumen'),L('db','DataBase IE')]),
  G('Administrasi',[L('tugas','Tugas'),L('nilai','Penilaian'),L('khs','Kartu Hasil Studi')]),
@@ -335,8 +335,8 @@ admin:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajar AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('server','Server')]),TENTANG],
-koperasi:[L('dash','Dashboard'),L('koperasi','Koperasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG]};
+ L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),L('gamelaunch','Game Launcher'),L('cuaca','Cuaca')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('server','Server')]),TENTANG],
+koperasi:[L('dash','Dashboard'),L('koperasi','Koperasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),L('gamelaunch','Game Launcher'),L('cuaca','Cuaca')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG]};
 const AB=['Tanggal','Nama','Status','Keterangan'],NOFORM={nilai:['Sumber']},
 COL={bahan:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],media:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],modul:['Judul','Mapel','Kelas','Fase','Alokasi','Pemilik'],soal:['Judul','Kelas','Mapel','Tanggal','Menit','Jumlah Soal','Pemilik'],surat:['Tanggal','Jenis','Nomor','Hal','Kepada','Lampiran','Pemilik'],prestasi:['Kelas','Nama','Prestasi','Tingkat','Tahun','Keterangan'],absen:['Tanggal','Kelas','Nama','Status','Poin','Keterangan'],absenguru:['Tanggal','Nama','Jenis','Status','Jam','Keterangan','Lokasi'],tugasekskul:['Kelas','Ekskul','Pertemuan','Judul','Tenggat','Metode','Status'],nilaiekskul:['Kelas','Nama','Ekskul','Nilai','Catatan'],pesertaekskul:['Ekskul','Kelas','Nama'],ekskul:['Ekstrakurikuler','Pembina'],tugas:['Kelas','Mapel','Pertemuan','Judul','Kategori','Semester','Tenggat','Lampiran','Status'],cpatp:['Mapel','CP','ATP'],nilai:['Nama','Tugas','Jenis','Mapel','Nilai','Sumber'],
  kaih:['Tanggal','Kelas','Nama',...HAB],jadwal:['Hari','Jam','Mapel','Guru'],mapel:['Kode','Mapel'],
@@ -484,7 +484,7 @@ function title(id,a=M[me.r]){for(const i of a){if(i.id==id)return i.t;if(i.c){co
 function cleanDB(){try{if(!DB||typeof DB!='object')return;hapusContoh(DB);if(Array.isArray(DB.users))DB.users=DB.users.filter(x=>x&&typeof x=='object');if(DB.data&&typeof DB.data=='object')Object.keys(DB.data).forEach(k=>{const v=DB.data[k];if(Array.isArray(v)&&v.some(x=>x==null||typeof x!='object'))DB.data[k]=v.filter(x=>x&&typeof x=='object')})}catch(e){console.error('cleanDB',e)}}
 function go(id){cleanDB();try{kopStop()}catch(e){}try{cvStop()}catch(e){}if(aclBlock(id)){alert('Akun Anda tidak memiliki akses ke menu ini.');id='dash'}cur=id;logA('Akses Menu',title(id)||id,'Membuka halaman '+(title(id)||id));document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('on',a.dataset.id==id));
  const t=title(id)||'';$('#ttl').textContent=t;const v=$('#view');
- const P={...CVP,kalkulator:kalkulatorP,kalender:kalenderP,koperasi:koperasiP,koptagih:koptagihP,pesertaekskul:pesertaP,dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};syncKep();P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t);aclApply(v)}
+ const P={...CVP,kalkulator:kalkulatorP,kalender:kalenderP,gamelaunch:gameLaunchP,cuaca:cuacaP,koperasi:koperasiP,koptagih:koptagihP,pesertaekskul:pesertaP,dash,profilsaya:profilP,profilguru:pgP,sapansa:sapP,sekolah:skP,users,db:dbp,server,tampilan:setp,nilai:nilaiP,jadwal:jadwalP,ping,khs,rekab:rekap,m_siswa:v=>masterP(v,'siswa'),m_guru:v=>masterP(v,'guru'),ljk:ljkP,kartu:kartuP,dokumen:dokP,mapel:v=>me.r=='siswa'?mapelS(v):mcrud(v,MC.mapel),cpatp:v=>mcrud(v,MC.cpatp),ekskul:v=>mcrud(v,MC.ekskul),prestasi:v=>mcrud(v,MC.prestasi),game:gameP,umum:umumP,urutmenu:urutP,keu:v=>keuP(v,'Semua'),kas:v=>keuP(v,'Kas'),infaq:v=>keuP(v,'Infaq'),adiwiyata:v=>keuP(v,'Adiwiyata')};syncKep();P[id]?P[id](v):INFO[id]?infoP(v,id):table(v,id,t);aclApply(v)}
 
 function dashS(v){
  const n=k=>(DB.data[k]||[]).length,ks=Object.keys(DB.data),mx=Math.max(1,...ks.map(n));
@@ -2944,7 +2944,7 @@ function edOpen(){const v=$('#view');if(!v||!me)return false;
 /* ===== Versi aplikasi di halaman login (otomatis: vTAHUN revBULAN) ===== */
 (function(){const el=document.getElementById('appver');if(!el)return;
  const upd=()=>{let y,m;try{const t=String(typeof SD=='function'?SD():'').match(/^(\d{4})-(\d{2})/);if(t){y=+t[1];m=+t[2]}}catch(e){}
-  if(!y){const d=new Date();y=d.getFullYear();m=d.getMonth()+1}el.textContent='v'+y+' rev'+m};
+  if(!y){const d=new Date();y=d.getFullYear();m=d.getMonth()+1}const vs='v'+y+' rev'+m;el.textContent=vs;const ft=document.getElementById('ftver');if(ft)ft.textContent=vs};
  upd();setInterval(upd,6e4)})();
 
 /* ============================================================================
@@ -3076,7 +3076,7 @@ const CVG={
  cv_video:{t:'Video Audio',i:'🎬',d:'Ubah, kompres, potong, gabung, dan olah video, audio, serta GIF.',tools:['v2video','v2audio','v2gif','kompres','trim','cropv','rotv','mute','merge2','gifmk','gif2mp4']},
  cv_img:{t:'Gambar',i:'🖼️',d:'Ubah ukuran, potong, putar, tanda air, editor foto, meme, perbesar, hapus latar, sensor wajah, dan lainnya.',tools:['imgconv','resizeimg','cropimg','rotimg','wmimg','imged','meme','upscale','rembg','blurface','html2img','colorpick','collage']},
  cv_util:{t:'Dokumen & Utilitas',i:'🧰',d:'Spreadsheet, dokumen, ebook, arsip ZIP, satuan, zona waktu, dan riwayat Convert.',tools:['sheetcv','doccv','ebook','unit','waktu','riwayat']},
- cv_arc:{t:'Arsip Terkompresi',i:'🗄️',d:'Buat arsip (ZIP, TAR, TAR.GZ, GZ, pecahan .001) dan ekstrak ZIP, TAR, GZ, TGZ, APK, JAR, dll.',tools:['arcmk','arcx']},
+ cv_arc:{t:'Arsip Terkompresi',i:'🗄️',d:'Buat arsip (ZIP, 7z, ZIP bersandi, TAR, TAR.GZ, GZ, pecahan .001) dan ekstrak ZIP, 7z, RAR, TAR, GZ, XZ, BZ2, ISO, dll.',tools:['arcmk','arcx']},
  cv_view:{t:'Dokumen Viewer',i:'👁️',d:'Lihat isi PDF, Word, Excel, PowerPoint, e-book, teks, gambar, dan arsip tanpa aplikasi tambahan.',tools:['viewer']}
 };
 let CVT={};
@@ -3507,21 +3507,134 @@ async function arcRead(b,name){const x=arcExt(name);
  if(x=='gz'||x=='gzip'||x=='tgz'||x=='tar.gz'){if(typeof DecompressionStream=='undefined')throw new Error('Browser ini belum mendukung dekompresi GZ. Perbarui browser.');let buf;try{buf=await new Response(b.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()}catch(e){throw new Error('Berkas GZ rusak atau bukan format GZIP.')}
   const u=new Uint8Array(buf);if((x!='gz'&&x!='gzip')||(u.length>262&&String.fromCharCode(...u.subarray(257,262))=='ustar'))return tarList(buf);return[{name:String(name).replace(/\.(gz|gzip)$/i,'')||'hasil',size:buf.byteLength,blob:()=>new Blob([buf])}]}
  if(x=='b64'){const t=await b.text();let u;try{u=Uint8Array.from(atob(t.replace(/\s+/g,'')),c=>c.charCodeAt(0))}catch(e){throw new Error('Isi berkas bukan Base64 yang valid.')}return[{name:String(name).replace(/\.b64$/i,'')||'hasil',size:u.length,blob:()=>new Blob([u])}]}
- throw new Error('Format .'+x+' belum dapat dibuka di browser karena butuh dekompresor khusus. Buka dengan 7-Zip/WinRAR di komputer, lalu unggah hasil ekstraknya. Yang didukung: ZIP, TAR, GZ, TGZ (TAR.GZ), B64, serta ZIP-turunan (APK, XAPK, JAR, EPUB, DOCX, dll.) dan arsip pecahan .001, .002, …')}
+ return szRead(b,name,x)}
 function arcGroup(fs){const m=new Map(),out=[];fs.forEach(f=>{const r=/^(.*)\.(\d{3})$/.exec(f.name);if(r){if(!m.has(r[1]))m.set(r[1],[]);m.get(r[1]).push(f)}else out.push({name:f.name,blob:f})});m.forEach((a,k)=>{a.sort((p,q)=>p.name.localeCompare(q.name));out.push({name:k,blob:new Blob(a)})});return out}
 const arcUniq=fs=>{const u={};return fs.map(f=>{let n=f.name,k=0;while(u[n])n=f.name.replace(/(\.[^.]*)?$/,m=>'_'+(++k)+m);u[n]=1;return{name:n,f}})};
-CVX.arcmk={id:'arcmk',t:'Buat Arsip',i:'🗜️',d:'Kompres banyak berkas menjadi ZIP, TAR, atau TAR.GZ, atau GZ per berkas. Bisa dipecah menjadi beberapa bagian (.001, .002, …). RAR dan 7z belum dapat dibuat di browser.',multi:1,acc:'*/*',accLabel:'file apa saja',fi:'🗄️',lib:['jszip'],
- opt:[['fmt','Format arsip','select',[['zip','ZIP (.zip)'],['tgz','TAR.GZ (.tar.gz)'],['tar','TAR (.tar)'],['gz','GZ, satu berkas per file (.gz)']],'zip'],['nm','Nama arsip','text','','arsip'],['lv','Tingkat kompresi ZIP (1–9)','number',[1,9],6],['sp','Pecah per … MB (0 = tidak dipecah)','number',[0,2000],0]],
+
+/* ---------- Penulis RAR 4.x (mode simpan / tanpa kompresi) ---------- */
+const RAR_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const rarCrc=(u,c)=>{c=(c==null?0xFFFFFFFF:c)>>>0;for(let i=0;i<u.length;i++)c=RAR_T[(c^u[i])&255]^(c>>>8);return c>>>0};
+async function rarMake(U){const parts=[],w16=(a,o,v)=>{a[o]=v&255;a[o+1]=(v>>>8)&255},w32=(a,o,v)=>{a[o]=v&255;a[o+1]=(v>>>8)&255;a[o+2]=(v>>>16)&255;a[o+3]=(v>>>24)&255},
+ fin=h=>{w16(h,0,(rarCrc(h.subarray(2))^0xFFFFFFFF)&0xFFFF);return h};
+ parts.push(new Uint8Array([0x52,0x61,0x72,0x21,0x1A,0x07,0x00]));
+ const mh=new Uint8Array(13);mh[2]=0x73;w16(mh,5,13);parts.push(fin(mh));
+ const dt=d=>{const y=Math.max(1980,d.getFullYear());return(((y-1980)<<25)|((d.getMonth()+1)<<21)|(d.getDate()<<16)|(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1))>>>0};
+ for(const u of U){if(u.f.size>=0xFFFFFFFF)throw new Error('Berkas '+u.name+' terlalu besar untuk RAR (maks. 4 GB).');
+  const data=new Uint8Array(await u.f.arrayBuffer()),crc=(rarCrc(data)^0xFFFFFFFF)>>>0,nm=String(u.name).replace(/\\/g,'/'),
+  oem=[...nm].map(ch=>ch.charCodeAt(0)<128?ch.charCodeAt(0):95),uni=[];
+  for(const ch of nm){const c=ch.charCodeAt(0);uni.push(c&255,c>>8)}
+  const enc=[0];for(let i=0;i<nm.length;i+=4){const n=Math.min(4,nm.length-i);let fl=0;for(let j=0;j<n;j++)fl|=2<<(6-2*j);enc.push(fl);for(let j=0;j<n;j++)enc.push(uni[(i+j)*2],uni[(i+j)*2+1])}
+  const nb=new Uint8Array([...oem,0,...enc]),h=new Uint8Array(32+nb.length);
+  h[2]=0x74;w16(h,3,0x8000|0x0200);w16(h,5,h.length);w32(h,7,data.length);w32(h,11,data.length);h[15]=2;w32(h,16,crc);w32(h,20,dt(new Date(u.f.lastModified||Date.now())));h[24]=20;h[25]=0x30;w16(h,26,nb.length);w32(h,28,0x20);h.set(nb,32);
+  parts.push(fin(h),data)}
+ parts.push(new Uint8Array([0xC4,0x3D,0x7B,0x00,0x40,0x07,0x00]));
+ return new Blob(parts,{type:'application/vnd.rar'})}
+CVX.arcmk={id:'arcmk',t:'Buat Arsip',i:'🗜️',d:'Kompres banyak berkas menjadi ZIP, 7z (bisa bersandi), ZIP bersandi AES-256, TAR, TAR.GZ, atau GZ per berkas. Bisa dipecah menjadi beberapa bagian (.001, .002, …). RAR dibuat dengan mode simpan (tanpa kompresi, tanpa sandi) sehingga ukurannya sama dengan berkas asli; bisa dibuka WinRAR, 7-Zip, dan sejenisnya.',multi:1,acc:'*/*',accLabel:'file apa saja',fi:'🗄️',lib:['jszip'],
+ opt:[['fmt','Format arsip','select',[['zip','ZIP (.zip)'],['7z','7z (.7z)'],['rar','RAR (.rar, tanpa kompresi)'],['zipp','ZIP bersandi (AES-256)'],['tgz','TAR.GZ (.tar.gz)'],['tar','TAR (.tar)'],['gz','GZ, satu berkas per file (.gz)']],'zip'],['nm','Nama arsip','text','','arsip'],['lv','Tingkat kompresi (1–9)','number',[1,9],6],['pw','Kata sandi (opsional untuk 7z; wajib untuk ZIP bersandi)','password','',''],['sp','Pecah per … MB (0 = tidak dipecah)','number',[0,2000],0]],
  run:async(fs,o)=>{const U=arcUniq(fs),nm=(o.nm||'arsip').replace(/[\\/:*?"<>|]+/g,'_');let blob,ext;
   if(o.fmt=='gz')return Promise.all(U.map(async u=>({name:u.name+'.gz',blob:await arcGz(u.f)})));
-  if(o.fmt=='zip'){const z=new JSZip();U.forEach(u=>z.file(u.name,u.f));blob=await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:o.lv}});ext='zip'}
+  if(o.fmt=='rar'){if(o.pw)throw new Error('RAR bersandi tidak didukung. Gunakan 7z atau ZIP bersandi (AES-256).');blob=await rarMake(U);ext='rar'}else if(o.fmt=='7z'||o.fmt=='zipp'){blob=await szCreate(U,o);ext=o.fmt=='7z'?'7z':'zip'}else if(o.fmt=='zip'){const z=new JSZip();U.forEach(u=>z.file(u.name,u.f));blob=await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:o.lv}});ext='zip'}
   else{blob=tarMake(U);ext='tar';if(o.fmt=='tgz'){blob=await arcGz(blob);ext='tar.gz'}}
   const n=nm+'.'+ext,sz=o.sp*1048576;
   if(o.sp>0&&blob.size>sz){const P=Math.ceil(blob.size/sz);if(P>999)throw new Error('Terlalu banyak bagian; perbesar ukuran pecahan.');return Array.from({length:P},(_,i)=>({name:n+'.'+String(i+1).padStart(3,'0'),blob:blob.slice(i*sz,(i+1)*sz),note:'bagian '+(i+1)+'/'+P+' (gabungkan semua bagian untuk membuka)'}))}
   return[{name:n,blob,note:U.length+' berkas'}]}};
-CVX.arcx={id:'arcx',t:'Ekstrak Arsip',i:'📂',d:'Buka dan ekstrak ZIP, TAR, GZ, TGZ, APK, JAR, EPUB, DOCX, dll., serta arsip pecahan .001/.002. RAR, 7z, BZ2, XZ, ISO, dan format lain belum dapat dibuka di browser.',multi:1,acc:'*/*',accLabel:'ZIP, TAR, GZ, TGZ, APK, JAR, .001 …',fi:'🗄️',lib:['jszip'],
- run:async(fs,o,P)=>{const G=arcGroup(fs),outs=[];for(const[i,g]of G.entries()){P(g.name,i/G.length);for(const e of await arcRead(g.blob,g.name)){if(outs.length>=500)throw new Error('Lebih dari 500 berkas di dalam arsip. Gunakan Dokumen Viewer untuk membuka sebagian saja.');outs.push({name:(G.length>1?cvBase(g.name)+'/':'')+e.name,blob:await e.blob()})}}
+CVX.arcx={id:'arcx',t:'Ekstrak Arsip',i:'📂',d:'Buka dan ekstrak ZIP, 7z, RAR, TAR, GZ, TGZ, XZ, BZ2, ISO, CAB, APK, JAR, dll., serta arsip pecahan .001/.002. Format ZIP, TAR, dan GZ dibuka langsung; format lain memakai mesin 7z yang diunduh saat pertama dipakai.',multi:1,acc:'*/*',accLabel:'ZIP, 7z, RAR, TAR, GZ, XZ, BZ2, ISO, .001 …',fi:'🗄️',lib:['jszip'],
+ opt:[['pw','Kata sandi arsip (bila ada)','password','','']],
+ run:async(fs,o,P)=>{ARC_PW=o.pw||'';const G=arcGroup(fs),outs=[];for(const[i,g]of G.entries()){P(g.name,i/G.length);for(const e of await arcRead(g.blob,g.name)){if(outs.length>=500)throw new Error('Lebih dari 500 berkas di dalam arsip. Gunakan Dokumen Viewer untuk membuka sebagian saja.');outs.push({name:(G.length>1?cvBase(g.name)+'/':'')+e.name,blob:await e.blob()})}}
   if(!outs.length)throw new Error('Arsip kosong.');return outs}};
+
+/* ============================ Mesin 7z (WebAssembly): buat 7z/ZIP bersandi, buka RAR/7z/XZ/BZ2/ISO/dll. ============================ */
+let SZM=null,ARC_PW='';
+async function szLoad(){if(SZM)return SZM;
+ for(const v of['1.2.0','1.1.0','1.0.2']){try{const m=await import('https://cdn.jsdelivr.net/npm/7z-wasm@'+v+'/7zz.es6.js');if(m&&m.default){SZM=m.default;return SZM}}catch(e){}}
+ throw new Error('Mesin 7z (WebAssembly) gagal dimuat dari internet. Periksa koneksi lalu coba lagi.')}
+async function szExec(files,mk){const F=await szLoad(),log=[];let z;
+ try{z=await F({print:t=>log.push(t),printErr:t=>log.push(t)})}catch(e){throw new Error('Mesin 7z tidak dapat dijalankan di browser ini.')}
+ const names=[];for(const f of files){const n=(/^-/.test(f.name)?'_':'')+f.name.replace(/[\\/]+/g,'_');z.FS.writeFile(n,new Uint8Array(await f.blob.arrayBuffer()));names.push(n)}
+ try{z.callMain(mk(names))}catch(e){}
+ return{z,log}}
+async function szCreate(U,o){const zp=o.fmt=='zipp';if(zp&&!o.pw)throw new Error('Isi kata sandi untuk ZIP bersandi.');const out=zp?'out.zip':'out.7z';
+ const{z,log}=await szExec(U.map(u=>({name:u.name,blob:u.f})),n=>['a',out,'-y','-mx='+(o.lv||6),...(zp?['-tzip','-mem=AES256']:['-t7z']),...(o.pw?['-p'+o.pw,...(zp?[]:['-mhe=on'])]:[]),...n]);
+ let d;try{d=z.FS.readFile(out)}catch(e){throw new Error('Gagal membuat arsip. '+log.filter(Boolean).slice(-2).join(' '))}
+ return new Blob([d],{type:zp?'application/zip':'application/x-7z-compressed'})}
+async function szRead(b,name,x){const inn='in.'+(x&&/^[a-z0-9.]+$/.test(x)?x:'bin'),{z,log}=await szExec([{name:inn,blob:b}],n=>['x',n[0],'-o/out','-y',...(ARC_PW?['-p'+ARC_PW]:[])]),out=[];
+ const walk=(dir,pre)=>{let ls;try{ls=z.FS.readdir(dir)}catch(e){return}for(const n of ls){if(n=='.'||n=='..')continue;const p=dir+'/'+n,st=z.FS.stat(p);if(z.FS.isDir(st.mode))walk(p,pre+n+'/');else out.push({name:pre+n,size:st.size,blob:()=>new Blob([z.FS.readFile(p)])})}};
+ walk('/out','');
+ if(!out.length)throw new Error('Arsip tidak dapat dibuka: format tidak didukung, rusak, atau butuh kata sandi (isi pada kolom kata sandi). '+log.filter(Boolean).slice(-2).join(' '));
+ if(out.length==1&&/\.tar$/i.test(out[0].name))return tarList(await out[0].blob().arrayBuffer());return out}
+
+/* ============================ Game Launcher (EmulatorJS) ============================ */
+const GL_CORE={nes:'nes',gb:'gb',gbc:'gb',gba:'gba',smc:'snes',sfc:'snes',z64:'n64',n64:'n64',v64:'n64',nds:'nds',md:'segaMD',gen:'segaMD',smd:'segaMD',bin:'segaMD'},
+ GL_NAMES=[['auto','Otomatis (dari ekstensi berkas)'],['nes','Nintendo NES'],['gb','Game Boy / Game Boy Color'],['gba','Game Boy Advance'],['snes','Super Nintendo (SNES)'],['n64','Nintendo 64'],['nds','Nintendo DS'],['segaMD','Sega Mega Drive / Genesis']],
+ GL_ACC='.nes,.gb,.gbc,.gba,.smc,.sfc,.z64,.n64,.v64,.nds,.md,.bin,.gen,.smd,.jar,.sis,.sisx,.zip';
+function gameLaunchP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;
+ v.innerHTML=`<div class="pnl"><b>🕹️ Game Launcher</b><div><small>Mainkan game kecil milik Anda langsung di browser: NES, Game Boy / Color / Advance, SNES, Nintendo 64, Nintendo DS, dan Sega Mega Drive. Berkas game dibaca di perangkat dan tidak diunggah ke server. Gunakan hanya game yang Anda berhak memainkannya. Emulator dimuat dari internet saat pertama dipakai.</small></div><div id="glf"></div>
+ <div class="row" style="align-items:end"><label>Sistem<select id="glc">${GL_NAMES.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select></label><button type="button" id="glg">▶ Mainkan</button><button type="button" class="g" id="glx">⏹ Hentikan</button><button type="button" class="g" id="glfs">⛶ Layar penuh</button></div>
+ <small>Berkas .zip berisi ROM juga bisa dipakai (pilih sistem secara manual). Game 3D seperti N64 dan DS butuh perangkat yang cukup kuat. Pengaturan tombol, simpan/muat status, dan gamepad tersedia di menu dalam emulator.</small></div><div class="pnl" id="gls"><small>Pilih berkas game lalu tekan Mainkan.</small></div>`;
+ const S=cvFiles(v.querySelector('#glf'),{acc:GL_ACC,accLabel:'.nes .gb .gbc .gba .smc .sfc .z64 .n64 .v64 .nds .md .bin .gen .smd .zip',icon:'🕹️',label:'Pilih berkas game (ROM)'}),box=v.querySelector('#gls');let fr=null,url=null;
+ const stop=()=>{if(fr){fr.remove();fr=null}if(url){URL.revokeObjectURL(url);url=null}},msg=t=>{stop();box.innerHTML=`<div class="cvst er">⚠️ ${t}</div>`};CV_STOP.push(stop);
+ v.querySelector('#glg').onclick=()=>{const f=S.files[0];if(!f)return msg('Pilih berkas game terlebih dahulu.');const x=DV_X(f.name);
+  if(['jar','sis','sisx'].includes(x))return msg('Format .'+x+' ('+(x=='jar'?'aplikasi/game Java ME':'aplikasi Symbian')+') tidak dapat dijalankan di browser karena butuh emulator ponsel khusus. Gunakan '+(x=='jar'?'J2ME Loader (Android) atau FreeJ2ME/KEmulator (PC)':'EKA2L1 (PC/Android)')+'.');
+  let c=v.querySelector('#glc').value;if(c=='auto')c=GL_CORE[x];if(!c)return msg('Jenis berkas .'+esc(x)+' tidak dapat dikenali otomatis. Pilih sistem secara manual.');
+  stop();url=URL.createObjectURL(f);box.innerHTML='';fr=document.createElement('iframe');fr.setAttribute('allow','fullscreen; gamepad; autoplay');fr.allowFullscreen=true;fr.title='Emulator game';fr.style.cssText='width:100%;height:min(75vh,640px);border:0;border-radius:10px;background:#000';
+  const nm=JSON.stringify(f.name.replace(/\.[^.]+$/,'')).replace(/</g,'\\u003c');
+  fr.srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#game{width:100%;height:100%}</style></head><body><div id="game"></div><script>EJS_player="#game";EJS_core="'+c+'";EJS_gameUrl="'+url+'";EJS_gameName='+nm+';EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";EJS_startOnLoaded=true;EJS_color="#ea7a0a";<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
+  box.appendChild(fr)};
+ v.querySelector('#glx').onclick=()=>{stop();box.innerHTML='<small>Game dihentikan.</small>'};
+ v.querySelector('#glfs').onclick=()=>{if(fr&&fr.requestFullscreen)fr.requestFullscreen();else msg('Mulai game terlebih dahulu.')}}
+
+
+/* ============================ Cuaca (Open-Meteo) ============================ */
+const CU_K='mysapansa_cuaca',
+ CU_WMO={0:['☀️','Cerah'],1:['🌤️','Cerah berawan'],2:['⛅','Berawan sebagian'],3:['☁️','Berawan'],45:['🌫️','Berkabut'],48:['🌫️','Kabut beku'],51:['🌦️','Gerimis ringan'],53:['🌦️','Gerimis'],55:['🌧️','Gerimis lebat'],56:['🌧️','Gerimis beku'],57:['🌧️','Gerimis beku lebat'],61:['🌦️','Hujan ringan'],63:['🌧️','Hujan sedang'],65:['🌧️','Hujan lebat'],66:['🌧️','Hujan beku'],67:['🌧️','Hujan beku lebat'],71:['🌨️','Salju ringan'],73:['🌨️','Salju'],75:['❄️','Salju lebat'],77:['🌨️','Butiran salju'],80:['🌦️','Hujan lokal ringan'],81:['🌧️','Hujan lokal'],82:['⛈️','Hujan lokal lebat'],85:['🌨️','Salju lokal'],86:['❄️','Salju lokal lebat'],95:['⛈️','Badai petir'],96:['⛈️','Badai petir & es'],99:['⛈️','Badai petir & es lebat']},
+ cuW=c=>CU_WMO[c]||['🌡️','Tidak diketahui'],
+ CU_PRESET=[['Jakarta',-6.2088,106.8456],['Surabaya',-7.2575,112.7521],['Bandung',-6.9175,107.6191],['Yogyakarta',-7.7956,110.3695],['Semarang',-6.9667,110.4167],['Medan',3.5952,98.6722],['Makassar',-5.1477,119.4327],['Denpasar',-8.6705,115.2126]],
+ cuArah=d=>['U','TL','T','TG','S','BD','B','BL'][Math.round(((d%360)+360)%360/45)%8];
+function cuaLoad(){try{return JSON.parse(localStorage.getItem(CU_K))||{}}catch(e){return{}}}
+function cuaSave(o){try{localStorage.setItem(CU_K,JSON.stringify(o))}catch(e){}}
+function cuacaP(v){v.onclick=v.onchange=v.oninput=v.onkeydown=null;
+ v.innerHTML=`<div class="pnl"><b>🌦️ Cuaca</b><div><small>Lihat cuaca di lokasi yang Anda pilih beserta kondisi sekitarnya. Cari nama kota/kecamatan, pilih lokasi cepat, atau pakai lokasi perangkat. Data dari Open-Meteo dan diambil dari internet.</small></div>
+ <div class="row" style="align-items:end"><label>Cari lokasi<input id="cuq" placeholder="mis. Ngandul, Malang, Bandung" autocomplete="off"></label><button type="button" id="cuc">🔍 Cari</button><button type="button" class="g" id="cug">📍 Lokasi saya</button></div>
+ <div class="row" style="align-items:end"><label>Lokasi cepat<select id="cup"><option value="">— pilih kota —</option>${CU_PRESET.map((x,i)=>`<option value="${i}">${x[0]}</option>`).join('')}</select></label><button type="button" class="g" id="cur">↻ Segarkan</button></div>
+ <div id="cus"></div></div><div id="cub"></div>`;
+ const q=s=>v.querySelector(s),sts=q('#cus'),out=q('#cub');let S=cuaLoad(),tk=0;
+ const err=t=>{sts.innerHTML=`<div class="cvst er">⚠️ ${esc(t)}</div>`},inf=t=>{sts.innerHTML=`<div class="cvst">${esc(t)}</div>`};
+ const num=(x,d)=>x==null||isNaN(x)?'-':(+x).toFixed(d==null?0:d),
+  jam=t=>String(t).slice(11,16),
+  hari=t=>new Date(t+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'});
+ async function show(loc){const my=++tk;S.loc=loc;cuaSave(S);inf('Memuat cuaca '+loc.n+'…');out.innerHTML='';
+  const off=0.15,pts=[[loc.la,loc.lo],[loc.la+off,loc.lo],[loc.la,loc.lo+off],[loc.la-off,loc.lo],[loc.la,loc.lo-off]],
+   nm=['Lokasi terpilih','Utara (±17 km)','Timur (±17 km)','Selatan (±17 km)','Barat (±17 km)'];
+  try{
+   const u='https://api.open-meteo.com/v1/forecast?latitude='+pts.map(x=>x[0].toFixed(4)).join(',')+'&longitude='+pts.map(x=>x[1].toFixed(4)).join(',')+
+    '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,surface_pressure'+
+    '&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,sunrise,sunset,uv_index_max'+
+    '&timezone=auto&forecast_days=7',
+    r=await fetch(u),j=await r.json();if(my!=tk)return;
+   if(!r.ok||j.error)throw new Error(j.reason||'Layanan cuaca tidak merespons.');
+   const A=Array.isArray(j)?j:[j],m=A[0],c=m.current,w=cuW(c.weather_code),
+    nowI=Math.max(0,m.hourly.time.findIndex(t=>t>=c.time.slice(0,13)+':00')),hr=[...Array(24).keys()].map(i=>nowI+i).filter(i=>i<m.hourly.time.length);
+   sts.innerHTML=`<div class="cvst">📍 <b>${esc(loc.n)}</b> · ${num(loc.la,3)}, ${num(loc.lo,3)} · diperbarui ${esc(jam(c.time))} (${esc(m.timezone_abbreviation||m.timezone||'')})</div>`;
+   out.innerHTML=`<div class="pnl"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="font-size:56px;line-height:1">${w[0]}</div><div><div style="font-size:36px;font-weight:700">${num(c.temperature_2m,1)}°C</div><div>${esc(w[1])} · terasa ${num(c.apparent_temperature,1)}°C</div></div></div>
+    <div class="row" style="margin-top:12px">${[['💧 Kelembapan',num(c.relative_humidity_2m)+'%'],['💨 Angin',num(c.wind_speed_10m,1)+' km/j '+cuArah(c.wind_direction_10m)],['☁️ Awan',num(c.cloud_cover)+'%'],['🌧️ Curah hujan',num(c.precipitation,1)+' mm'],['⏲️ Tekanan',num(c.surface_pressure)+' hPa'],['🌅 Terbit / terbenam',jam(m.daily.sunrise[0])+' / '+jam(m.daily.sunset[0])],['🕶️ UV maks. hari ini',num(m.daily.uv_index_max[0],1)]].map(x=>`<div class="cvst" style="margin:0"><small>${x[0]}</small><br><b>${esc(x[1])}</b></div>`).join('')}</div></div>
+    <div class="pnl"><b>🕒 24 jam ke depan</b><div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0">${hr.map(i=>{const x=cuW(m.hourly.weather_code[i]);return`<div class="cvst" style="margin:0;min-width:70px;text-align:center"><small>${esc(jam(m.hourly.time[i]))}</small><div style="font-size:24px">${x[0]}</div><b>${num(m.hourly.temperature_2m[i])}°</b><br><small>💧${num(m.hourly.precipitation_probability[i])}%</small></div>`}).join('')}</div></div>
+    <div class="pnl"><b>📅 Prakiraan 7 hari</b><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th align="left">Hari</th><th align="left">Cuaca</th><th>Min</th><th>Maks</th><th>Peluang hujan</th><th>Hujan</th></tr>${m.daily.time.map((t,i)=>{const x=cuW(m.daily.weather_code[i]);return`<tr style="border-top:1px solid var(--ln)"><td>${esc(hari(t))}</td><td>${x[0]} ${esc(x[1])}</td><td align="center">${num(m.daily.temperature_2m_min[i])}°</td><td align="center">${num(m.daily.temperature_2m_max[i])}°</td><td align="center">${num(m.daily.precipitation_probability_max[i])}%</td><td align="center">${num(m.daily.precipitation_sum[i],1)} mm</td></tr>`}).join('')}</table></div></div>
+    <div class="pnl"><b>🧭 Cuaca di sekitar</b><div><small>Titik pengamatan sekitar lokasi terpilih (±17 km ke empat arah mata angin).</small></div><div class="row">${A.slice(1).map((a,i)=>{const x=cuW(a.current.weather_code);return`<div class="cvst" style="margin:0"><small>${nm[i+1]}</small><div style="font-size:26px">${x[0]}</div><b>${num(a.current.temperature_2m,1)}°C</b> · ${esc(x[1])}<br><small>💧${num(a.current.relative_humidity_2m)}% · 🌧️${num(a.current.precipitation,1)} mm · 💨${num(a.current.wind_speed_10m)} km/j</small></div>`}).join('')}</div></div>`
+  }catch(e){if(my==tk)err('Gagal memuat cuaca: '+(e.message||e)+'. Periksa koneksi internet lalu coba lagi.')}}
+ async function cari(){const t=q('#cuq').value.trim();if(t.length<2)return err('Ketik minimal 2 huruf nama lokasi.');inf('Mencari “'+t+'”…');
+  try{const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&language=id&format=json&name='+encodeURIComponent(t)),j=await r.json(),R=j.results||[];
+   if(!R.length)return err('Lokasi “'+t+'” tidak ditemukan. Coba nama kota atau kecamatan lain.');
+   const lab=x=>[x.name,x.admin2,x.admin1,x.country].filter((a,i,b)=>a&&b.indexOf(a)==i).join(', ');
+   if(R.length==1)return show({n:lab(R[0]),la:R[0].latitude,lo:R[0].longitude});
+   sts.innerHTML=`<div class="cvst"><b>Pilih lokasi:</b>${R.map((x,i)=>`<div><button type="button" class="g" data-i="${i}" style="margin-top:6px;text-align:left">📍 ${esc(lab(x))}</button></div>`).join('')}</div>`;
+   sts.onclick=e=>{const b=e.target.closest('button[data-i]');if(!b)return;const x=R[+b.dataset.i];show({n:lab(x),la:x.latitude,lo:x.longitude})}
+  }catch(e){err('Pencarian gagal: '+(e.message||e))}}
+ q('#cuc').onclick=cari;q('#cuq').onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();cari()}};
+ q('#cup').onchange=e=>{const x=CU_PRESET[e.target.value];if(x)show({n:x[0],la:x[1],lo:x[2]})};
+ q('#cur').onclick=()=>{if(S.loc)show(S.loc);else err('Pilih lokasi terlebih dahulu.')};
+ q('#cug').onclick=()=>{if(!navigator.geolocation)return err('Browser ini tidak mendukung penentuan lokasi.');inf('Meminta izin lokasi…');
+  navigator.geolocation.getCurrentPosition(p=>show({n:'Lokasi saya',la:p.coords.latitude,lo:p.coords.longitude}),e=>err(e.code==1?'Izin lokasi ditolak. Izinkan lokasi di browser, atau cari nama kota.':'Lokasi perangkat tidak dapat ditentukan.'),{enableHighAccuracy:false,timeout:15000,maximumAge:300000})};
+ if(S.loc)show(S.loc);else inf('Pilih lokasi untuk menampilkan cuaca.')}
 
 /* ============================ A. ORGANIZE PDF ============================ */
 CVX.merge={id:'merge',t:'Merge PDF',i:'🔗',d:'Gabungkan beberapa PDF menjadi satu file. Atur urutan dengan tombol ▲ ▼.',multi:1,min:2,lib:['pdflib'],
