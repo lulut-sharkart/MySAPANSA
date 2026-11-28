@@ -250,6 +250,17 @@ input[type=file]::file-selector-button:hover{transform:translateY(-2px);box-shad
 body.glass .mwn{background:color-mix(in srgb,var(--card) var(--go,68%),transparent);backdrop-filter:blur(var(--gb,10px)) saturate(160%);-webkit-backdrop-filter:blur(var(--gb,10px)) saturate(160%);border:1px solid color-mix(in srgb,#fff 45%,transparent);box-shadow:0 8px 28px #0002,inset 0 1px 0 #fff6}
 body.glass #view .mwn button:hover{background:color-mix(in srgb,#fff 28%,transparent)!important}
 body.glass #view .mwn button.on{background:color-mix(in srgb,var(--c) 30%,transparent)!important;color:inherit!important;box-shadow:inset 4px 0 0 var(--c),inset 0 0 0 1px color-mix(in srgb,#fff 40%,transparent)!important}
+
+/* Dokumen Viewer */
+.dvmod{position:fixed;inset:0;background:#0009;z-index:9999;display:flex;align-items:center;justify-content:center;padding:12px}
+.dvbox{background:var(--card,#fff);color:inherit;border-radius:14px;width:min(1000px,100%);max-height:94vh;display:flex;flex-direction:column;padding:12px;gap:8px}
+.dvbody{overflow:auto;flex:1;min-height:200px}
+body.glass .dvbox{background:color-mix(in srgb,var(--card) var(--go,68%),transparent);backdrop-filter:blur(var(--gb,10px));-webkit-backdrop-filter:blur(var(--gb,10px))}
+.dvpre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,Consolas,monospace;margin:0;padding:10px}
+.dvdoc{padding:12px 16px;line-height:1.6;overflow-wrap:anywhere}.dvdoc img{max-width:100%;height:auto}.dvdoc table{border-collapse:collapse}.dvdoc td,.dvdoc th{border:1px solid var(--ln,#ccc);padding:4px 8px}
+.dvsl{border:1px solid var(--ln,#ccc);border-radius:10px;padding:10px 14px;margin:8px 0}
+.dvpg canvas{width:100%;height:auto;display:block;margin:8px 0;border:1px solid var(--ln,#ccc);background:#fff}
+.dvl{max-height:40vh;overflow:auto;margin:8px 0}
 </style>
 </head>
 <body>
@@ -288,7 +299,7 @@ const L=(id,t)=>({id,t}), G=(t,c)=>({t,c});
 const TENTANG=G('Tentang',[L('profilsaya','Profil Saya'),L('profilguru','Profil Guru'),L('sapansa','SAPANSA'),L('sekolah','Sekolah')]);
 const IC=[[/^alat$/i,'🧰'],[/dash/i,'🏠'],[/absen/i,'🗓️'],[/ekstra/i,'⚽'],[/tugas|administrasi|nilai|penilaian/i,'📝'],[/7kaih/i,'🌟'],[/agenda|jadwal|jurnal|mata pelajaran/i,'📚'],[/permainan/i,'🎮'],[/atur/i,'⚙️'],[/tentang|profil|sekolah|sapansa/i,'ℹ️'],[/ajar|modul|bahan|media/i,'🤖'],[/keuangan|kas|infaq|adiwiyata/i,'💰'],[/umum/i,'📢'],[/pengguna/i,'👥'],[/database/i,'🗄️'],[/server/i,'🖥️'],[/masa depan|studi|kartu/i,'🎓'],[/data/i,'📂']],ICID={kalkulator:'🧮',kalender:'📅',dash:'🏠',users:'👥',mapel:'📘',m_siswa:'🎒',m_guru:'👩‍🏫',db:'💾',tugas:'📝',nilai:'🏅',khs:'🎓',absen:'✅',absenguru:'🧑‍🏫',rekab:'📊',jurnal:'📖',jadwal:'🕒',kaih:'🌟',tugasekskul:'⚽',nilaiekskul:'🥇',pesertaekskul:'🧑‍🤝‍🧑',modul:'📘',bahan:'📚',media:'🎬',keu:'💰',kas:'💵',adiwiyata:'🌱',infaq:'🤲',game:'🎮',pengumuman:'📢',tampilan:'🎨',soal:'🧾',umum:'⚙️',urutmenu:'↕️',ljk:'🖨️',kartu:'🪪',surat:'✉️',prestasi:'🏆',dokumen:'📁',ekskul:'🏅',cpatp:'🎯',ping:'📡',server:'🖥️',profilsaya:'🙋',profilguru:'👩‍🏫',sapansa:'🔗',sekolah:'🏫',koperasi:'🛒',koptagih:'💳'},
 ic=(t,id)=>ICID[id]||(IC.find(x=>x[0].test(t))||[0,'📁'])[1];
-Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬',cv_img:'🖼️',cv_util:'🧰'});IC.unshift([/^convert$/i,'🧾']);
+Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬',cv_img:'🖼️',cv_util:'🧰',cv_arc:'🗄️',cv_view:'👁️'});IC.unshift([/^convert$/i,'🧾']);
 let FL={},UF='',KS='',KSM='',KKH='',KD='',KK='',JK='',JB=[{a:4,m:15}],RM='',RK='siswa',PW=false,EI=null;
 const JENIS=['Ulangan Harian','Praktek','UTS/ASTS','UAS/ASAS'];
 const HAB=['Bangun Pagi','Beribadah','Berolahraga','Makan Sehat dan Bergizi','Gemar Belajar','Bermasyarakat','Tidur Cepat'];
@@ -300,7 +311,7 @@ const pred=n=>n===''||n==null?'':n>=90?'A':n>=80?'B':n>=70?'C':'D';
 const KLS=()=>['Semua Kelas',...new Set(DB.users.filter(u=>u.r=='siswa'&&u.k).map(u=>u.k))];
 const EK0=()=>['Pramuka','Futsal','Seni Tari','Tilawah'].map(x=>({Ekstrakurikuler:x,Pembina:''})),NK=['mapel','cpatp','absenguru','ekskul','surat'];
 const KSTD=[['Pendidikan Agama dan Budi Pekerti','1-6'],['Pendidikan Pancasila','1-6'],['Bahasa Indonesia','1-6'],['Matematika','1-6'],['PJOK','1-6'],['Seni dan Budaya','1-6'],['Muatan Lokal (Bahasa Jawa)','1-6'],['IPAS','3-6'],['Bahasa Inggris','3-6']],MP0=()=>KSTD.map((x,i)=>({Kode:'M'+(i+1),Mapel:x[0],Kelas:x[1]}));
-const CVMENU=G('Convert',[L('cv_org','Organize PDF'),L('cv_opt','Optimize PDF'),L('cv_conv','Convert PDF'),L('cv_edit','Edit PDF'),L('cv_sec','PDF Security'),L('cv_ai','PDF Intelligence'),L('cv_video','Video Audio'),L('cv_img','Gambar'),L('cv_util','Dokumen & Utilitas')]);
+const CVMENU=G('Convert',[L('cv_org','Organize PDF'),L('cv_opt','Optimize PDF'),L('cv_conv','Convert PDF'),L('cv_edit','Edit PDF'),L('cv_sec','PDF Security'),L('cv_ai','PDF Intelligence'),L('cv_video','Video Audio'),L('cv_img','Gambar'),L('cv_util','Dokumen & Utilitas'),L('cv_arc','Arsip Terkompresi'),L('cv_view','Dokumen Viewer')]);
 const M={
 siswa:[L('dash','Dashboard'),
  G('Masa Depanku',[L('absen','Absensiku'),L('tugas','Tugasku'),L('tugasekskul','Tugas Ekstrakurikuler'),L('khs','Perkembanganku / Kartu Hasil Studi')]),
@@ -3032,8 +3043,8 @@ function cvOut(el,outs,note){
  if(!el)return;outs=(outs||[]).filter(Boolean);
  if(!outs.length){el.innerHTML='';return}
  const urls=outs.map(o=>o.blob?URL.createObjectURL(o.blob):'');
- el.innerHTML=`<div class="cvres"><b>✅ Hasil</b>${note?`<div><small>${cvEsc(note)}</small></div>`:''}${outs.map((o,i)=>`<div class="cvfi"><span>${/pdf$/i.test(o.name)?'📕':/zip$/i.test(o.name)?'🗜️':/docx?$/i.test(o.name)?'📘':/xlsx$/i.test(o.name)?'📗':/pptx$/i.test(o.name)?'📙':/(jpe?g|png)$/i.test(o.name)?'🖼️':'📄'} ${cvEsc(o.name)} <small>(${cvKB(o.blob.size)}${o.note?' · '+cvEsc(o.note):''})</small></span><span>${/\.(pdf|jpe?g|png|txt|md|html)$/i.test(o.name)?`<a class="cva" href="${urls[i]}" target="_blank" rel="noopener">👁 Buka</a>`:''}<button type="button" data-i="${i}">⬇ Unduh</button></span></div>${o.text?`<textarea class="cvta" readonly rows="10">${cvEsc(o.text)}</textarea>`:''}${o.img?`<img class="cvimg" src="${urls[i]}" alt="">`:''}`).join('')}${outs.length>1?`<div class="row"><button type="button" id="cvzp">🗜️ Unduh semua (ZIP)</button></div>`:''}</div>`;
- el.onclick=async e=>{const b=e.target.closest('button');if(!b)return;if(b.id=='cvzp'){b.disabled=true;try{const z=await cvZip(outs);cvDL(z.blob,z.name)}catch(x){alert(x.message)}b.disabled=false;return}const o=outs[+b.dataset.i];if(o)cvDL(o.blob,o.name)}}
+ el.innerHTML=`<div class="cvres"><b>✅ Hasil</b>${note?`<div><small>${cvEsc(note)}</small></div>`:''}${outs.map((o,i)=>`<div class="cvfi"><span>${/pdf$/i.test(o.name)?'📕':/zip$/i.test(o.name)?'🗜️':/docx?$/i.test(o.name)?'📘':/xlsx$/i.test(o.name)?'📗':/pptx$/i.test(o.name)?'📙':/(jpe?g|png)$/i.test(o.name)?'🖼️':'📄'} ${cvEsc(o.name)} <small>(${cvKB(o.blob.size)}${o.note?' · '+cvEsc(o.note):''})</small></span><span><button type="button" class="g" data-v="${i}">👁 Lihat</button><button type="button" data-i="${i}">⬇ Unduh</button></span></div>${o.text?`<textarea class="cvta" readonly rows="10">${cvEsc(o.text)}</textarea>`:''}${o.img?`<img class="cvimg" src="${urls[i]}" alt="">`:''}`).join('')}${outs.length>1?`<div class="row"><button type="button" id="cvzp">🗜️ Unduh semua (ZIP)</button></div>`:''}</div>`;
+ el.onclick=async e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v!==undefined){const q=outs[+b.dataset.v];if(q&&q.blob)dvOpen(q.blob,q.name);return}if(b.id=='cvzp'){b.disabled=true;try{const z=await cvZip(outs);cvDL(z.blob,z.name)}catch(x){alert(x.message)}b.disabled=false;return}const o=outs[+b.dataset.i];if(o)cvDL(o.blob,o.name)}}
 
 /* tool generik: daftar file + opsi + tombol proses */
 function cvTool(el,T){
@@ -3064,7 +3075,9 @@ const CVG={
  cv_ai:{t:'PDF Intelligence',i:'🤖',d:'Ringkasan AI, terjemahan, OCR, ekstraksi konten, formulir, pindai, dan alur kerja.',tools:['summarize','translate','qa','ocr','pdf2md','pdfextract','forms','scan','workflow']},
  cv_video:{t:'Video Audio',i:'🎬',d:'Ubah, kompres, potong, gabung, dan olah video, audio, serta GIF.',tools:['v2video','v2audio','v2gif','kompres','trim','cropv','rotv','mute','merge2','gifmk','gif2mp4']},
  cv_img:{t:'Gambar',i:'🖼️',d:'Ubah ukuran, potong, putar, tanda air, editor foto, meme, perbesar, hapus latar, sensor wajah, dan lainnya.',tools:['imgconv','resizeimg','cropimg','rotimg','wmimg','imged','meme','upscale','rembg','blurface','html2img','colorpick','collage']},
- cv_util:{t:'Dokumen & Utilitas',i:'🧰',d:'Spreadsheet, dokumen, ebook, arsip ZIP, satuan, zona waktu, dan riwayat Convert.',tools:['sheetcv','doccv','ebook','arsip','unit','waktu','riwayat']}
+ cv_util:{t:'Dokumen & Utilitas',i:'🧰',d:'Spreadsheet, dokumen, ebook, arsip ZIP, satuan, zona waktu, dan riwayat Convert.',tools:['sheetcv','doccv','ebook','unit','waktu','riwayat']},
+ cv_arc:{t:'Arsip Terkompresi',i:'🗄️',d:'Buat arsip (ZIP, TAR, TAR.GZ, GZ, pecahan .001) dan ekstrak ZIP, TAR, GZ, TGZ, APK, JAR, dll.',tools:['arcmk','arcx']},
+ cv_view:{t:'Dokumen Viewer',i:'👁️',d:'Lihat isi PDF, Word, Excel, PowerPoint, e-book, teks, gambar, dan arsip tanpa aplikasi tambahan.',tools:['viewer']}
 };
 let CVT={};
 function cvPage(pg){return v=>{cvStop();v.onclick=v.onchange=v.oninput=v.onkeydown=null;const G=CVG[pg],ts=G.tools.filter(k=>CVX[k]);
@@ -3414,6 +3427,101 @@ CVX.riwayat={id:'riwayat',t:'Riwayat',i:'🕘',ui:async el=>{
  if(CL.on&&CL.url&&CL.key){try{const r=await fetch(cU()+'?id=eq.mysapansa_cv&select=data',{headers:cH()}),x=r.ok?await r.json():[],c=(x[0]&&x[0].data&&x[0].data.h)||[];a=[...a,...c.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t)}catch(e){}}
  const nm=(me&&(me.n||me.u))||'';a=a.filter(r=>me&&me.r=='admin'||r.u==nm);
  const h=el.querySelector('#rh');if(h)h.innerHTML=a.length?`<div class="tw"><table><tr><th>Waktu</th><th>Fitur</th><th>Pengguna</th><th>File</th><th>Asal</th><th>Hasil</th></tr>${a.slice(0,100).map(r=>`<tr><td>${new Date(r.t).toLocaleString('id-ID')}</td><td>${cvEsc(r.a)}</td><td>${cvEsc(r.u)}</td><td>${cvEsc(r.f)}</td><td>${cvKB(r.s)}</td><td>${cvKB(r.h)}</td></tr>`).join('')}</table></div>`:'Belum ada riwayat.'}};
+
+/* ============================ Dokumen Viewer & Arsip Terkompresi ============================ */
+const DV_X=n=>(String(n).toLowerCase().match(/\.([a-z0-9]+)$/)||[,''])[1],
+ dvDec=t=>{const d=document.createElement('textarea');d.innerHTML=t;return d.value},
+ dvT=t=>`<pre class="dvpre">${cvEsc(t)}</pre>`,dvH=h=>`<div class="dvdoc">${h}</div>`,
+ dvMime=s=>s.replace(/=\?([\w-]+)\?([bq])\?([^?]*)\?=/gi,(m,cs,e,t)=>{try{return new TextDecoder().decode(Uint8Array.from(e.toLowerCase()=='b'?atob(t):t.replace(/_/g,' ').replace(/=([0-9A-F]{2})/gi,(x,h)=>String.fromCharCode(parseInt(h,16))),c=>c.charCodeAt(0)))}catch(x){return t}}),
+ dvMd=t=>{t=cvEsc(t);const code=[];t=t.replace(/```[^\n]*\n([\s\S]*?)```/g,(m,c)=>'\u0000'+(code.push(c)-1)+'\u0000');
+  t=t.replace(/^(#{1,6})\s+(.+)$/gm,(m,h,c)=>`<h${h.length}>${c}</h${h.length}>`).replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>').replace(/(^|[\s(])\*([^*\n]+)\*/g,'$1<i>$2</i>').replace(/`([^`\n]+)`/g,'<code>$1</code>').replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>').replace(/^\s*[-*]\s+(.+)$/gm,'<li>$1</li>').replace(/\n/g,'<br>');
+  return t.replace(/\u0000(\d+)\u0000/g,(m,i)=>'<pre>'+code[i]+'</pre>')};
+const DV_ARC='zip zipx jar apk xapk tar gz gzip tgz tar.gz rar 7z bz2 bzip2 tbz2 tar.bz2 xz txz tar.xz lzma zst tar.zst lz4 cpio z arj cab lzh lha ace alz egg iso img dmg pkg xar msi deb rpm wim vhd vhdx vmdk nrg bin cue b64 uue xxe war ear 001'.split(' '),
+ DV_K={pdf:'pdf',docx:'docx',odt:'odf',odp:'odf',ods:'sheet',xls:'sheet',xlsx:'sheet',xlsm:'sheet',csv:'sheet',tsv:'sheet',pptx:'pptx',ppsx:'pptx',epub:'epub',fb2:'fb2',rtf:'rtf',md:'md',markdown:'md',json:'json',html:'html',htm:'html',eml:'eml',doc:'old',ppt:'old',pps:'old',msg:'old',mobi:'old',azw3:'old',djvu:'old',png:'img',jpg:'img',jpeg:'img',gif:'img',webp:'img',bmp:'img',svg:'img',ico:'img',avif:'img',heic:'img',heif:'img',mp3:'aud',wav:'aud',ogg:'aud',m4a:'aud',aac:'aud',flac:'aud',mp4:'vid',webm:'vid',mov:'vid',mkv:'vid'};
+DV_ARC.forEach(x=>{if(!DV_K[x])DV_K[x]='arc'});
+const DV_OLD={doc:'Word lama (.doc)',ppt:'PowerPoint lama (.ppt)',pps:'PowerPoint lama (.pps)',msg:'email Outlook (.msg)',mobi:'e-book MOBI',azw3:'e-book AZW3',djvu:'DjVu'};
+const DVR={
+ async txt(b,n,el){const t=await b.text();if(/\0/.test(t.slice(0,4000)))throw new Error('File ini berbentuk biner dan tidak dapat ditampilkan sebagai teks (.'+DV_X(n)+').');el.innerHTML=dvT(t.length>3e5?t.slice(0,3e5)+'\n… (dipotong: 300.000 karakter pertama)':t)},
+ async json(b,n,el){const t=await b.text();let o=t;try{o=JSON.stringify(JSON.parse(t),null,2)}catch(e){}el.innerHTML=dvT(o)},
+ async md(b,n,el){el.innerHTML=dvH(dvMd(await b.text()))},
+ async html(b,n,el){el.innerHTML=`<small>Tampilan aman: skrip dinonaktifkan.</small><iframe sandbox style="width:100%;height:70vh;border:1px solid var(--ln);background:#fff" srcdoc="${cvEsc(cvClean(await b.text()))}"></iframe>`},
+ async pdf(b,n,el){await cvLoad('pdfjs');const u=new Uint8Array(await b.arrayBuffer());let doc;
+  try{doc=await pdfjsLib.getDocument({data:u.slice()}).promise}catch(e){if(e&&e.name=='PasswordException'){const pw=prompt('PDF ini terkunci. Masukkan kata sandi:');if(!pw)throw new Error('PDF terkunci.');doc=await pdfjsLib.getDocument({data:u.slice(),password:pw}).promise}else throw e}
+  const N=Math.min(doc.numPages,40);el.innerHTML=`<small>${doc.numPages} halaman${doc.numPages>N?' (ditampilkan '+N+' pertama)':''}</small><div class="dvpg"></div>`;const box=el.querySelector('.dvpg');
+  for(let i=1;i<=N;i++){const pg=await doc.getPage(i),w0=pg.getViewport({scale:1}).width,vp=pg.getViewport({scale:Math.min(2,Math.max(.6,((el.clientWidth||700)-20)/w0))}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;box.appendChild(c);await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}},
+ async docx(b,n,el){await cvLoad('mammoth');const r=await mammoth.convertToHtml({arrayBuffer:await b.arrayBuffer()});el.innerHTML=dvH(cvClean(r.value)||'<i>Dokumen kosong.</i>')},
+ async sheet(b,n,el){const wb=XLSX.read(await b.arrayBuffer(),{type:'array'}),show=s=>{const r=XLSX.utils.sheet_to_json(wb.Sheets[s],{header:1,defval:''});el.querySelector('.dvs').innerHTML=(r.length>500?`<small>Menampilkan 500 dari ${r.length} baris</small>`:'')+mwTab(r.slice(0,500))};
+  el.innerHTML=`<div class="row"><label>Sheet<select>${wb.SheetNames.map(s=>`<option>${cvEsc(s)}</option>`).join('')}</select></label></div><div class="dvs tw"></div>`;el.querySelector('select').onchange=e=>show(e.target.value);show(wb.SheetNames[0])},
+ async pptx(b,n,el){await cvLoad('jszip');const z=await JSZip.loadAsync(b),s=Object.keys(z.files).filter(f=>/^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a,c)=>a.match(/\d+/)[0]-c.match(/\d+/)[0]);if(!s.length)throw new Error('Tidak ada slide pada berkas ini.');let h='';
+  for(const[i,f]of s.entries()){const x=await z.file(f).async('string');h+=`<div class="dvsl"><b>Slide ${i+1}</b>${x.split('</a:p>').map(p=>(p.match(/<a:t(?:\s[^>]*)?>[^<]*<\/a:t>/g)||[]).map(t=>t.replace(/<[^>]+>/g,'')).join('')).filter(Boolean).map(t=>`<p>${cvEsc(dvDec(t))}</p>`).join('')}</div>`}
+  el.innerHTML='<small>Tampilan teks per slide (tata letak dan gambar tidak ditampilkan).</small>'+h},
+ async odf(b,n,el,x){await cvLoad('jszip');const z=await JSZip.loadAsync(b),c=z.file('content.xml');if(!c)throw new Error('Bukan berkas ODF yang valid.');const xml=await c.async('string'),tx=s=>dvDec(s.replace(/<text:(line-break|tab)\/>/g,' ').replace(/<\/text:(p|h)>/g,'\n').replace(/<[^>]+>/g,'')).trim();
+  el.innerHTML=x=='odp'?xml.split(/<draw:page /).slice(1).map((s,i)=>`<div class="dvsl"><b>Slide ${i+1}</b>${dvT(tx(s))}</div>`).join(''):dvT(tx(xml.replace(/^[\s\S]*?<office:text[^>]*>/,'')))},
+ async rtf(b,n,el){let t=await b.text();t=t.replace(/\{\\(fonttbl|colortbl|stylesheet|info)(?:[^{}]|\{[^{}]*\})*\}/g,'').replace(/\\'([0-9a-f]{2})/gi,(m,h)=>String.fromCharCode(parseInt(h,16))).replace(/\\u(-?\d+)\??/g,(m,c)=>String.fromCharCode(c<0?+c+65536:+c)).replace(/\{\\\*[^{}]*\}/g,'').replace(/\\(par|line)\b ?/g,'\n').replace(/\\tab\b ?/g,'\t').replace(/\\[a-z]+-?\d* ?/gi,'').replace(/[{}]/g,'');el.innerHTML=dvT(t.trim())},
+ async epub(b,n,el){await cvLoad('jszip');const z=await JSZip.loadAsync(b),cf=z.file('META-INF/container.xml');if(!cf)throw new Error('Bukan berkas EPUB yang valid.');
+  const op=/full-path="([^"]+)"/.exec(await cf.async('string'))[1],ox=await z.file(op).async('string'),dir=op.replace(/[^/]+$/,''),man={};
+  [...ox.matchAll(/<item\b[^>]*>/g)].forEach(m=>{const i=/\bid="([^"]+)"/.exec(m[0]),h=/\bhref="([^"]+)"/.exec(m[0]);if(i&&h)man[i[1]]=decodeURIComponent(h[1])});
+  let h='';for(const m of ox.matchAll(/<itemref\b[^>]*idref="([^"]+)"/g)){const fl=man[m[1]]&&z.file(dir+man[m[1]]);if(!fl)continue;const t=await fl.async('string');h+=cvClean((/<body[^>]*>([\s\S]*)<\/body>/i.exec(t)||[0,t])[1]).replace(/<img[^>]*>/gi,'')+'<hr>'}
+  el.innerHTML='<small>Gambar di dalam e-book tidak ditampilkan.</small>'+dvH(h)},
+ async fb2(b,n,el){const d=new DOMParser().parseFromString(await b.text(),'text/xml');el.innerHTML=dvH([...d.querySelectorAll('body title, body p')].map(e=>e.nodeName=='title'?`<h3>${cvEsc(e.textContent.trim())}</h3>`:`<p>${cvEsc(e.textContent)}</p>`).join('')||'<i>Kosong.</i>')},
+ async eml(b,n,el){const t=await b.text(),i=t.search(/\r?\n\r?\n/),hd=t.slice(0,i<0?t.length:i).replace(/\r?\n[ \t]+/g,' '),H=k=>dvMime((new RegExp('^'+k+':\\s*(.*)$','im').exec(hd)||[,''])[1]);let body=i<0?'':t.slice(i).trim();
+  const dec=(s,e)=>{e=(e||'').toLowerCase();try{if(e=='base64')return new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s+/g,'')),c=>c.charCodeAt(0)));if(e=='quoted-printable')return new TextDecoder().decode(Uint8Array.from(s.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/gi,(m,h)=>String.fromCharCode(parseInt(h,16))),c=>c.charCodeAt(0)))}catch(x){}return s},bd=/boundary="?([^";\s]+)"?/i.exec(H('Content-Type')||(/^Content-Type:.*$/im.exec(hd)||[''])[0]);
+  if(bd){const parts=body.split('--'+bd[1]).slice(1),pk=parts.find(p=>/Content-Type:\s*text\/plain/i.test(p))||parts.find(p=>/Content-Type:\s*text\/html/i.test(p));if(pk){const j=pk.search(/\r?\n\r?\n/),ph=pk.slice(0,j),enc=(/Content-Transfer-Encoding:\s*(\S+)/i.exec(ph)||[])[1];body=dec(pk.slice(j).trim(),enc);if(/text\/html/i.test(ph))body=body.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'')}}else body=dec(body,(/^Content-Transfer-Encoding:\s*(\S+)/im.exec(hd)||[])[1]);
+  el.innerHTML=`<div class="dvdoc"><p><b>Dari:</b> ${cvEsc(H('From'))}<br><b>Kepada:</b> ${cvEsc(H('To'))}<br><b>Tanggal:</b> ${cvEsc(H('Date'))}<br><b>Subjek:</b> ${cvEsc(H('Subject'))}</p></div>`+dvT(dvDec(body))},
+ async old(b,n,el,x){throw new Error('Format '+(DV_OLD[x]||x)+' berbentuk biner dan belum dapat ditampilkan di browser. Simpan ulang sebagai '+(x=='doc'?'DOCX':x=='ppt'||x=='pps'?'PPTX':x=='msg'?'EML':'EPUB atau PDF')+' (mis. lewat Word/LibreOffice/Calibre), lalu buka kembali di sini.')},
+ async img(b,n,el,x){let u;if(x=='heic'||x=='heif'){u=(await imgC(b)).toDataURL('image/png')}else u=URL.createObjectURL(b.type?b:new Blob([b],{type:x=='svg'?'image/svg+xml':'image/'+(x=='jpg'?'jpeg':x)}));el.innerHTML=`<img class="cvimg" src="${u}" alt="${cvEsc(n)}" style="max-width:100%">`},
+ async aud(b,n,el){el.innerHTML=`<audio controls style="width:100%" src="${URL.createObjectURL(b)}"></audio>`},
+ async vid(b,n,el){el.innerHTML=`<video controls style="max-width:100%;max-height:70vh" src="${URL.createObjectURL(b)}"></video>`},
+ async arc(b,n,el){const A=await arcRead(b,n.replace(/\.\d{3}$/,''));if(!A.length)throw new Error('Arsip kosong.');
+  el.innerHTML=`<small>${A.length} berkas di dalam arsip${A.length>300?' (menampilkan 300 pertama)':''}</small><div class="dvl"></div><div class="dvsub"></div>`;const L=el.querySelector('.dvl');
+  L.innerHTML=A.slice(0,300).map((e,i)=>`<div class="cvfi"><span>${cvEsc(e.name)} <small>(${cvKB(e.size)})</small></span><span><button type="button" class="g" data-v="${i}">👁 Lihat</button><button type="button" data-d="${i}">⬇</button></span></div>`).join('');
+  L.onclick=async e=>{const bt=e.target.closest('button');if(!bt)return;const it=A[+(bt.dataset.v!==undefined?bt.dataset.v:bt.dataset.d)],bl=await it.blob();if(bt.dataset.d!==undefined)cvDL(bl,it.name.split('/').pop());else dvRender(bl,it.name,el.querySelector('.dvsub'))}}};
+async function dvRender(b,name,el){const x=DV_X(name),k=DV_K[x]||(/^image\//.test(b.type)?'img':/^audio\//.test(b.type)?'aud':/^video\//.test(b.type)?'vid':'txt');el.innerHTML='<small>Membuka…</small>';
+ try{await DVR[k](b,name,el,x)}catch(e){el.innerHTML=`<div class="cvst er">⚠️ ${cvEsc((e&&e.message)||'Dokumen tidak dapat dibuka.')}</div>`}}
+function dvOpen(blob,name){const o=document.createElement('div');o.className='dvmod';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+ o.innerHTML=`<div class="dvbox"><div class="row" style="align-items:center"><b style="flex:1;word-break:break-all">👁 ${cvEsc(name)}</b><button type="button" class="g" data-x="dl">⬇ Unduh</button><button type="button" data-x="x">✕ Tutup</button></div><div class="dvbody"></div></div>`;document.body.appendChild(o);
+ const k=e=>{if(e.key=='Escape')c()},c=()=>{o.remove();document.removeEventListener('keydown',k)};document.addEventListener('keydown',k);
+ o.onclick=e=>{if(e.target==o||e.target.dataset.x=='x')c();else if(e.target.dataset.x=='dl')cvDL(blob,name)};dvRender(blob,name,o.querySelector('.dvbody'))}
+CVX.viewer={id:'viewer',t:'Dokumen Viewer',i:'👁️',ui:el=>{
+ el.innerHTML=`<div class="pnl"><b>👁️ Dokumen Viewer</b><div><small>Lihat isi dokumen tanpa mengunduh atau memasang aplikasi lain. Berkas dibuka di perangkat Anda dan tidak diunggah.<br>PDF, DOCX, ODT, RTF, TXT/MD/LOG, XLSX/XLS/ODS/CSV, PPTX/PPSX/ODP (teks), EPUB, FB2, HTML, XML, JSON, EML, gambar, audio, video, dan isi arsip (ZIP, TAR, GZ, TGZ, APK, JAR, dll.).</small></div><div id="dvf"></div><div id="dvb" class="row"></div></div><div class="pnl" id="dvp" style="min-height:120px"><small>Pilih berkas di atas untuk melihat isinya.</small></div>`;
+ let prev=0;const S=cvFiles(el.querySelector('#dvf'),{multi:1,acc:'*/*',accLabel:'semua jenis dokumen',icon:'👁️',label:'Pilih dokumen (bisa lebih dari satu)',onChange:fs=>{const nb=el.querySelector('#dvb');
+  nb.innerHTML=fs.length>1?fs.map((f,i)=>`<button type="button" class="g" data-i="${i}">👁 ${cvEsc(f.name)}</button>`).join(''):'';
+  if(fs.length>prev)dvRender(fs[fs.length-1],fs[fs.length-1].name,el.querySelector('#dvp'));else if(!fs.length)el.querySelector('#dvp').innerHTML='<small>Pilih berkas di atas untuk melihat isinya.</small>';prev=fs.length}});
+ el.querySelector('#dvb').onclick=e=>{const b=e.target.closest('[data-i]');if(b){const f=S.files[+b.dataset.i];dvRender(f,f.name,el.querySelector('#dvp'))}}}};
+
+/* ---------- Arsip Terkompresi ---------- */
+const arcExt=n=>{n=String(n).toLowerCase();const m=/\.tar\.(gz|bz2|xz|zst|lz4|lzma)$/.exec(n);return m?'tar.'+m[1]:(/\.([a-z0-9]+)$/.exec(n)||[,''])[1]},
+ arcZip=['zip','jar','apk','xapk','epub','docx','xlsx','pptx','odt','ods','odp','xpi','whl','aab','war','ear','kmz','ipa','nupkg','vsix'];
+function tarList(buf){const u=new Uint8Array(buf),td=new TextDecoder(),out=[],z=s=>s.replace(/\0[\s\S]*$/,'');let p=0,ln='';
+ while(p+512<=u.length){const h=u.subarray(p,p+512);if(h.every(v=>v==0))break;let name=z(td.decode(h.subarray(0,100)));const pre=z(td.decode(h.subarray(345,500)));if(pre&&z(td.decode(h.subarray(257,262)))=='ustar')name=pre+'/'+name;
+  const size=parseInt(z(td.decode(h.subarray(124,136))).trim()||'0',8)||0,t=String.fromCharCode(h[156]||48);p+=512;const d=u.subarray(p,p+size);
+  if(t=='L')ln=z(td.decode(d));else if(t=='0'||t=='7'){out.push({name:ln||name,size,blob:()=>new Blob([d])});ln=''}else if(t!='x'&&t!='g')ln='';
+  p+=Math.ceil(size/512)*512}return out}
+function tarMake(U){const te=new TextEncoder(),parts=[],hdr=(nm,size,type)=>{const h=new Uint8Array(512),w=(s,o)=>h.set(s,o),e=s=>te.encode(s);w(e(nm).slice(0,100),0);w(e('0000644\0'),100);w(e('0000000\0'),108);w(e('0000000\0'),116);w(e(size.toString(8).padStart(11,'0')+'\0'),124);w(e(Math.floor(Date.now()/1000).toString(8).padStart(11,'0')+'\0'),136);w(e('        '),148);w(e(type),156);w(e('ustar\0'),257);w(e('00'),263);let c=0;h.forEach(v=>c+=v);w(e(c.toString(8).padStart(6,'0')+'\0 '),148);return h},pad=n=>new Uint8Array((512-n%512)%512);
+ for(const u of U){const nb=te.encode(u.name);if(nb.length>100){parts.push(hdr('././@LongLink',nb.length+1,'L'),nb,new Uint8Array(1),pad(nb.length+1))}parts.push(hdr(u.name,u.f.size,'0'),u.f,pad(u.f.size))}
+ parts.push(new Uint8Array(1024));return new Blob(parts,{type:'application/x-tar'})}
+const arcGz=b=>{if(typeof CompressionStream=='undefined')throw new Error('Browser ini belum mendukung kompresi GZ. Perbarui browser (Chrome/Edge/Safari/Firefox terbaru).');return new Response(b.stream().pipeThrough(new CompressionStream('gzip'))).blob()};
+async function arcRead(b,name){const x=arcExt(name);
+ if(arcZip.includes(x)){await cvLoad('jszip');let z;try{z=await JSZip.loadAsync(b)}catch(e){throw new Error('Arsip ZIP tidak dapat dibaca (rusak, terenkripsi sandi, atau bagian pecahan belum lengkap).')}return Object.values(z.files).filter(e=>!e.dir).map(e=>({name:e.name,size:(e._data&&e._data.uncompressedSize)||0,blob:()=>e.async('blob')}))}
+ if(x=='tar')return tarList(await b.arrayBuffer());
+ if(x=='gz'||x=='gzip'||x=='tgz'||x=='tar.gz'){if(typeof DecompressionStream=='undefined')throw new Error('Browser ini belum mendukung dekompresi GZ. Perbarui browser.');let buf;try{buf=await new Response(b.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()}catch(e){throw new Error('Berkas GZ rusak atau bukan format GZIP.')}
+  const u=new Uint8Array(buf);if((x!='gz'&&x!='gzip')||(u.length>262&&String.fromCharCode(...u.subarray(257,262))=='ustar'))return tarList(buf);return[{name:String(name).replace(/\.(gz|gzip)$/i,'')||'hasil',size:buf.byteLength,blob:()=>new Blob([buf])}]}
+ if(x=='b64'){const t=await b.text();let u;try{u=Uint8Array.from(atob(t.replace(/\s+/g,'')),c=>c.charCodeAt(0))}catch(e){throw new Error('Isi berkas bukan Base64 yang valid.')}return[{name:String(name).replace(/\.b64$/i,'')||'hasil',size:u.length,blob:()=>new Blob([u])}]}
+ throw new Error('Format .'+x+' belum dapat dibuka di browser karena butuh dekompresor khusus. Buka dengan 7-Zip/WinRAR di komputer, lalu unggah hasil ekstraknya. Yang didukung: ZIP, TAR, GZ, TGZ (TAR.GZ), B64, serta ZIP-turunan (APK, XAPK, JAR, EPUB, DOCX, dll.) dan arsip pecahan .001, .002, …')}
+function arcGroup(fs){const m=new Map(),out=[];fs.forEach(f=>{const r=/^(.*)\.(\d{3})$/.exec(f.name);if(r){if(!m.has(r[1]))m.set(r[1],[]);m.get(r[1]).push(f)}else out.push({name:f.name,blob:f})});m.forEach((a,k)=>{a.sort((p,q)=>p.name.localeCompare(q.name));out.push({name:k,blob:new Blob(a)})});return out}
+const arcUniq=fs=>{const u={};return fs.map(f=>{let n=f.name,k=0;while(u[n])n=f.name.replace(/(\.[^.]*)?$/,m=>'_'+(++k)+m);u[n]=1;return{name:n,f}})};
+CVX.arcmk={id:'arcmk',t:'Buat Arsip',i:'🗜️',d:'Kompres banyak berkas menjadi ZIP, TAR, atau TAR.GZ, atau GZ per berkas. Bisa dipecah menjadi beberapa bagian (.001, .002, …). RAR dan 7z belum dapat dibuat di browser.',multi:1,acc:'*/*',accLabel:'file apa saja',fi:'🗄️',lib:['jszip'],
+ opt:[['fmt','Format arsip','select',[['zip','ZIP (.zip)'],['tgz','TAR.GZ (.tar.gz)'],['tar','TAR (.tar)'],['gz','GZ, satu berkas per file (.gz)']],'zip'],['nm','Nama arsip','text','','arsip'],['lv','Tingkat kompresi ZIP (1–9)','number',[1,9],6],['sp','Pecah per … MB (0 = tidak dipecah)','number',[0,2000],0]],
+ run:async(fs,o)=>{const U=arcUniq(fs),nm=(o.nm||'arsip').replace(/[\\/:*?"<>|]+/g,'_');let blob,ext;
+  if(o.fmt=='gz')return Promise.all(U.map(async u=>({name:u.name+'.gz',blob:await arcGz(u.f)})));
+  if(o.fmt=='zip'){const z=new JSZip();U.forEach(u=>z.file(u.name,u.f));blob=await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:o.lv}});ext='zip'}
+  else{blob=tarMake(U);ext='tar';if(o.fmt=='tgz'){blob=await arcGz(blob);ext='tar.gz'}}
+  const n=nm+'.'+ext,sz=o.sp*1048576;
+  if(o.sp>0&&blob.size>sz){const P=Math.ceil(blob.size/sz);if(P>999)throw new Error('Terlalu banyak bagian; perbesar ukuran pecahan.');return Array.from({length:P},(_,i)=>({name:n+'.'+String(i+1).padStart(3,'0'),blob:blob.slice(i*sz,(i+1)*sz),note:'bagian '+(i+1)+'/'+P+' (gabungkan semua bagian untuk membuka)'}))}
+  return[{name:n,blob,note:U.length+' berkas'}]}};
+CVX.arcx={id:'arcx',t:'Ekstrak Arsip',i:'📂',d:'Buka dan ekstrak ZIP, TAR, GZ, TGZ, APK, JAR, EPUB, DOCX, dll., serta arsip pecahan .001/.002. RAR, 7z, BZ2, XZ, ISO, dan format lain belum dapat dibuka di browser.',multi:1,acc:'*/*',accLabel:'ZIP, TAR, GZ, TGZ, APK, JAR, .001 …',fi:'🗄️',lib:['jszip'],
+ run:async(fs,o,P)=>{const G=arcGroup(fs),outs=[];for(const[i,g]of G.entries()){P(g.name,i/G.length);for(const e of await arcRead(g.blob,g.name)){if(outs.length>=500)throw new Error('Lebih dari 500 berkas di dalam arsip. Gunakan Dokumen Viewer untuk membuka sebagian saja.');outs.push({name:(G.length>1?cvBase(g.name)+'/':'')+e.name,blob:await e.blob()})}}
+  if(!outs.length)throw new Error('Arsip kosong.');return outs}};
 
 /* ============================ A. ORGANIZE PDF ============================ */
 CVX.merge={id:'merge',t:'Merge PDF',i:'🔗',d:'Gabungkan beberapa PDF menjadi satu file. Atur urutan dengan tombol ▲ ▼.',multi:1,min:2,lib:['pdflib'],
