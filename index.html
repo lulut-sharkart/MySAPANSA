@@ -273,7 +273,8 @@ let FL={},UF='',KS='',KSM='',KKH='',KD='',KK='',JK='',JB=[{a:4,m:15}],RM='',RK='
 const JENIS=['Ulangan Harian','Praktek','UTS/ASTS','UAS/ASAS'];
 const HAB=['Bangun Pagi','Beribadah','Berolahraga','Makan Sehat dan Bergizi','Gemar Belajar','Bermasyarakat','Tidur Cepat'];
 const HABD=['Melatih kedisiplinan, menghargai waktu, dan meningkatkan produktivitas.','Menumbuhkan nilai spiritual, moral, serta hubungan yang harmonis dengan Tuhan, sesama, dan alam.','Menjaga kebugaran fisik, melatih disiplin, dan membangun ketahanan mental.','Memenuhi kebutuhan nutrisi harian untuk tumbuh kembang yang optimal.','Memupuk rasa ingin tahu, kecerdasan, serta kearifan.','Membangun kepekaan sosial, rasa empati, semangat gotong royong, dan hidup harmonis.','Memastikan waktu istirahat yang cukup untuk menjaga kesehatan fisik, mental, dan kesejahteraan sosial.'];
-const DEFKEL=['🏫 Satu portal untuk siswa, guru, wali murid, dan admin','🙋 Absensi mandiri (foto, QR, Face ID) dan 7KAIH harian dengan Bunga Sakura','📝 Tugas kelas & ekstrakurikuler dikerjakan langsung dari portal','🤖 Perangkat ajar & scan LJK dengan AI (Gemini, GPT, DeepSeek, Claude)','💰 Keuangan kelas, cetak kartu & dokumen berkop resmi','☁️ Sinkron cloud dan cadangan sekali klik'];
+const DEFKEL=['🏫 Satu portal untuk admin, guru, wali kelas, siswa & wali murid','🙋 Absensi mandiri (foto, QR, Face ID) & 7KAIH harian','📝 Tugas, penilaian & Kartu Hasil Studi otomatis','🤖 Modul ajar, soal & scan LJK dengan AI (Gemini, GPT, DeepSeek, Claude)','💰 Keuangan kelas, koperasi & cetak kartu','📄 Surat, KOP & Convert Dokumen siap cetak','☁️ Sinkron cloud di semua perangkat + cadangan sekali klik','📱 Nyaman di HP, tablet & PC, dua bahasa'];
+const OLDKEL="[\"🏫 Satu portal untuk siswa, guru, wali murid, dan admin\", \"🙋 Absensi mandiri (foto, QR, Face ID) dan 7KAIH harian dengan Bunga Sakura\", \"📝 Tugas kelas & ekstrakurikuler dikerjakan langsung dari portal\", \"🤖 Perangkat ajar & scan LJK dengan AI (Gemini, GPT, DeepSeek, Claude)\", \"💰 Keuangan kelas, cetak kartu & dokumen berkop resmi\", \"☁️ Sinkron cloud dan cadangan sekali klik\"]";
 const RK2='mysapansa_rem',KAT=['Tugas / PR','Ulangan Harian / Praktik','PTS / UTS (ASTS)','PAS / UAS (ASAS)'],BW=[[15,20],[15,40],[20,30],[20,40]],SEM=['Semester 1 (Ganjil)','Semester 2 (Genap)'];
 const pred=n=>n===''||n==null?'':n>=90?'A':n>=80?'B':n>=70?'C':'D';
 const KLS=()=>['Semua Kelas',...new Set(DB.users.filter(u=>u.r=='siswa'&&u.k).map(u=>u.k))];
@@ -330,7 +331,7 @@ const gv=()=>DB.set.gmt??7,SN=()=>Date.now()+(DB.set.off||0)+gv()*36e5,SD=()=>ne
 const GL=g=>{g=g??gv();const a=Math.abs(g),h=Math.floor(a),m=Math.round((a-h)*60);return 'GMT'+(g<0?'-':'+')+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+({7:' (WIB)',8:' (WITA)',9:' (WIT)'}[g]||'')};
 const FT=o=>new Date(SN()).toLocaleString('id-ID',{...o,timeZone:'UTC'});
 setInterval(()=>{const c=$('#clk');if(c)c.textContent=FT({dateStyle:'medium',timeStyle:'medium'})+' '+GL()},1000);
-function feats(){$('#fl').innerHTML=(DB.info.kel||DEFKEL).map(x=>`<li>${esc(x)}</li>`).join('')}
+function feats(){if(DB.info.kel&&JSON.stringify(DB.info.kel)==OLDKEL)delete DB.info.kel;$('#fl').innerHTML=(DB.info.kel||DEFKEL).map(x=>`<li>${esc(x)}</li>`).join('')}
 function theme(){const S=DB.set,h=document.documentElement;h.style.setProperty('--c',S.color);if(S.side)h.style.setProperty('--side',S.side);h.dataset.mode=S.mode||'auto';document.body.style.fontSize=(S.fs||15)+'px';document.body.classList.toggle('still',!!S.still);feats();applyPref();
  const w=$('#wm');w.style.backgroundImage=DB.set.wm?`url("${DB.set.logo||LOGO}")`:'none';w.style.opacity=DB.set.op;themeX()}
 theme();
@@ -1003,9 +1004,9 @@ const suHari=o=>o.THari||(o.TTgl?(()=>{try{return new Date(o.TTgl+'T00:00:00').t
 const suKepI=o=>{const r=(a,b)=>`<tr><td width="34%">${a}</td><td>: ${esc(b||'')}</td></tr>`;return`<table class="nb" style="margin-left:10px">${r('Nama',o.KNama)}${r('NIP',o.KNip)}${r('Pangkat/Gol',o.KPangkat)}${r('Jabatan',o.KJab)}${r('Instansi',o.KUnit)}</table>`};
 function suKswH(o){const r=(a,b)=>`<tr><td width="34%">${a}</td><td>: ${esc(b||'')}</td></tr>`;
  return`${o.NKop?kop():''}${suJ(o.NJudul||'SURAT KETERANGAN')}${o.NNomor?`<div style="text-align:center;margin-bottom:10px">Nomor : ${esc(o.NNomor)}</div>`:''}<p>Yang bertanda tangan di bawah ini :</p>${suKepI(o)}<p>${esc(o.WPengantar||'')}</p><table class="nb" style="margin-left:10px">${r('Nama',o.WNama)}${r('TTL',o.WTtl)}${r('Kelas',o.WKelas)}${r('NISN',o.WNisn)}${r('Alamat',o.WAlamat)}</table>${o.WIsi?`<p style="text-align:justify">${suFill(o.WIsi,o)}</p>`:''}<p style="text-align:justify">${esc(o.WPenutup||'')}</p><div style="text-align:center;width:300px;margin-left:auto;margin-top:18px">${esc(o.NTempat||'')}, ${fd(o.NTanggal)}<br>${esc(o.KJab||'Kepala Sekolah')}${o.KUnit?'<br>'+esc(o.KUnit):''}${sigArea('k')}<b><u>${esc(o.KNama||'')}</u></b><br>${o.KNip?'NIP. '+esc(o.KNip):''}</div>`}
-function suTugH(o){const r=(a,b,w)=>`<tr><td width="${w||24}%" style="vertical-align:top">${a}</td><td width="3%" style="vertical-align:top">:</td><td>${b}</td></tr>`,sp=t=>t.split('').join(' ');
+function suTugH(o){const r=(a,b,w)=>`<tr><td width="${w||24}%" style="vertical-align:top">${a}</td><td width="3%" style="vertical-align:top">:</td><td>${b}</td></tr>`;
  const hr=suHari(o);
- return`${o.NKop?kop():''}<h3 style="text-align:center;margin:8px 0 2px;letter-spacing:2px">${esc(sp((o.NJudul||'SURAT PERINTAH TUGAS').toUpperCase()).replace(/ {2,}/g,'   '))}</h3>${o.NNomor?`<div style="text-align:center;margin-bottom:10px">Nomor : ${esc(o.NNomor)}</div>`:''}<table class="nb" style="width:100%">${r('<b>DASAR</b>',suBr(o.TDasar),16)}</table><p style="text-align:center;margin:12px 0 6px"><b>${esc(sp('MEMERINTAHKAN'))} :</b></p><table class="nb" style="width:100%"><tr><td width="16%" style="vertical-align:top"><b>KEPADA</b></td><td width="3%" style="vertical-align:top">:</td><td><table class="nb" style="width:100%">${r('Nama',esc(o.TNama||''),28)}${r('NIP',esc(o.TNip||'-'),28)}${r('Pangkat/Gol./Ruang',esc(o.TPangkat||'-'),28)}${r('Jabatan',esc(o.TJab||''),28)}</table></td></tr></table><table class="nb" style="width:100%;margin-top:10px"><tr><td width="16%" style="vertical-align:top"><b>UNTUK</b></td><td width="3%" style="vertical-align:top">:</td><td>${suBr(o.TUntuk)}<table class="nb" style="width:100%;margin-top:6px">${r('Hari',esc(hr),20)}${r('Tanggal',o.TTgl?fd(o.TTgl):'',20)}${r('Waktu',esc(o.TWaktu||''),20)}${r('Tempat',esc(o.TTempat||''),20)}</table>${o.TCatatan?`<p style="text-align:justify;margin:8px 0 0">${suBr(o.TCatatan)}</p>`:''}</td></tr></table><div style="width:300px;margin-left:auto;margin-top:18px"><table class="nb" style="width:100%"><tr><td width="40%">Ditetapkan di</td><td>: ${esc(o.NTempat||'')}</td></tr><tr><td>Pada tanggal</td><td>: ${fd(o.NTanggal)}</td></tr></table><div style="text-align:center;margin-top:4px">Kepala${o.KUnit?'<br>'+esc(o.KUnit):''}${sigArea('k')}<b><u>${esc(o.KNama||'')}</u></b><br>${o.KNip?'NIP. '+esc(o.KNip):''}</div></div>`}
+ return`${o.NKop?kop():''}<h3 style="text-align:center;margin:8px 0 2px;letter-spacing:.5px">${esc((o.NJudul||'SURAT PERINTAH TUGAS').toUpperCase())}</h3>${o.NNomor?`<div style="text-align:center;margin-bottom:10px">Nomor : ${esc(o.NNomor)}</div>`:''}<table class="nb" style="width:100%">${r('<b>DASAR</b>',suBr(o.TDasar),16)}</table><p style="text-align:center;margin:12px 0 6px"><b style="letter-spacing:1px">MEMERINTAHKAN :</b></p><table class="nb" style="width:100%"><tr><td width="16%" style="vertical-align:top"><b>KEPADA</b></td><td width="3%" style="vertical-align:top">:</td><td><table class="nb" style="width:100%">${r('Nama',esc(o.TNama||''),28)}${r('NIP',esc(o.TNip||'-'),28)}${r('Pangkat/Gol./Ruang',esc(o.TPangkat||'-'),28)}${r('Jabatan',esc(o.TJab||''),28)}</table></td></tr></table><table class="nb" style="width:100%;margin-top:10px"><tr><td width="16%" style="vertical-align:top"><b>UNTUK</b></td><td width="3%" style="vertical-align:top">:</td><td>${suBr(o.TUntuk)}<table class="nb" style="width:100%;margin-top:6px">${r('Hari',esc(hr),20)}${r('Tanggal',o.TTgl?fd(o.TTgl):'',20)}${r('Waktu',esc(o.TWaktu||''),20)}${r('Tempat',esc(o.TTempat||''),20)}</table>${o.TCatatan?`<p style="text-align:justify;margin:8px 0 0">${suBr(o.TCatatan)}</p>`:''}</td></tr></table><div style="width:300px;margin-left:auto;margin-top:18px"><table class="nb" style="width:100%"><tr><td width="40%">Ditetapkan di</td><td>: ${esc(o.NTempat||'')}</td></tr><tr><td>Pada tanggal</td><td>: ${fd(o.NTanggal)}</td></tr></table><div style="text-align:center;margin-top:4px">Kepala${o.KUnit?'<br>'+esc(o.KUnit):''}${sigArea('k')}<b><u>${esc(o.KNama||'')}</u></b><br>${o.KNip?'NIP. '+esc(o.KNip):''}</div></div>`}
 function suLampH(a,o,i,n){const rows=String(a.Isi||'').split('\n');let h='',tb=[];const fl=()=>{if(!tb.length)return;const hd=a.Hd?tb[0]:null,bd=a.Hd?tb.slice(1):tb;h+=`<table style="width:100%;margin:6px 0"><thead>${hd?`<tr>${hd.map(c=>`<th style="background:#eee">${esc(c)}</th>`).join('')}</tr>`:''}</thead><tbody>${bd.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;tb=[]};
  rows.forEach(l=>{if(l.includes('|'))tb.push(l.split('|').map(x=>x.trim()));else{fl();if(l.trim())h+=`<p style="text-align:justify;margin:4px 0">${esc(l)}</p>`}});fl();
  const M=suMeta(o),jd=M.jd,no=M.no,tg=M.tg;
@@ -1059,15 +1060,25 @@ function keuP(v,kat){KT=kat||KT;const kl=KL2(),rows=DB.data.keu=DB.data.keu||[];
  $('#ku5').onclick=()=>{if(!KC)return alert('Belum ada kelas terdaftar (isi kelas siswa di Master Siswa).');let n=0;[['Kas','ku3'],['Infaq','ku6'],['Adiwiyata','ku7']].forEach(([k,id])=>{const j=+$('#'+id).value;if(j>0){rows.push({Tanggal:$('#ku0').value,Kelas:KC,Jenis:$('#ku1').value,Kategori:k,Jumlah:j,Keterangan:$('#ku4').value});n++}});if(!n)return alert('Isi minimal satu jumlah (Kas, Infaq, atau Adiwiyata).');save();keuP(v)};
  v.onclick=e=>{const d=e.target.dataset,tr=e.target.closest&&e.target.closest('[data-kc]');if(d.kt){KT=d.kt;keuP(v)}else if(d.d!==undefined){rows.splice(d.d,1);save();keuP(v)}else if(tr){KC=tr.dataset.kc;keuP(v)}}}
 /* ---- Master Siswa / Guru */
+/* ---- Pilih banyak (checklist) + hapus terpilih untuk daftar Master */
+const bkTh='<th class="np"><input type="checkbox" class="bka" title="Pilih semua yang tampil" style="width:auto"></th>';
+const bkTd=i=>`<td class="np"><input type="checkbox" class="bk" data-k="${i}" style="width:auto"></td>`;
+const bkBar='<button type="button" id="mbd" hidden style="background:#dc2626;color:#fff">🗑️ Hapus terpilih</button>';
+function bkWire(v,del){const upd=()=>{const c=[...v.querySelectorAll('.bk')],n=c.filter(x=>x.checked).length,b=v.querySelector('#mbd'),a=v.querySelector('.bka');if(b){b.hidden=!n;b.textContent='🗑️ Hapus terpilih ('+n+')'}if(a){a.checked=c.length>0&&n==c.length;a.indeterminate=n>0&&n<c.length}};
+ if(v._bkc)v.removeEventListener('click',v._bkc);v._bkc=e=>{const t=e.target;if(!t.classList||!t.classList.contains('bk'))return;const c=[...v.querySelectorAll('.bk')],i=c.indexOf(t);if(e.shiftKey&&v._bkl!=null&&v._bkl<c.length){const[x,y]=[Math.min(i,v._bkl),Math.max(i,v._bkl)];for(let j=x;j<=y;j++)c[j].checked=t.checked;upd()}v._bkl=i};v.addEventListener('click',v._bkc);
+ v.onchange=e=>{const t=e.target;if(t.classList&&t.classList.contains('bka'))v.querySelectorAll('.bk').forEach(x=>x.checked=t.checked);if(t.classList&&(t.classList.contains('bk')||t.classList.contains('bka')))upd()};
+ const b=v.querySelector('#mbd');if(b)b.onclick=()=>{const ix=[...v.querySelectorAll('.bk:checked')].map(x=>+x.dataset.k);if(ix.length)del(ix)};
+ return upd}
+function bkDelUsers(ix,after){const g=ix.filter(i=>DB.users[i]),self=g.filter(i=>DB.users[i].u==me.u&&DB.users[i].r==me.r),go=g.filter(i=>!self.includes(i));if(!go.length)return alert(self.length?'Akun yang sedang dipakai tidak bisa dihapus.':'Pilih data terlebih dahulu.');if(!confirm('Hapus '+go.length+' data terpilih?'+(self.length?'\n(Akun yang sedang dipakai dilewati.)':'')+'\n\nTindakan ini tidak dapat dibatalkan.'))return;go.sort((a,b)=>b-a).forEach(i=>DB.users.splice(i,1));save();after();alert(go.length+' data dihapus.')}
 function masterP(v,r){const sw=r=='siswa',P=sw?'ms':'mg',eks=(DB.data.ekskul||[]).map(x=>x.Ekstrakurikuler).filter(x=>x),JK=['Laki-laki','Perempuan'];let foto='',ME=null,q='',kf='';
  const sp=sw?[[['u','NIS','text'],['nisn','NISN','text'],['p','Password (kosong = NIS / tidak diubah)','pass'],['n','Nama Lengkap Siswa','text',0,2],['jk','Jenis Kelamin','select',JK]],[['k','Kelas','select',KL2()],['agama','Agama Siswa','select',AG],['ekskul','Ekstrakurikuler Diikuti (Ctrl/Cmd untuk pilih beberapa)','multi',eks,2],['wali','Nama Wali Murid','text']],[['motivasi','Motivasi (tampil di Profil Saya siswa)','text']]]
  :[[['u','NIP / Username','text'],['n','Nama Guru & Gelar','text',0,2],['p','Password Login','pass'],['jk','Jenis Kelamin','select',JK],['agama','Agama Guru','select',AG]],[['jabatan','Jabatan / Guru Mapel','text',0,2],['mapelAjar','Mata Pelajaran yang Diajar (Ctrl/Cmd untuk pilih beberapa; dipakai untuk kunci akses guru mapel)','multi',MPL(),2],['walikelas','Wali Kelas Di','select',KL2()],['motivasi','Deskripsi Profil / Motivasi','text',0,2]],[['peran','Peran Ekstrakurikuler','select',['Bukan Pembina/Pelatih','Pembina','Pelatih']],['ekskul','Ekstrakurikuler yang Dibina / Dilatih (Ctrl/Cmd untuk pilih beberapa)','multi',eks,2]]];
  const draw=()=>{const a=DB.users.map((u,i)=>[u,i]).filter(([u])=>u.r==r&&(!kf||u.k==kf||u.walikelas==kf)&&(!q||JSON.stringify([u.n,u.u,u.nisn]).toLowerCase().includes(q.toLowerCase())));
-  $('#mtb').innerHTML=a.map(([u,i])=>`<tr><td>${u.foto?`<img src="${u.foto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:''}</td><td>${esc(u.u)}${u.nisn?'<br><small>NISN '+esc(u.nisn)+'</small>':''}</td><td>${esc(u.n)}</td><td>${esc(u.jk||'')}</td><td>${esc(sw?u.k||'':(u.jabatan||'')+(aclWK(u)?' · Wali '+aclWK(u):''))}</td><td>${esc(u.agama||'')}</td><td>${esc((u.ekskul||[]).join(', '))}</td>${sw?`<td>${esc(u.wali||'')}</td>`:''}<td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')||'<tr><td colspan="9">Belum ada data.</td></tr>';$('#mcn').textContent=a.length+' data'};
+  $('#mtb').innerHTML=a.map(([u,i])=>`<tr>${bkTd(i)}<td>${u.foto?`<img src="${u.foto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`:''}</td><td>${esc(u.u)}${u.nisn?'<br><small>NISN '+esc(u.nisn)+'</small>':''}</td><td>${esc(u.n)}</td><td>${esc(u.jk||'')}</td><td>${esc(sw?u.k||'':(u.jabatan||'')+(aclWK(u)?' · Wali '+aclWK(u):''))}</td><td>${esc(u.agama||'')}</td><td>${esc((u.ekskul||[]).join(', '))}</td>${sw?`<td>${esc(u.wali||'')}</td>`:''}<td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')||'<tr><td colspan="10">Belum ada data.</td></tr>';$('#mcn').textContent=a.length+' data';if(bkU)bkU()};
  v.innerHTML=`<div class="np row"><h2 style="margin:0;flex:1">Master ${sw?'Siswa':'Guru'}</h2>${exportBtns('u',1)}</div><div class="pnl np"><b>${sw?'🎒 Form Input / Edit Data Master Siswa':'👩‍🏫 Form Input / Edit Tenaga Pengajar'}</b>${fh(P,sp)}<div class="row"><label>Upload Foto ${sw?'Profil Siswa':'Guru'}<input type="file" id="${P}ft" accept="image/*"></label></div><div class="row"><button id="msv" type="button">💾 Simpan ${sw?'Data Siswa':'Guru'}</button><button class="g" id="mrs" type="button">Reset</button></div></div>
- <div class="pnl np"><div class="row"><input id="mq" placeholder="🔍 Cari nama / ID"><select id="mkf"><option value="">Semua kelas</option>${opt(KL2())}</select></div><small id="mcn"></small></div>
- <div class="pnl tw"><table><tr><th>Foto</th><th>${sw?'NIS':'NIP'}</th><th>Nama</th><th>JK</th><th>${sw?'Kelas':'Jabatan'}</th><th>Agama</th><th>Ekstrakurikuler</th>${sw?'<th>Wali Murid</th>':''}<th class="np"></th></tr><tbody id="mtb"></tbody></table></div>`;
- draw();bindExport(v,'master-'+r,['u','nisn','n','jk','k','agama','wali','jabatan','walikelas'],()=>DB.users.filter(u=>u.r==r));
+ <div class="pnl np"><div class="row"><input id="mq" placeholder="🔍 Cari nama / ID"><select id="mkf"><option value="">Semua kelas</option>${opt(KL2())}</select></div><small id="mcn"></small> ${bkBar}</div>
+ <div class="pnl tw"><table><tr>${bkTh}<th>Foto</th><th>${sw?'NIS':'NIP'}</th><th>Nama</th><th>JK</th><th>${sw?'Kelas':'Jabatan'}</th><th>Agama</th><th>Ekstrakurikuler</th>${sw?'<th>Wali Murid</th>':''}<th class="np"></th></tr><tbody id="mtb"></tbody></table></div>`;
+ let bkU=null;draw();bkU=bkWire(v,ix=>bkDelUsers(ix,()=>masterP(v,r)));bkU();bindExport(v,'master-'+r,['u','nisn','n','jk','k','agama','wali','jabatan','walikelas'],()=>DB.users.filter(u=>u.r==r));
  $('#mq').oninput=e=>{q=e.target.value;draw()};$('#mkf').onchange=e=>{kf=e.target.value;draw()};$('#mrs').onclick=()=>masterP(v,r);
  $('#'+P+'ft').onchange=e=>{const f=e.target.files[0];if(f)shrink(f,u=>foto=u)};
  bindImport(v,a=>{let n=0;a.forEach(o=>{const g=(...k)=>{for(const x of k)if(o[x]!==undefined&&o[x]!=='')return String(o[x]).trim()},u=g('u','NIS','NIP','ID','Username'),nm=g('n','Nama'),p=g('p','Password')||(sw?u:'');
@@ -1366,10 +1377,10 @@ function mapelRekap(){const rows=(DB.data.mapel||[]).filter(r=>r&&String(r.Mapel
  return `<div class="pnl tw"><b>📊 Jumlah Mata Pelajaran per Kelas</b><table><tr><th>Kelas</th><th>Siswa</th><th>Jumlah Mapel</th><th>Daftar Mata Pelajaran</th></tr>${trs}</table><small>Dihitung dari kolom Kelas Target: Semua/kosong = semua kelas; "4" = kelas 4 (juga 4A, 4B); "3-6" = kelas 3 sampai 6; "Fase A/B/C" didukung. Mapel sama untuk beberapa agama dihitung sekali. Total ${uniq(rows).length} mata pelajaran terdaftar.${bad.length?' ⚠️ Kelas tidak cocok dengan kelas siswa mana pun: '+bad.map(esc).join(', ')+'.':''}</small></div>`}
 function mcrud(v,c){const P='mc',rows=DB.data[c.id]=DB.data[c.id]||[],sp=c.spec(),z=i=>$('#'+i);let ed=null,q='',kf='';
  v.innerHTML=`<div class="np row"><div style="flex:1"><h2 style="margin:0">${c.title}</h2></div>${exportBtns(c.id,1)}</div><div class="pnl np"><b>${c.icon} ${c.form}</b>${c.desc?`<p><small>${c.desc}</small></p>`:''}${c.top||''}${fh(P,sp)}<div class="row"><button id="mcs" type="button">💾 ${c.save}</button><button class="g" id="mcr" type="button">Reset</button></div></div>
- <div class="pnl np"><div class="row"><input id="mcq" placeholder="🔍 Cari...">${c.kf?`<select id="mck"><option value="">Semua kelas</option>${opt(KL2())}</select>`:''}</div><small id="mcn"></small></div>
- <div class="pnl tw"><table><tr>${c.cols.map(x=>`<th>${x}</th>`).join('')}<th class="np"></th></tr><tbody id="mct"></tbody></table></div>`;
+ <div class="pnl np"><div class="row"><input id="mcq" placeholder="🔍 Cari...">${c.kf?`<select id="mck"><option value="">Semua kelas</option>${opt(KL2())}</select>`:''}</div><small id="mcn"></small> ${bkBar}</div>
+ <div class="pnl tw"><table><tr>${bkTh}${c.cols.map(x=>`<th>${x}</th>`).join('')}<th class="np"></th></tr><tbody id="mct"></tbody></table></div>`;
  fset(P,sp,c.defs||{});
- const draw=()=>{const a=rows.map((r,i)=>[r,i]).filter(([r])=>(!q||JSON.stringify(r).toLowerCase().includes(q.toLowerCase()))&&kfOk(r.Kelas,kf));z('mct').innerHTML=a.map(([r,i])=>`<tr>${c.cols.map(k=>`<td>${esc(r[k])}</td>`).join('')}<td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')||`<tr><td colspan="${c.cols.length+1}">Belum ada data.</td></tr>`;z('mcn').textContent=a.length+' data'+(c.id=='mapel'?' · '+new Set(a.map(([r])=>{const n=KN(r.Mapel);return /^pendidikanagama/.test(n)?'pendidikanagama':n}).filter(Boolean)).size+' mata pelajaran berbeda'+(kf?' untuk kelas '+kf:''):'')};draw();
+ const draw=()=>{const a=rows.map((r,i)=>[r,i]).filter(([r])=>(!q||JSON.stringify(r).toLowerCase().includes(q.toLowerCase()))&&kfOk(r.Kelas,kf));z('mct').innerHTML=a.map(([r,i])=>`<tr>${bkTd(i)}${c.cols.map(k=>`<td>${esc(r[k])}</td>`).join('')}<td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')||`<tr><td colspan="${c.cols.length+2}">Belum ada data.</td></tr>`;z('mcn').textContent=a.length+' data'+(c.id=='mapel'?' · '+new Set(a.map(([r])=>{const n=KN(r.Mapel);return /^pendidikanagama/.test(n)?'pendidikanagama':n}).filter(Boolean)).size+' mata pelajaran berbeda'+(kf?' untuk kelas '+kf:''):'');if(bkU)bkU()};let bkU=null;draw();bkU=bkWire(v,ix=>{if(!confirm('Hapus '+ix.length+' data terpilih?\n\nTindakan ini tidak dapat dibatalkan.'))return;ix.sort((a,b)=>b-a).forEach(i=>rows.splice(i,1));save();mcrud(v,c);alert(ix.length+' data dihapus.')});bkU();
  z('mcq').oninput=e=>{q=e.target.value;draw()};if(z('mck'))z('mck').onchange=e=>{kf=e.target.value;draw()};z('mcr').onclick=()=>mcrud(v,c);
  bindExport(v,c.id,c.cols,()=>rows);bindImport(v,a=>{let n=0;a.forEach(o=>{const r={};c.cols.forEach(k=>r[k]=o[k]??'');if(Object.values(r).some(x=>x)){rows.push(r);n++}});save();mcrud(v,c);alert(n+' baris diimpor.')});
  if(c.init)c.init(z,v);
@@ -1506,84 +1517,20 @@ function dbp(v){
  <div class="row"><label>Mode impor<select id="fsm"><option value="gabung">Gabung: perbarui & tambah (aman)</option><option value="ganti">Ganti total data menu terkait</option></select></label></div>
  <div id="fsz" style="border:2px dashed var(--c);border-radius:12px;padding:18px;text-align:center;margin:8px 0">📂 Tarik & lepas berkas XLSX / XLS / CSV ke sini<br><label class="bl" style="margin-top:8px">Pilih berkas (bisa banyak)<input type="file" id="fsf" accept=".xlsx,.xls,.csv" multiple hidden></label></div>
  <div class="row"><label style="flex:3 1 300px">URL / ID Google Spreadsheet (akses "Siapa saja yang memiliki link: Pelihat"; dipakai juga untuk ekspor dan sinkron riwayat)<input id="fsu" value="${esc(DB.set.sheetUrl||'')}" placeholder="https://docs.google.com/spreadsheets/d/..."></label><button id="fsg" type="button">⚡ Tarik dari Google Sheets</button><button class="g" id="sus" type="button">💾 Simpan ID Sheet</button><button class="g" id="suo" type="button">↗ Buka Spreadsheet</button></div>
- <div class="row"><label style="flex:3 1 300px">URL Web App Apps Script (opsional, untuk ekspor langsung ke Google Sheets)<input id="gas" value="${esc(DB.set.gasUrl||'')}" placeholder="https://script.google.com/macros/s/.../exec"></label><button id="gass" type="button">💾 Simpan URL Web App</button></div><details><summary>Kode Apps Script (Extensions › Apps Script, tempel, lalu Deploy › Web app, akses: Anyone)</summary><pre style="white-space:pre-wrap;font-size:12px">-- =====================================================================
--- MySAPANSA - setup Supabase agar SEMUA fitur sinkron di SEMUA perangkat
--- (rev12: Convert Dokumen, Surat Pernyataan &amp; Lampiran)
---
--- Cara pakai: Supabase &gt; SQL Editor &gt; New query &gt; tempel semua &gt; Run.
--- Aman dijalankan berulang kali (idempotent) dan TIDAK menghapus data.
---
--- Seluruh data aplikasi disimpan di SATU dokumen JSON "mysapansa_db"
--- pada tabel kv, sehingga fitur baru TIDAK memerlukan tabel/kolom baru:
---   data.surat    -&gt; Surat Resmi + Surat Pernyataan (kolom Jenis, Lamp = daftar lampiran)
---   data.cvwf     -&gt; Alur kerja (Workflow) Convert Dokumen yang disimpan
---   set.kop       -&gt; Master Dokumen (KOP, tanda tangan, stempel)
---   set.kertas    -&gt; ukuran kertas cetak
---   set.kartu     -&gt; pengaturan Cetak Kartu
---   users         -&gt; Master Siswa &amp; Master Guru
--- Convert Dokumen memproses file langsung di browser; file TIDAK disimpan di database.
--- =====================================================================
-
--- 1. Tabel penyimpanan (satu baris per dokumen: mysapansa_db, mysapansa_pres)
-create table if not exists public.kv (
-  id         text primary key,
-  data       jsonb,
-  updated_at timestamptz default now()
-);
-alter table public.kv add column if not exists data jsonb;
-alter table public.kv add column if not exists updated_at timestamptz default now();
-alter table public.kv alter column updated_at set default now();
-
--- 2. updated_at selalu diperbarui di server (urutan "data terbaru" konsisten antar perangkat)
-create or replace function public.kv_touch_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at := now();
-  return new;
-end;
-$$;
-
-drop trigger if exists kv_touch on public.kv;
-create trigger kv_touch
-  before update on public.kv
-  for each row execute function public.kv_touch_updated_at();
-
--- 3. Row Level Security + kebijakan akses (anon/publishable key dipakai semua perangkat)
-alter table public.kv enable row level security;
-
-drop policy if exists "app_all"   on public.kv;
-drop policy if exists "kv_select" on public.kv;
-drop policy if exists "kv_insert" on public.kv;
-drop policy if exists "kv_update" on public.kv;
-
-create policy "kv_select" on public.kv
-  for select to anon, authenticated using (true);
-create policy "kv_insert" on public.kv
-  for insert to anon, authenticated with check (true);
-create policy "kv_update" on public.kv
-  for update to anon, authenticated using (true) with check (true);
-
--- 4. Hak akses tabel
-grant usage on schema public to anon, authenticated;
-grant select, insert, update on public.kv to anon, authenticated;
-
--- 5. Muat ulang skema API agar perubahan langsung berlaku
-notify pgrst, 'reload schema';
-
--- 6. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
-select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
-
--- 7. Cek data fitur baru (opsional; 0 sebelum pertama kali dipakai)
-select id,
-       jsonb_array_length(coalesce(data-&gt;'data'-&gt;'surat','[]'::jsonb)) as jumlah_surat,
-       jsonb_array_length(coalesce(data-&gt;'data'-&gt;'cvwf','[]'::jsonb))  as jumlah_workflow,
-       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'ttk',''))                 as ttd_kepsek,
-       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'stp',''))                 as stempel,
-       pg_column_size(data)                                            as ukuran_byte
-from public.kv
-where id = 'mysapansa_db';
+ <div class="row"><label style="flex:3 1 300px">URL Web App Apps Script (opsional, untuk ekspor langsung ke Google Sheets)<input id="gas" value="${esc(DB.set.gasUrl||'')}" placeholder="https://script.google.com/macros/s/.../exec"></label><button id="gass" type="button">💾 Simpan URL Web App</button></div><details><summary>Kode Apps Script (Extensions › Apps Script, tempel, lalu Deploy › Web app, akses: Anyone)</summary><pre style="white-space:pre-wrap;font-size:12px">function doPost(e) {
+  var d = JSON.parse(e.postData.contents);
+  var ss = d.id ? SpreadsheetApp.openById(d.id) : SpreadsheetApp.create('Data MySAPANSA');
+  (d.sheets || []).forEach(function (s) {
+    var sh = ss.getSheetByName(s.name) || ss.insertSheet(s.name);
+    sh.clear();
+    var w = 1;
+    s.rows.forEach(function (r) { if (r.length &gt; w) w = r.length; });
+    var rows = s.rows.map(function (r) { while (r.length &lt; w) r.push(''); return r; });
+    if (rows.length) sh.getRange(1, 1, rows.length, w).setValues(rows);
+    sh.setFrozenRows(1);
+  });
+  return ContentService.createTextOutput(ss.getUrl());
+}
 </pre></details>
  <b>⚡ Aksi cepat</b><div class="row"><button class="g" id="atp" type="button">1. Buat Template Sheet</button><label>2. Impor Massal Semua Data (ganti)<input type="file" id="aim" accept=".xlsx,.xls"></label><button class="g" id="aex" type="button">3. Ekspor ke File (.xlsx)</button><button class="g" id="aes" type="button">3b. Ekspor ke Google Sheets</button></div>
  <div class="row"><label>Jenis data tempelan<select id="fsk"><option value="">Deteksi otomatis dari header</option>${DS.map(d=>`<option value="${d[0]}">${d[1]}</option>`).join('')}</select></label></div>
@@ -1710,8 +1657,8 @@ function users(v,rf){
  <div class="pnl np"><b>${e?'✏️ Edit akun':'➕ Tambah akun'}</b><div class="row"><select id="nr" ${rf?'disabled':''}>${['siswa','guru','admin','koperasi'].map(r=>`<option ${(e?e.r:R)==r?'selected':''}>${r}</option>`).join('')}</select><input id="nu"><input id="nn" placeholder="Nama lengkap"><input id="nk" placeholder="Kelas (siswa)">
  <select id="ng"><option value="">Pilih agama</option>${AG.map(a=>`<option>${a}</option>`).join('')}</select><input id="np" placeholder="Password"><button id="add">${e?'Simpan perubahan':'Tambah'}</button>${e?'<button class="g" id="cx">Batal</button>':''}</div>
  <small>Siswa login dengan NIS/NISN, guru dengan NIP, admin dengan username.</small></div>
- <div class="pnl np row">${rf?'':`<select id="ur"><option value="">Semua peran</option>${['siswa','guru','admin','koperasi'].map(r=>`<option ${UF==r?'selected':''}>${r}</option>`).join('')}</select>`}<button class="g" id="tp">${PW?'🙈 Sembunyikan':'👁 Tampilkan'} password</button></div>
- <div class="pnl tw"><table><tr><th>ID Login</th><th>Nama</th><th>Peran</th><th>Kelas</th><th>Agama</th><th>Password</th><th class="np"></th></tr>${DB.users.map((u,i)=>[u,i]).filter(([u])=>!R||u.r==R).map(([u,i])=>`<tr><td>${esc(u.u)} <small>(${LB[u.r]})</small></td><td>${esc(u.n)}</td><td>${u.r}</td><td>${esc(u.k||'')}</td><td>${esc(u.agama||'')}</td><td>${PW&&u.r!='admin'?esc(u.p):'••••••'}</td><td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')}</table></div>`;
+ <div class="pnl np row">${rf?'':`<select id="ur"><option value="">Semua peran</option>${['siswa','guru','admin','koperasi'].map(r=>`<option ${UF==r?'selected':''}>${r}</option>`).join('')}</select>`}<button class="g" id="tp">${PW?'🙈 Sembunyikan':'👁 Tampilkan'} password</button>${bkBar}</div>
+ <div class="pnl tw"><table><tr>${bkTh}<th>ID Login</th><th>Nama</th><th>Peran</th><th>Kelas</th><th>Agama</th><th>Password</th><th class="np"></th></tr>${DB.users.map((u,i)=>[u,i]).filter(([u])=>!R||u.r==R).map(([u,i])=>`<tr>${bkTd(i)}<td>${esc(u.u)} <small>(${LB[u.r]})</small></td><td>${esc(u.n)}</td><td>${u.r}</td><td>${esc(u.k||'')}</td><td>${esc(u.agama||'')}</td><td>${PW&&u.r!='admin'?esc(u.p):'••••••'}</td><td class="np"><button class="g" data-e="${i}">Edit</button> <button class="g" data-d="${i}">Hapus</button></td></tr>`).join('')}</table></div>`;
  const ph=()=>$('#nu').placeholder=LB[$('#nr').value];ph();$('#nr').onchange=ph;
  if(e){$('#nu').value=e.u;$('#nn').value=e.n;$('#nk').value=e.k||'';$('#ng').value=e.agama||'';$('#np').value=e.p;$('#cx').onclick=()=>{EI=null;users(v,rf)}}
  bindExport(v,'pengguna',['u','n','r','k','agama'],()=>DB.users.filter(u=>!R||u.r==R));
@@ -1720,7 +1667,7 @@ function users(v,rf){
   if(!u||!nm||!p||!LB[r]||(r=='siswa'&&!/^\d{4,18}$/.test(u))||(r=='guru'&&!/^\d{8,18}$/.test(u))||DB.users.some(x=>x.u==u&&x.r==r))return;
   DB.users.push({u,p,n:nm,r,k:g('k','Kelas')||'',agama:g('agama','Agama')||''});n++});save();users(v,rf);alert(n+' akun diimpor (baris tidak valid atau duplikat dilewati).')});
  if($('#ur'))$('#ur').onchange=x=>{UF=x.target.value;users(v)};
- $('#tp').onclick=()=>{PW=!PW;users(v,rf)};
+ $('#tp').onclick=()=>{PW=!PW;users(v,rf)};bkWire(v,ix=>bkDelUsers(ix,()=>users(v,rf)))();
  $('#add').onclick=()=>{const r=$('#nr').value,u=$('#nu').value.trim(),p=$('#np').value,n=$('#nn').value.trim();
   if(!u||!p||!n)return alert(LB[r]+', nama, dan password wajib diisi.');
   if(r=='siswa'&&!/^\d{4,18}$/.test(u))return alert('NIS/NISN harus berupa angka (4-18 digit).');
@@ -1998,124 +1945,151 @@ function cloudP(el){el.innerHTML=`<b>☁️ Penyimpanan Cloud (Supabase)</b> <sm
  <div class="row"><label style="flex:2 1 240px">Project URL<input id="cu" placeholder="https://xxxx.supabase.co" value="${esc(CL.url||'')}"></label><label style="flex:3 1 260px">Anon public key<input id="ck" type="password" value="${esc(CL.key||'')}"></label><label><span><input type="checkbox" id="co2" ${CL.on?'checked':''} style="width:auto"> Aktifkan sinkron</span></label></div>
  <div class="row"><button id="csy" type="button">🔄 Sinkronisasi Manual</button><button class="g" id="cs" type="button">Simpan & Uji</button><button class="g" id="cup" type="button">⬆ Unggah sekarang</button><button class="g" id="cdn" type="button">⬇ Ambil dari cloud</button><button class="g" id="cin2" type="button">📊 Cek Penyimpanan</button><small id="cst">${esc(CL.st||'')}</small></div><div id="cin"></div>
  <details><summary>Langkah setup (sekali saja)</summary><small>Di Supabase buka SQL Editor, tempel, lalu Run (aman diulang). Kunci Project URL &amp; anon key yang sama dipakai di semua perangkat:</small><pre style="white-space:pre-wrap;font-size:12px">-- =====================================================================
--- MySAPANSA - setup Supabase agar SEMUA fitur sinkron di SEMUA perangkat
+-- MySAPANSA - setup Supabase (v3) agar SEMUA data tersinkron di SEMUA perangkat
+-- (HP, tablet, laptop/PC, browser apa pun, memakai satu Project URL + anon key)
+--
 -- Cara pakai: Supabase &gt; SQL Editor &gt; New query &gt; tempel semua &gt; Run.
 -- Aman dijalankan berulang kali (idempotent) dan TIDAK menghapus data.
+-- Menggantikan semua SQL versi lama; cukup jalankan yang ini.
 --
--- Semua pengaturan disimpan di dalam SATU dokumen JSON "mysapansa_db"
--- pada tabel kv, jadi fitur baru TIDAK butuh tabel/kolom baru:
---   set.kartu   -&gt; pengaturan Cetak Kartu (ukuran, border, sudut,
---                  gaya teks tebal/miring/garis bawah gh/gb/gn/gi,
---                  footer tanda tangan ft)
---   set.kop     -&gt; Master Dokumen (KOP, font, footer, kn/kp = nama &amp;
---                  NIP Kepala Sekolah yang otomatis dari Master Guru,
---                  ttk/ttg/stp = gambar tanda tangan kepala sekolah,
---                  tanda tangan guru, dan stempel digital (base64))
---   set.kop.em/tl -&gt; E-mail &amp; No. Telp di bawah alamat KOP\n--   data.surat  -&gt; Surat (6 jenis, termasuk Surat Tugas &amp; Keterangan Aktif Siswa)\n--   set.kertas  -&gt; ukuran kertas cetak
---   users       -&gt; Master Siswa &amp; Master Guru
--- Cukup tabel kv di bawah, lalu semua data ikut tersinkron.
+-- Seluruh data aplikasi disimpan di dokumen JSON pada tabel kv:
+--   mysapansa_db   -&gt; semua data (pengguna, master, absensi, tugas, nilai, surat, pengaturan)
+--   mysapansa_pres -&gt; status online pengguna
+-- Fitur baru TIDAK memerlukan tabel/kolom baru.
 -- =====================================================================
 
--- 1. Tabel penyimpanan (satu baris per dokumen: mysapansa_db, mysapansa_pres)
+-- 1. Tabel penyimpanan utama
 create table if not exists public.kv (
   id         text primary key,
   data       jsonb,
-  updated_at timestamptz default now()
+  updated_at timestamptz not null default now()
 );
-
--- Pastikan kolom &amp; default benar bila tabel lama sudah ada
 alter table public.kv add column if not exists data jsonb;
 alter table public.kv add column if not exists updated_at timestamptz default now();
 alter table public.kv alter column updated_at set default now();
+update public.kv set updated_at = now() where updated_at is null;
+alter table public.kv alter column updated_at set not null;
 
--- 2. Penanda waktu otomatis: updated_at selalu diperbarui di server,
---    sehingga urutan "data terbaru" konsisten walau jam perangkat berbeda.
+-- 2. Waktu server jadi acuan tunggal (jam HP/PC yang berbeda tidak mengacaukan
+--    urutan "data terbaru"). Berlaku saat data dibuat maupun diubah.
 create or replace function public.kv_touch_updated_at()
 returns trigger
 language plpgsql
-as $$
+as $fn$
 begin
-  new.updated_at := now();
+  new.updated_at := clock_timestamp();
   return new;
 end;
-$$;
+$fn$;
 
 drop trigger if exists kv_touch on public.kv;
 create trigger kv_touch
-  before update on public.kv
+  before insert or update on public.kv
   for each row execute function public.kv_touch_updated_at();
 
--- 3. Row Level Security + kebijakan akses (kunci anon/publishable dipakai semua perangkat)
+-- 3. Cadangan otomatis: simpan salinan mysapansa_db paling banyak 1x per 10 menit,
+--    disimpan 10 salinan terakhir. Penyelamat bila ada perangkat yang salah menimpa data.
+--    Tabel ini tidak bisa diakses aplikasi (hanya lewat Supabase Dashboard).
+create table if not exists public.kv_riwayat (
+  no         bigint generated always as identity primary key,
+  id         text not null,
+  data       jsonb,
+  dibuat     timestamptz not null default now()
+);
+alter table public.kv_riwayat enable row level security;
+revoke all on public.kv_riwayat from anon, authenticated;
+
+create or replace function public.kv_simpan_riwayat()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $fn$
+begin
+  if old.id = 'mysapansa_db' and old.data is not null
+     and not exists (select 1 from public.kv_riwayat r
+                     where r.id = old.id and r.dibuat &gt; now() - interval '10 minutes') then
+    insert into public.kv_riwayat (id, data) values (old.id, old.data);
+    delete from public.kv_riwayat
+     where id = old.id
+       and no not in (select no from public.kv_riwayat where id = old.id order by no desc limit 10);
+  end if;
+  return new;
+end;
+$fn$;
+
+drop trigger if exists kv_riwayat_trg on public.kv;
+create trigger kv_riwayat_trg
+  before update on public.kv
+  for each row execute function public.kv_simpan_riwayat();
+
+-- 4. Row Level Security + kebijakan akses (anon/publishable key dipakai semua perangkat)
 alter table public.kv enable row level security;
 
-drop policy if exists "app_all"    on public.kv;
-drop policy if exists "kv_select"  on public.kv;
-drop policy if exists "kv_insert"  on public.kv;
-drop policy if exists "kv_update"  on public.kv;
+drop policy if exists "app_all"   on public.kv;
+drop policy if exists "kv_select" on public.kv;
+drop policy if exists "kv_insert" on public.kv;
+drop policy if exists "kv_update" on public.kv;
 
 create policy "kv_select" on public.kv
   for select to anon, authenticated using (true);
-
 create policy "kv_insert" on public.kv
-  for insert to anon, authenticated with check (true);
-
+  for insert to anon, authenticated with check (id in ('mysapansa_db','mysapansa_pres'));
 create policy "kv_update" on public.kv
-  for update to anon, authenticated using (true) with check (true);
+  for update to anon, authenticated using (true) with check (id in ('mysapansa_db','mysapansa_pres'));
 
--- 4. Hak akses tabel untuk peran anon / authenticated
+-- 5. Hak akses (tanpa hak hapus: data tidak bisa terhapus lewat API)
 grant usage on schema public to anon, authenticated;
 grant select, insert, update on public.kv to anon, authenticated;
 
--- 5. Muat ulang skema API agar perubahan langsung berlaku
+-- 6. Realtime: perubahan dari satu perangkat bisa dikenali perangkat lain
+alter table public.kv replica identity full;
+do $fn$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (select 1 from pg_publication_tables
+                     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'kv') then
+    alter publication supabase_realtime add table public.kv;
+  end if;
+end
+$fn$;
+
+-- 7. Muat ulang skema API agar perubahan langsung berlaku
 notify pgrst, 'reload schema';
 
--- 6. Cek hasil (opsional): harus muncul 3 kebijakan kv_select / kv_insert / kv_update
+-- ---------------------------------------------------------------------
+-- PEMERIKSAAN (opsional, jalankan terpisah bila perlu)
+-- ---------------------------------------------------------------------
+
+-- A. Harus muncul 3 kebijakan: kv_select, kv_insert, kv_update
 select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
 
--- 7. Cek pengaturan cetak yang tersimpan (opsional; kosong sebelum pertama kali dipakai)
+-- B. Ukuran dan isi data tersimpan
 select id,
-       data-&gt;'set'-&gt;'kertas'              as ukuran_kertas,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'size'      as ukuran_kartu,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'bw'        as tebal_border,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'rad'       as kelengkungan,
-       data-&gt;'set'-&gt;'kartu'-&gt;'gh'         as gaya_judul_header,
-       data-&gt;'set'-&gt;'kartu'-&gt;'gn'         as gaya_nama,
-       data-&gt;'set'-&gt;'kartu'-&gt;'gi'         as gaya_isi,
-       data-&gt;'set'-&gt;'kartu'-&gt;&gt;'ft'        as footer_ttd_kartu
+       updated_at,
+       pg_size_pretty(pg_column_size(data)::bigint)                             as ukuran,
+       jsonb_array_length(coalesce(data-&gt;'users', '[]'::jsonb))                 as jumlah_akun,
+       jsonb_array_length(coalesce(data-&gt;'data'-&gt;'surat', '[]'::jsonb))         as jumlah_surat,
+       jsonb_array_length(coalesce(data-&gt;'data'-&gt;'absen', '[]'::jsonb))         as jumlah_absensi,
+       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'ttk', ''))                         as ttd_kepsek,
+       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'stp', ''))                         as stempel
 from public.kv
-where id = 'mysapansa_db';
+order by id;
 
--- 7b. Cek tanda tangan &amp; stempel digital tersimpan (opsional; angka = ukuran teks gambar, 0 = belum ada)
-select id,
-       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'ttk','')) as ttd_kepsek,
-       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'ttg','')) as ttd_guru,
-       length(coalesce(data-&gt;'set'-&gt;'kop'-&gt;&gt;'stp','')) as stempel,
-       data-&gt;'set'-&gt;'kop'-&gt;&gt;'dg'                       as ttd_digital_aktif
-from public.kv
-where id = 'mysapansa_db';
+-- C. Daftar cadangan otomatis
+select no, id, dibuat, pg_size_pretty(pg_column_size(data)::bigint) as ukuran
+from public.kv_riwayat order by no desc;
 
--- 8. Cek sinkron Kepala Sekolah (opsional):
---    kolom guru_* = sumber di Master Guru, kolom kop_* = yang dipakai di dokumen.
---    Keduanya harus sama setelah aplikasi dibuka &amp; disimpan sekali.
-select g-&gt;&gt;'n'  as guru_nama,
-       g-&gt;&gt;'u'  as guru_nip,
-       g-&gt;&gt;'jabatan' as guru_jabatan,
-       d.data-&gt;'set'-&gt;'kop'-&gt;&gt;'kn' as kop_nama,
-       d.data-&gt;'set'-&gt;'kop'-&gt;&gt;'kp' as kop_nip
-from public.kv d
-cross join lateral jsonb_array_elements(coalesce(d.data-&gt;'users', '[]'::jsonb)) g
-where d.id = 'mysapansa_db'
-  and g-&gt;&gt;'r' = 'guru'
-  and g-&gt;&gt;'jabatan' ilike '%kepala%'
-  and g-&gt;&gt;'jabatan' !~* '(wakil|waka|\mwk\M)';
+-- D. PEMULIHAN (hanya bila data rusak): ganti 12 dengan nomor cadangan dari langkah C,
+--    lalu hilangkan tanda -- di depan baris update. Setelah itu klik "Ambil dari cloud" di aplikasi.
+-- update public.kv set data = (select data from public.kv_riwayat where no = 12) where id = 'mysapansa_db';
 
--- 9. Cek Surat tersimpan per jenis (opsional): mencakup 6 jenis surat\n--    Surat Permohonan, Surat Keterangan Aktif, Surat Pernyataan (Versi 2),\n--    Surat Pernyataan Siswa, Surat Tugas, Surat Keterangan Aktif Siswa.\nselect s-&gt;&gt;'Jenis' as jenis_surat, count(*) as jumlah\nfrom public.kv d\ncross join lateral jsonb_array_elements(coalesce(d.data-&gt;'data'-&gt;'surat', '[]'::jsonb)) s\nwhere d.id = 'mysapansa_db'\ngroup by 1\norder by 2 desc;\n\n-- 10. Cek E-mail &amp; No. Telp pada KOP (opsional): tampil di bawah alamat pada semua cetakan.\n--     NULL = belum disimpan dari Master Dokumen (aplikasi memakai nilai bawaan).\nselect data-&gt;'set'-&gt;'kop'-&gt;&gt;'al' as alamat,\n       data-&gt;'set'-&gt;'kop'-&gt;&gt;'em' as email_kop,\n       data-&gt;'set'-&gt;'kop'-&gt;&gt;'tl' as telp_kop\nfrom public.kv\nwhere id = 'mysapansa_db';\n\n-- CATATAN
--- * Jangan menambahkan baris awal kosong ke tabel kv: aplikasi akan membuat
---   baris mysapansa_db sendiri saat pertama kali sinkron.
--- * Di setiap perangkat pakai Project URL &amp; anon/publishable key yang sama
+-- CATATAN
+-- * Jangan membuat baris kosong di tabel kv; aplikasi membuat mysapansa_db sendiri saat sinkron pertama.
+-- * Semua perangkat memakai Project URL dan anon/publishable key yang sama
 --   (menu Server &gt; Penyimpanan Cloud), lalu klik Sinkronisasi Manual.
--- * Karena aplikasi berjalan tanpa server, siapa pun yang memegang anon key bisa
---   membaca isi tabel kv (termasuk sandi akun). Jangan bagikan key tersebut.
+-- * Aplikasi tanpa server: pemegang anon key dapat membaca isi tabel kv (termasuk sandi akun).
+--   Jangan bagikan key tersebut.
 </pre><small>Catatan keamanan: aplikasi ini tanpa server, jadi siapa pun yang memegang anon key dapat membaca data (termasuk password akun). Jangan bagikan key tersebut.</small></details><div id="crs"></div>`;
  resetUI($('#crs'));const sv=()=>{CL={...CL,url:$('#cu').value.trim(),key:$('#ck').value.trim(),on:$('#co2').checked};localStorage.setItem(CK,JSON.stringify(CL))};
  $('#cs').onclick=async()=>{sv();$('#cst').textContent='Menguji...';try{const r=await fetch(cU()+'?select=id&limit=1',{headers:cH()});CL.st=r.ok?'✅ Terhubung. Klik Unggah sekarang.':'⚠️ Gagal ('+r.status+'). Cek URL, key, dan tabel kv.'}catch(e){CL.st='⚠️ '+e.message}$('#cst').textContent=CL.st};
@@ -2124,12 +2098,16 @@ where d.id = 'mysapansa_db'
  $('#cin2').onclick=()=>{sv();cloudInfo()};if(CL.on&&CL.url&&CL.key)cloudInfo();
  $('#cdn').onclick=async()=>{if(!confirm('Ganti data di perangkat ini dengan data dari cloud?'))return;sv();alert(await cloudPull(true));server($('#view'))}}
 const kb=n=>n>1048576?(n/1048576).toFixed(2)+' MB':(n/1024).toFixed(1)+' KB',bar=(p,c)=>`<div style="background:#8883;border-radius:8px;height:10px;overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,Math.max(1,p))}%;background:${c||'var(--c)'}"></i></div>`;
+const cntRows=d=>{const u=Array.isArray(d&&d.users)?d.users:[],o={'Siswa':u.filter(x=>x&&x.r=='siswa').length,'Guru':u.filter(x=>x&&x.r=='guru').length,'Admin':u.filter(x=>x&&x.r=='admin').length};Object.entries((d&&d.data)||{}).forEach(([k,v])=>{if(Array.isArray(v))o[k]=v.length});return o};
+function cntT(cd){if(!cd)return'';const a=cntRows(DB),b=cntRows(cd),ks=[...new Set([...Object.keys(a),...Object.keys(b)])],bad=ks.filter(k=>(a[k]||0)!=(b[k]||0)).length;
+ return`<details ${bad?'open':''}><summary>Jumlah data perangkat vs cloud ${bad?'(⚠️ '+bad+' berbeda)':'(✅ sama)'}</summary><div class="tw"><table><tr><th>Data</th><th>Perangkat ini</th><th>Cloud</th></tr>${ks.map(k=>`<tr${(a[k]||0)!=(b[k]||0)?' style="background:#f5993033"':''}><td>${esc(k)}</td><td>${a[k]||0}</td><td>${b[k]||0}</td></tr>`).join('')}</table></div><small>Jika ada yang berbeda, tunggu ±20 detik (sinkron otomatis) atau klik Sinkronisasi Manual. Untuk akun ganda, pakai tombol di bawah.</small><div class="row"><button class="g" type="button" onclick="dedupUsers()">🧹 Rapikan akun ganda & sinkron</button></div></details>`}
+window.dedupUsers=()=>{const kf=x=>(x.r||'')+'|'+(x.u||'')+(x.u?'':'|'+(x.n||'')),m=new Map();(DB.users||[]).forEach(x=>{if(x&&typeof x=='object')m.set(kf(x),x)});const n=(DB.users||[]).length-m.size;DB.users=[...m.values()];save();try{cloudPush(1)}catch(e){}alert(n+' akun ganda dirapikan.');setTimeout(cloudInfo,2500)};
 function sizes(d){const o={};Object.entries(d||{}).forEach(([k,v])=>{if(k=='data')Object.entries(v||{}).forEach(([a,b])=>o['data.'+a]=JSON.stringify(b).length);else o[k]=JSON.stringify(v).length});return Object.entries(o).sort((a,b)=>b[1]-a[1])}
 async function cloudInfo(){const el=$('#cin');if(!el)return;el.innerHTML='<small>Memeriksa...</small>';const loc=JSON.stringify(DB).length;let cl=null,err='';
  try{const r=await fetch(cU()+'?id=eq.mysapansa_db&select=data,updated_at',{headers:cH()});if(r.ok){const a=await r.json();if(a.length)cl={t:a[0].updated_at,d:a[0].data,n:JSON.stringify(a[0].data).length}}else err='Gagal membaca cloud ('+r.status+')'}catch(e){err=e.message}
  const L=500*1048576,sz=sizes(cl?cl.d:DB),tot=cl?cl.n:loc;
  el.innerHTML=`<div class="cards"><div class="cd"><small>Data di Supabase</small><b>${cl?kb(cl.n):'-'}</b></div><div class="cd"><small>Data di perangkat ini</small><b>${kb(loc)}</b></div><div class="cd"><small>Terakhir tersinkron</small><b style="font-size:15px">${cl?esc(new Date(cl.t).toLocaleString('id-ID')):'-'}</b></div><div class="cd"><small>Kuota gratis database (500 MB)</small><b>${cl?(cl.n/L*100).toFixed(3)+'%':'-'}</b></div></div>
- ${cl?bar(cl.n/L*100):''}<small>${err?'⚠️ '+esc(err)+'. ':''}${cl?(Math.abs(cl.n-loc)>1024?'Ukuran cloud dan perangkat berbeda; klik Unggah sekarang atau Ambil dari cloud.':'Cloud dan perangkat sudah seimbang.'):'Belum ada data di cloud. Klik Unggah sekarang.'} Penyimpanan Storage/file dan total database proyek lihat di dashboard Supabase.</small>
+ ${cl?bar(cl.n/L*100):''}${cntT(cl?cl.d:null)}<small>${err?'⚠️ '+esc(err)+'. ':''}${cl?(Math.abs(cl.n-loc)>1024?'Ukuran cloud dan perangkat berbeda; klik Unggah sekarang atau Ambil dari cloud.':'Cloud dan perangkat sudah seimbang.'):'Belum ada data di cloud. Klik Unggah sekarang.'} Penyimpanan Storage/file dan total database proyek lihat di dashboard Supabase.</small>
  <details><summary>Rincian ukuran per bagian (${cl?'cloud':'perangkat'})</summary><div class="tw"><table><tr><th>Bagian</th><th>Ukuran</th><th>%</th></tr>${sz.slice(0,15).map(([k,n])=>`<tr><td>${esc(k)}</td><td>${kb(n)}</td><td>${(n/tot*100).toFixed(1)}%</td></tr>`).join('')}</table></div><small>Bagian terbesar (mis. log riwayat atau gambar latar) bisa dikurangi lewat Reset Riwayat atau memakai link gambar.</small></details>`}
 let bgI=0,bgT=null;function bgRun(){clearInterval(bgT);const a=(DB.set.bgs||[]).filter(Boolean).slice(0,12),b=document.body.style,h=document.documentElement.style;if(!a.length){b.backgroundImage='';h.removeProperty('--lbg');return}const f=()=>{const u='url("'+a[bgI++%a.length]+'")';b.backgroundImage=u;b.backgroundSize='cover';b.backgroundAttachment='fixed';b.backgroundPosition='center';h.setProperty('--lbg',u)};f();if(a.length>1)bgT=setInterval(f,Math.max(5,+DB.set.bgSec||30)*1e3)}
 function themeX(){const s=DB.set,h=document.documentElement;let e=$('#tx');if(!e){e=document.createElement('style');e.id='tx';document.head.appendChild(e)}
@@ -2521,20 +2499,34 @@ const J=v=>v===null||typeof v!='object'?JSON.stringify(v):Array.isArray(v)?'['+v
 const clone=v=>JSON.parse(JSON.stringify(v));
 const core=d=>{const o=Object.assign({},d);delete o.pres;delete o._ts;return o};
 const setSt=s=>{CL.st=s;const e=$('#cst');if(e)e.textContent=s};
-const mk=()=>{CL.last=new Date().toISOString();CL.lastTs=DB._ts;try{localStorage.setItem(CK,JSON.stringify(CL))}catch(e){}};
+const mk=()=>{CL.last=new Date().toISOString();CL.lastTs=DB._ts;try{localStorage.setItem(CK,JSON.stringify(CL))}catch(e){}if(BASE)bSet({u:CL.url,c:cts,d:BASE})};
 const get=async(id,sel)=>{const r=await fetch(cU()+'?id=eq.'+id+'&select='+sel,{headers:cH(),cache:'no-store'});if(!r.ok)throw new Error('Gagal membaca cloud ('+r.status+')');return r.json()};
-const put=async(id,data,ts)=>{const w=await fetch(cU()+'?on_conflict=id',{method:'POST',headers:Object.assign({},cH(),{Prefer:'resolution=merge-duplicates'}),body:JSON.stringify({id,data,updated_at:ts})});if(!w.ok){const x=await w.text();throw new Error('Gagal mengunggah ('+w.status+') '+x.slice(0,160)+rlsHint(x))}};
+let SRV=null;
+const put=async(id,data,ts)=>{const w=await fetch(cU()+'?on_conflict=id',{method:'POST',headers:Object.assign({},cH(),{Prefer:'resolution=merge-duplicates,return=representation'}),body:JSON.stringify({id,data,updated_at:ts})});if(!w.ok){const x=await w.text();throw new Error('Gagal mengunggah ('+w.status+') '+x.slice(0,160)+rlsHint(x))}
+ if(id==ID){try{const a=await w.json();SRV=a&&a[0]&&a[0].updated_at?a[0].updated_at:null}catch(e){SRV=null}}};
+/* BASE (versi sinkron terakhir) disimpan di IndexedDB agar gabung 3 arah tetap benar setelah halaman dimuat ulang */
+const bdb=()=>new Promise((ok,no)=>{try{const r=indexedDB.open('mysapansa_base',1);r.onupgradeneeded=()=>r.result.createObjectStore('b');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}catch(e){no(e)}});
+const bGet=async()=>{try{const d=await bdb();return await new Promise(ok=>{const q=d.transaction('b').objectStore('b').get('base');q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)})}catch(e){return null}};
+const bSet=async v=>{try{const d=await bdb();d.transaction('b','readwrite').objectStore('b').put(v,'base')}catch(e){}};
+function mUsers(l,c,b){const kf=x=>(x.r||'')+'|'+(x.u||'')+(x.u?'':'|'+(x.n||'')),M=a=>{const m=new Map();a.forEach(x=>{if(x&&typeof x=='object')m.set(kf(x),x)});return m};
+ const Lm=M(l),Cm=M(c),Bm=M(b),o=[];
+ const pick=k=>{const x=Lm.get(k),y=Cm.get(k),z=Bm.get(k);
+  if(x&&y){if(J(x)==J(y))return y;if(z){if(J(x)==J(z))return y;if(J(y)==J(z))return x;return mv(x,y,z,true)}return mv(x,y,undefined,false)}
+  if(x)return z&&J(x)==J(z)?null:x;
+  if(y)return z&&J(y)==J(z)?null:y;
+  return null};
+ new Set([...Cm.keys(),...Lm.keys()]).forEach(k=>{const r=pick(k);if(r)o.push(r)});return o}
 const out=(d,ts)=>Object.assign(core(d),{_ts:ts||d._ts});
 const idle=()=>{if(!me)return true;if(document.querySelector('dialog[open],#edwrap'))return false;if([...document.querySelectorAll('#view textarea')].some(t=>t.value))return false;const a=document.activeElement;return!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest&&a.closest('#view'))};
 /* gabung 3 arah: perangkat ini (l), cloud (c), versi sinkron terakhir (b) */
 function mArr(l,c,b){const bs=new Set(b.map(J)),ls=new Set(l.map(J)),cs=new Set(c.map(J)),seen=new Set(),o=[];
  c.forEach(x=>{const k=J(x);if(bs.has(k)&&!ls.has(k))return;o.push(x)});
  l.forEach(x=>{const k=J(x);if(cs.has(k)||bs.has(k)||seen.has(k))return;seen.add(k);o.push(x)});return o}
-function mv(l,c,b,hb){
- if(Array.isArray(l)&&Array.isArray(c))return mArr(l,c,hb&&Array.isArray(b)?b:[]);
+function mv(l,c,b,hb,p){
+ if(Array.isArray(l)&&Array.isArray(c)){if(p==='users')return mUsers(l,c,hb&&Array.isArray(b)?b:[]);return mArr(l,c,hb&&Array.isArray(b)?b:[])}
  if(isO(l)&&isO(c)){const o={},bb=hb&&isO(b)?b:null;
   new Set(Object.keys(l).concat(Object.keys(c))).forEach(k=>{const iL=k in l,iC=k in c,iB=!!bb&&k in bb;
-   if(iL&&iC){o[k]=mv(l[k],c[k],bb?bb[k]:undefined,iB);return}
+   if(iL&&iC){o[k]=mv(l[k],c[k],bb?bb[k]:undefined,iB,p?p+'.'+k:k);return}
    if(iL){if(!iB||J(l[k])!=J(bb[k]))o[k]=l[k];return}
    if(!iB||J(c[k])!=J(bb[k]))o[k]=c[k]});
   return o}
@@ -2549,14 +2541,14 @@ function refresh(){try{theme();bgRun()}catch(e){}
 async function sync(){
  if(!on())return'Cloud belum aktif.';
  if(busy){again=true;return'⏳ Sinkronisasi sedang berjalan…'}
- busy=true;let msg;const s0=sv;
+ busy=true;SRV=null;let msg;const s0=sv;
  try{
   const a=await get(ID,'data,updated_at');
-  if(!a.length){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(ts);dirty=(s0!=sv);mk();msg='✅ Cloud kosong, data perangkat ini diunggah '+tm()}
+  if(!a.length){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(SRV||ts);dirty=(s0!=sv);mk();msg='✅ Cloud kosong, data perangkat ini diunggah '+tm()}
   else{
    const row=a[0],ct=Date.parse(row.updated_at),lt=Date.parse(DB._ts||0)||0;
    if(BASE&&ct==cts){
-    if(dirty){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(ts);dirty=(s0!=sv);mk();msg='✅ Tersinkron '+tm()}
+    if(dirty){const ts=new Date().toISOString();DB._ts=ts;await put(ID,out(DB,ts),ts);BASE=clone(core(DB));cts=Date.parse(SRV||ts);dirty=(s0!=sv);mk();msg='✅ Tersinkron '+tm()}
     else msg='✅ Sudah sinkron '+tm()}
    else if(!BASE&&!dirty&&Math.abs(ct-lt)<2000){BASE=clone(core(row.data||{}));cts=ct;mk();msg='✅ Sudah sinkron '+tm()}
    else if(!idle()){pend=true;msg='⏳ Menunggu form selesai, sinkron ditunda';setTimeout(tick,3000)}
@@ -2571,7 +2563,7 @@ async function sync(){
     else{
      if(chg){const P=DB.pres,n=Object.assign({},m);if(P)n.pres=P;n._ts=ts;DB=n;try{cleanDB()}catch(e){}}else DB._ts=ts;
      try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}
-     BASE=clone(core(m));cts=Date.parse(ts);dirty=false;mk();
+     BASE=clone(core(m));cts=Date.parse(SRV||ts);dirty=false;mk();
      if(chg){refresh();msg='✅ Data terbaru diambil dari cloud '+tm()}else msg='✅ Tersinkron '+tm()}
    }}
  }catch(e){msg='⚠️ '+e.message}
@@ -2597,8 +2589,8 @@ window.cloudPull=async function(f){const m=await oPull(f);if(/dimuat/.test(m)){B
 setInterval(tick,20000);setInterval(presSync,30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')tick();else if(dirty&&on())sync()});
 window.addEventListener('focus',tick);window.addEventListener('online',tick);
-setTimeout(()=>{sync().then(()=>{try{feats()}catch(e){}})},300);setTimeout(presSync,4000);
-window.__syncTest={mv,mArr,J,setNewer:v=>{cloudNewer=v}};
+setTimeout(()=>{bGet().then(x=>{if(x&&x.d&&!BASE&&x.u===CL.url){BASE=x.d;cts=x.c;dirty=J(core(DB))!=J(BASE)}}).catch(()=>{}).then(()=>sync()).then(()=>{try{feats()}catch(e){}})},300);setTimeout(presSync,4000);
+window.__syncTest={mv,mArr,mUsers,J,setNewer:v=>{cloudNewer=v}};
 })();
 
 
