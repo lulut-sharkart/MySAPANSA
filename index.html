@@ -268,7 +268,7 @@ const L=(id,t)=>({id,t}), G=(t,c)=>({t,c});
 const TENTANG=G('Tentang',[L('profilsaya','Profil Saya'),L('profilguru','Profil Guru'),L('sapansa','SAPANSA'),L('sekolah','Sekolah')]);
 const IC=[[/^alat$/i,'🧰'],[/dash/i,'🏠'],[/absen/i,'🗓️'],[/ekstra/i,'⚽'],[/tugas|administrasi|nilai|penilaian/i,'📝'],[/7kaih/i,'🌟'],[/agenda|jadwal|jurnal|mata pelajaran/i,'📚'],[/permainan/i,'🎮'],[/atur/i,'⚙️'],[/tentang|profil|sekolah|sapansa/i,'ℹ️'],[/ajar|modul|bahan|media/i,'🤖'],[/keuangan|kas|infaq|adiwiyata/i,'💰'],[/umum/i,'📢'],[/pengguna/i,'👥'],[/database/i,'🗄️'],[/server/i,'🖥️'],[/masa depan|studi|kartu/i,'🎓'],[/data/i,'📂']],ICID={kalkulator:'🧮',kalender:'📅',dash:'🏠',users:'👥',mapel:'📘',m_siswa:'🎒',m_guru:'👩‍🏫',db:'💾',tugas:'📝',nilai:'🏅',khs:'🎓',absen:'✅',absenguru:'🧑‍🏫',rekab:'📊',jurnal:'📖',jadwal:'🕒',kaih:'🌟',tugasekskul:'⚽',nilaiekskul:'🥇',pesertaekskul:'🧑‍🤝‍🧑',modul:'📘',bahan:'📚',media:'🎬',keu:'💰',kas:'💵',adiwiyata:'🌱',infaq:'🤲',game:'🎮',pengumuman:'📢',tampilan:'🎨',soal:'🧾',umum:'⚙️',urutmenu:'↕️',ljk:'🖨️',kartu:'🪪',surat:'✉️',prestasi:'🏆',dokumen:'📁',ekskul:'🏅',cpatp:'🎯',ping:'📡',server:'🖥️',profilsaya:'🙋',profilguru:'👩‍🏫',sapansa:'🔗',sekolah:'🏫',koperasi:'🛒',koptagih:'💳'},
 ic=(t,id)=>ICID[id]||(IC.find(x=>x[0].test(t))||[0,'📁'])[1];
-Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬'});IC.unshift([/^convert$/i,'🧾']);
+Object.assign(ICID,{cv_org:'🗂️',cv_opt:'⚡',cv_conv:'🔄',cv_edit:'✏️',cv_sec:'🔐',cv_ai:'🤖',cv_video:'🎬',cv_img:'🖼️',cv_util:'🧰'});IC.unshift([/^convert$/i,'🧾']);
 let FL={},UF='',KS='',KSM='',KKH='',KD='',KK='',JK='',JB=[{a:4,m:15}],RM='',RK='siswa',PW=false,EI=null;
 const JENIS=['Ulangan Harian','Praktek','UTS/ASTS','UAS/ASAS'];
 const HAB=['Bangun Pagi','Beribadah','Berolahraga','Makan Sehat dan Bergizi','Gemar Belajar','Bermasyarakat','Tidur Cepat'];
@@ -280,13 +280,13 @@ const pred=n=>n===''||n==null?'':n>=90?'A':n>=80?'B':n>=70?'C':'D';
 const KLS=()=>['Semua Kelas',...new Set(DB.users.filter(u=>u.r=='siswa'&&u.k).map(u=>u.k))];
 const EK0=()=>['Pramuka','Futsal','Seni Tari','Tilawah'].map(x=>({Ekstrakurikuler:x,Pembina:''})),NK=['mapel','cpatp','absenguru','ekskul','surat'];
 const KSTD=[['Pendidikan Agama dan Budi Pekerti','1-6'],['Pendidikan Pancasila','1-6'],['Bahasa Indonesia','1-6'],['Matematika','1-6'],['PJOK','1-6'],['Seni dan Budaya','1-6'],['Muatan Lokal (Bahasa Jawa)','1-6'],['IPAS','3-6'],['Bahasa Inggris','3-6']],MP0=()=>KSTD.map((x,i)=>({Kode:'M'+(i+1),Mapel:x[0],Kelas:x[1]}));
-const CVMENU=G('Convert',[L('cv_org','Organize PDF'),L('cv_opt','Optimize PDF'),L('cv_conv','Convert PDF'),L('cv_edit','Edit PDF'),L('cv_sec','PDF Security'),L('cv_ai','PDF Intelligence'),L('cv_video','Video to')]);
+const CVMENU=G('Convert',[L('cv_org','Organize PDF'),L('cv_opt','Optimize PDF'),L('cv_conv','Convert PDF'),L('cv_edit','Edit PDF'),L('cv_sec','PDF Security'),L('cv_ai','PDF Intelligence'),L('cv_video','Video Audio'),L('cv_img','Gambar'),L('cv_util','Dokumen & Utilitas')]);
 const M={
 siswa:[L('dash','Dashboard'),
  G('Masa Depanku',[L('absen','Absensiku'),L('tugas','Tugasku'),L('tugasekskul','Tugas Ekstrakurikuler'),L('khs','Perkembanganku / Kartu Hasil Studi')]),
  L('kaih','7KAIH (7 Kebiasaan Anak Indonesia Hebat)'),L('koptagih','Koperasiku (Tagihan)'),
  G('Agendaku',[L('jadwal','Jadwal Pelajaran'),L('jurnal','Agenda Jurnal Kelas'),L('mapel','Mata Pelajaran Dipelajari')]),
- L('game','Permainan Edukasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),CVMENU]),G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG],
+ L('game','Permainan Edukasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG],
 guru:[L('dash','Dashboard'),
  G('Administrasiku',[G('Tugas & Penilaian',[L('tugas','Tugas Kelas'),L('nilai','Penilaian Kelas'),L('khs','Kartu Hasil Studi')])]),
  G('Absensiku',[L('absen','Absensi Kelasku'),L('absenguru','Absensi Guruku'),L('rekab','Rekap Absensi')]),
@@ -295,7 +295,7 @@ guru:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajarku Terintegrasi AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),CVMENU]),G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan')]),TENTANG],
+ L('game','Permainan Edukasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan')]),TENTANG],
 admin:[L('dash','Dashboard'),
  G('Master Database',[L('users','Manajemen Pengguna'),L('m_siswa','Master Siswa'),L('m_guru','Master Guru'),L('mapel','Master Mata Pelajaran'),L('cpatp','Master CP & ATP'),L('ekskul','Master Ekstrakurikuler'),L('prestasi','Master Prestasi'),L('game','Master Permainan'),L('dokumen','Master Dokumen'),L('db','DataBase IE')]),
  G('Administrasi',[L('tugas','Tugas'),L('nilai','Penilaian'),L('khs','Kartu Hasil Studi')]),
@@ -304,8 +304,8 @@ admin:[L('dash','Dashboard'),
  G('Ekstrakurikuler',[L('tugasekskul','Tugas Ekstrakurikuler'),L('nilaiekskul','Penilaian Ekstrakurikuler'),L('pesertaekskul','Peserta Ekstrakurikuler')]),
  G('Perangkat Ajar AI',[L('soal','Soal Ujian'),L('ljk','Lembar Jawab & Scan AI'),L('modul','Modul Ajar'),L('bahan','Bahan Ajar'),L('media','Media Ajar')]),
  L('keu','Keuangan Kelas'),L('kartu','Cetak Kartu'),L('surat','Surat'),
- L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),CVMENU]),G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan'),L('urutmenu','Urutkan Menu'),L('server','Server')]),TENTANG],
-koperasi:[L('dash','Dashboard'),L('koperasi','Koperasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender'),CVMENU]),G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG]};
+ L('koperasi','Koperasi'),L('pengumuman','Pengumuman'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum'),L('tampilan','Tampilan'),L('ping','Ping Jaringan'),L('urutmenu','Urutkan Menu'),L('server','Server')]),TENTANG],
+koperasi:[L('dash','Dashboard'),L('koperasi','Koperasi'),G('Alat',[L('kalkulator','Kalkulator'),L('kalender','Kalender')]),CVMENU,G('Pengaturan',[L('umum','Pengaturan Umum')]),TENTANG]};
 const AB=['Tanggal','Nama','Status','Keterangan'],NOFORM={nilai:['Sumber']},
 COL={bahan:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],media:['Judul','Mapel','Kelas','Link','Bagikan','Pemilik'],modul:['Judul','Mapel','Kelas','Fase','Alokasi','Pemilik'],soal:['Judul','Kelas','Mapel','Tanggal','Menit','Jumlah Soal','Pemilik'],surat:['Tanggal','Jenis','Nomor','Hal','Kepada','Lampiran','Pemilik'],prestasi:['Kelas','Nama','Prestasi','Tingkat','Tahun','Keterangan'],absen:['Tanggal','Kelas','Nama','Status','Poin','Keterangan'],absenguru:['Tanggal','Nama','Jenis','Status','Jam','Keterangan','Lokasi'],tugasekskul:['Kelas','Ekskul','Pertemuan','Judul','Tenggat','Metode','Status'],nilaiekskul:['Kelas','Nama','Ekskul','Nilai','Catatan'],pesertaekskul:['Ekskul','Kelas','Nama'],ekskul:['Ekstrakurikuler','Pembina'],tugas:['Kelas','Mapel','Pertemuan','Judul','Kategori','Semester','Tenggat','Lampiran','Status'],cpatp:['Mapel','CP','ATP'],nilai:['Nama','Tugas','Jenis','Mapel','Nilai','Sumber'],
  kaih:['Tanggal','Kelas','Nama',...HAB],jadwal:['Hari','Jam','Mapel','Guru'],mapel:['Kode','Mapel'],
@@ -1966,8 +1966,10 @@ function cloudP(el){el.innerHTML=`<b>☁️ Penyimpanan Cloud (Supabase)</b> <sm
 -- Seluruh data aplikasi disimpan di dokumen JSON pada tabel kv:
 --   mysapansa_db   -&gt; semua data (pengguna, master, absensi, tugas, nilai, surat, pengaturan)
 --   mysapansa_pres -&gt; status online pengguna
--- Fitur baru TIDAK memerlukan tabel/kolom baru. Menu Convert &gt; Video to
--- memproses file di perangkat masing-masing, jadi tidak menyimpan apa pun di sini.
+-- Menu Convert (Video Audio, Gambar, Dokumen &amp; Utilitas) memproses file di
+-- perangkat masing-masing, jadi file TIDAK disimpan di sini. Yang disimpan hanya
+-- riwayat singkat (nama file, ukuran, waktu) pada baris kv id = mysapansa_cv
+-- agar Riwayat Convert sama di semua perangkat. Tidak ada tabel/kolom baru.
 -- =====================================================================
 
 -- 1. Tabel penyimpanan utama
@@ -2046,9 +2048,9 @@ drop policy if exists "kv_update" on public.kv;
 create policy "kv_select" on public.kv
   for select to anon, authenticated using (true);
 create policy "kv_insert" on public.kv
-  for insert to anon, authenticated with check (id in ('mysapansa_db','mysapansa_pres'));
+  for insert to anon, authenticated with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv'));
 create policy "kv_update" on public.kv
-  for update to anon, authenticated using (true) with check (id in ('mysapansa_db','mysapansa_pres'));
+  for update to anon, authenticated using (true) with check (id in ('mysapansa_db','mysapansa_pres','mysapansa_cv'));
 
 -- 5. Hak akses (tanpa hak hapus: data tidak bisa terhapus lewat API)
 grant usage on schema public to anon, authenticated;
@@ -2136,6 +2138,11 @@ create trigger kv_saring_contoh_trg
 update public.kv set data = public.kv_buang_contoh(data)
 where id = 'mysapansa_db' and data is distinct from public.kv_buang_contoh(data);
 
+-- 7b. Baris riwayat Convert (dibaca/ditulis menu Convert &gt; Dokumen &amp; Utilitas &gt; Riwayat)
+insert into public.kv (id, data)
+values ('mysapansa_cv', '{"h": []}'::jsonb)
+on conflict (id) do nothing;
+
 -- 8. Muat ulang skema API agar perubahan langsung berlaku
 notify pgrst, 'reload schema';
 
@@ -2144,6 +2151,7 @@ notify pgrst, 'reload schema';
 -- ---------------------------------------------------------------------
 
 -- A. Harus muncul 3 kebijakan: kv_select, kv_insert, kv_update
+--    (kv_insert dan kv_update kini mengizinkan id mysapansa_db, mysapansa_pres, mysapansa_cv)
 select policyname, cmd from pg_policies where schemaname = 'public' and tablename = 'kv';
 
 -- A2. Harus menghasilkan 0 (tidak ada lagi akun contoh)
@@ -2718,7 +2726,7 @@ function edOpen(){const v=$('#view');if(!v||!me)return false;
 
 /* ============================================================================
    CONVERT  (setara iLovePDF, semua diproses di browser, file tidak diunggah)
-   Menu: Alat > Convert > 7 halaman (Organize, Optimize, Convert PDF, Edit, Security, Intelligence, Video to)
+   Menu: Convert (menu sendiri) > 9 halaman (Organize, Optimize, Convert PDF, Edit, Security, Intelligence, Video Audio, Gambar, Dokumen & Utilitas)
    ============================================================================ */
 const CV_LIB={
  pdflib:{u:['https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js','https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js'],g:()=>window.PDFLib},
@@ -2828,7 +2836,7 @@ function cvTool(el,T){
   if(fs.length<min)return alert(min>1?'Pilih minimal '+min+' file.':'Pilih file terlebih dahulu.');
   go.disabled=true;cvOut(out,[]);cvStatus(st,'Menyiapkan…',0);
   try{await cvLoad(...(T.lib||[]));const o=cvOptsGet(el,P,T.opt||[]);const P2=(m,p)=>cvStatus(st,m,p);
-   const r=await T.run(fs,o,P2,el);cvStatus(st,'');cvOut(out,r.outs||r,r.note)}
+   const r=await T.run(fs,o,P2,el);cvStatus(st,'');cvOut(out,r.outs||r,r.note);cvLog(T,fs,r.outs||r)}
   catch(e){console.error(e);cvStatus(st,e.message||String(e),null,1)}
   go.disabled=false};
  return{F,el}}
@@ -2842,7 +2850,9 @@ const CVG={
  cv_edit:{t:'Edit PDF',i:'✏️',d:'Tambah teks, gambar, bentuk, nomor halaman, tanda air, dan potong halaman.',tools:['edit','pagenum','watermark','crop']},
  cv_sec:{t:'PDF Security',i:'🔐',d:'Buka kunci, beri kata sandi, tanda tangan, sensor informasi, dan bandingkan dokumen.',tools:['unlock','protect','sign','redact','compare']},
  cv_ai:{t:'PDF Intelligence',i:'🤖',d:'Ringkasan AI, terjemahan, OCR, ekstraksi konten, formulir, pindai, dan alur kerja.',tools:['summarize','translate','qa','ocr','pdf2md','pdfextract','forms','scan','workflow']},
- cv_video:{t:'Video to',i:'🎬',d:'Ubah video menjadi format video lain, audio, atau GIF animasi.',tools:['v2video','v2audio','v2gif']}
+ cv_video:{t:'Video Audio',i:'🎬',d:'Ubah, kompres, potong, gabung, dan olah video, audio, serta GIF.',tools:['v2video','v2audio','v2gif','kompres','trim','cropv','rotv','mute','merge2','gifmk','gif2mp4']},
+ cv_img:{t:'Gambar',i:'🖼️',d:'Ubah ukuran, potong, putar, tanda air, editor foto, meme, perbesar, hapus latar, sensor wajah, dan lainnya.',tools:['imgconv','resizeimg','cropimg','rotimg','wmimg','imged','meme','upscale','rembg','blurface','html2img','colorpick','collage']},
+ cv_util:{t:'Dokumen & Utilitas',i:'🧰',d:'Spreadsheet, dokumen, ebook, arsip ZIP, satuan, zona waktu, dan riwayat Convert.',tools:['sheetcv','doccv','ebook','arsip','unit','waktu','riwayat']}
 };
 let CVT={};
 function cvPage(pg){return v=>{cvStop();v.onclick=v.onchange=v.oninput=v.onkeydown=null;const G=CVG[pg],ts=G.tools.filter(k=>CVX[k]);
@@ -2857,7 +2867,7 @@ const CVP={};Object.keys(CVG).forEach(k=>CVP[k]=cvPage(k));
 /* Konversi video dengan FFmpeg (WebAssembly) di perangkat pengguna; file tidak diunggah. */
 const VT_BASE=['https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/','https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/'];
 const VT_MAX=1.5*1024*1024*1024,VT_WARN=300*1024*1024;
-const VT_ACC='video/*,.mp4,.mov,.mkv,.avi,.webm,.wmv,.flv,.mpeg,.mpg,.3gp,.m4v,.ts';
+const VT_ACC='video/*,.mp4,.mov,.mkv,.avi,.webm,.wmv,.flv,.mpeg,.mpg,.3gp,.m4v,.ts',VT_ACCA=VT_ACC+',audio/*,.mp3,.wav,.aac,.flac,.ogg,.wma,.m4a';
 const VT_EVEN='scale=trunc(iw/2)*2:trunc(ih/2)*2';
 /* format: [label, MIME, argumen codec] */
 const VT_V={
@@ -2902,7 +2912,7 @@ onmessage=async e=>{const d=e.data;try{
  importScripts(d.js);
  core=await createFFmpegCore({mainScriptUrlOrBlob:d.js+'#'+btoa(JSON.stringify({wasmURL:d.wasm,workerURL:''}))});
  core.setLogger(m=>{tail.push(m.message);if(tail.length>40)tail.shift();postMessage({log:m.message})});
- core.FS.mkdir('/in');core.FS.mount(core.FS.filesystems.WORKERFS,{blobs:[{name:d.name,data:d.file}]},'/in');
+ core.FS.mkdir('/in');core.FS.mount(core.FS.filesystems.WORKERFS,{blobs:d.files||[{name:d.name,data:d.file}]},'/in');
  core.exec(...d.args);
  if(core.ret!==0)throw new Error(tail.join('\\n'));
  const out=core.FS.readFile(d.args[d.args.length-1]);
@@ -2926,7 +2936,7 @@ function vtError(t){
  if(/Invalid data found|moov atom not found/i.test(t))return'File rusak atau bukan video yang dikenali.';
  return'Konversi gagal: '+(t.split('\n').map(s=>s.trim()).filter(Boolean).slice(-3).join(' · ')||'kesalahan tidak diketahui')}
 /* menjalankan satu konversi; mengembalikan {p: Promise<Uint8Array>, stop()} */
-function vtRun(core,file,name,args,P){
+function vtRun(core,file,name,args,P,files){
  const url=URL.createObjectURL(new Blob([VT_WORKER],{type:'text/javascript'}));let w,rej;
  const stop=()=>{if(w){w.terminate();w=null;URL.revokeObjectURL(url)}};
  const p=new Promise((ok,no)=>{rej=no;w=new Worker(url);let total=0;
@@ -2936,7 +2946,7 @@ function vtRun(core,file,name,args,P){
     if(t){const all=Math.max(0,total-skip),len=limit?Math.min(limit,all||limit):all;P('Mengonversi… '+t[1],len?Math.min(1,vtSec(t[1])/len):null)}}
    else if(d.done){stop();ok(d.done)}else if(d.err){stop();no(new Error(vtError(d.err)))}};
   w.onerror=e=>{e.preventDefault();stop();no(new Error(vtError(e.message||'mesin konversi gagal dimuat')))};
-  P('Menyalakan mesin konversi…',null);w.postMessage({js:core.js,wasm:core.wasm,file,name,args})});
+  P('Menyalakan mesin konversi…',null);w.postMessage({js:core.js,wasm:core.wasm,file,name,args,files})});
  return{p,stop:()=>{if(!w)return;stop();rej(new Error('Konversi dibatalkan.'))}}}
 
 const vtYT=u=>/^(https?:\/\/)?([\w-]+\.)*(youtube\.com|youtu\.be|youtube-nocookie\.com)([/?]|$)/i.test(u.trim());
@@ -2963,7 +2973,7 @@ function vtUI(el,T){
  const q=s=>el.querySelector(s),link=q('#vtl'),yt=q('#vtyt'),st=q('#vtst'),out=q('#vtout'),pv=q('#vtpv'),go=q('#vtgo'),bs=q('#vtstop');
  let cur=null,prev='',dead=false;
  const clearOut=()=>{cvOut(out,[]);pv.innerHTML='';if(prev){URL.revokeObjectURL(prev);prev=''}};
- const F=cvFiles(q('#vtfz'),{acc:VT_ACC,accLabel:'MP4, MOV, MKV, AVI, WebM, WMV, FLV, MPEG, 3GP',label:'Pilih file video',icon:'🎬',onChange:fs=>{clearOut();cvStatus(st,fs[0]&&fs[0].size>VT_WARN?'File cukup besar ('+cvKB(fs[0].size)+'). Di HP konversi bisa lambat atau kehabisan memori.':'')}});
+ const F=cvFiles(q('#vtfz'),{acc:T.kind=='audio'?VT_ACCA:VT_ACC,accLabel:'MP4, MOV, MKV, AVI, WebM, WMV, FLV, MPEG, 3GP'+(T.kind=='audio'?', MP3, WAV, AAC, FLAC, OGG':''),label:T.kind=='audio'?'Pilih file video / audio':'Pilih file video',icon:'🎬',onChange:fs=>{clearOut();cvStatus(st,fs[0]&&fs[0].size>VT_WARN?'File cukup besar ('+cvKB(fs[0].size)+'). Di HP konversi bisa lambat atau kehabisan memori.':'')}});
  cvOptsBind(el,P,T.opt);bs.disabled=true;
  link.oninput=()=>{const u=link.value.trim();if(!vtYT(u)){yt.innerHTML='';return}const id=vtYTid(u);
   yt.innerHTML=`<div class="cvst">${id?`<iframe title="Pratinjau YouTube" src="https://www.youtube-nocookie.com/embed/${id}" style="width:100%;max-width:420px;aspect-ratio:16/9;border:0;display:block;margin-bottom:6px" allowfullscreen></iframe>`:''}<b>Video YouTube tidak bisa diunduh atau dikonversi langsung dari tautan.</b><br>Ketentuan YouTube melarang pengunduhan tanpa izin, dan browser pun memblokirnya. Bila ini video milik Anda/sekolah: buka <a href="https://studio.youtube.com" target="_blank" rel="noopener">YouTube Studio</a> → Konten → ⋮ → <b>Download</b>, lalu pilih file-nya di bawah ini.</div>`};
@@ -2988,7 +2998,7 @@ function vtUI(el,T){
    const data=await run.p;check();
    if(!data.length)throw new Error('Hasil kosong. Periksa waktu mulai/selesai.');
    const mime=T.kind=='gif'?'image/gif':(T.kind=='audio'?VT_A:VT_V)[o.fmt][1],blob=new Blob([data],{type:mime}),nm=cvBase(file.name)+'.'+o.fmt;
-   cvStatus(st,'');cvOut(out,[{name:nm,blob}],cvKB(file.size)+' → '+cvKB(blob.size));
+   cvStatus(st,'');cvOut(out,[{name:nm,blob}],cvKB(file.size)+' → '+cvKB(blob.size));cvLog(T,[file],[{blob}]);
    if(T.kind=='gif'||/^(mp4|webm|mp3|wav|ogg|aac|flac)$/.test(o.fmt)){prev=URL.createObjectURL(blob);pv.innerHTML=T.kind=='gif'?`<img src="${prev}" alt="Pratinjau GIF" style="max-width:100%">`:`<${T.kind} controls playsinline src="${prev}" style="width:100%;max-width:480px"></${T.kind}>`}
   }catch(e){console.error(e);if(!dead)cvStatus(st,e.message||String(e),null,1)}
   VT_BUSY=false;cur=null;go.disabled=false;bs.disabled=true};
@@ -2997,10 +3007,201 @@ function vtUI(el,T){
 const VT_CUT=[['mulai','Mulai dari (opsional)','text','mis. 0:10',''],['akhir','Sampai (opsional)','text','mis. 1:30','']];
 CVX.v2video={id:'v2video',kind:'video',t:'Video ke Video',i:'🎬',d:'Ubah format video: MP4, MOV, MKV, AVI, WebM, WMV, FLV, MPEG/MPG, dan 3GP.',ui:vtUI,
  opt:[['fmt','Format tujuan','select',Object.keys(VT_V).map(k=>[k,VT_V[k][0]]),'mp4'],['res','Resolusi (tinggi)','select',[['','Asli (3GP: 240p)'],['1080','1080p'],['720','720p'],['480','480p'],['360','360p'],['240','240p']],'720'],['mutu','Kualitas','select',[['tinggi','Tinggi (file besar)'],['sedang','Sedang'],['kecil','Hemat ukuran']],'sedang'],...VT_CUT]};
-CVX.v2audio={id:'v2audio',kind:'audio',t:'Ekstrak Audio',i:'🎵',d:'Ambil suara dari video menjadi MP3, WAV, AAC, FLAC, WMA, atau OGG.',ui:vtUI,
+CVX.v2audio={id:'v2audio',kind:'audio',t:'Ubah / Ekstrak Audio',i:'🎵',d:'Ambil suara dari video, atau ubah format file audio, menjadi MP3, WAV, AAC, FLAC, WMA, atau OGG.',ui:vtUI,
  opt:[['fmt','Format audio','select',Object.keys(VT_A).map(k=>[k,VT_A[k][0]]),'mp3'],['br','Bitrate (tidak berlaku untuk WAV/FLAC)','select',[['320k','320 kbps'],['192k','192 kbps'],['128k','128 kbps'],['96k','96 kbps']],'192k'],...VT_CUT]};
 CVX.v2gif={id:'v2gif',kind:'gif',t:'Video ke GIF',i:'🖼️',d:'Jadikan cuplikan singkat sebagai GIF animasi untuk chat atau media sosial (maks. 60 detik).',ui:vtUI,
  opt:[['fmt','Format','select',[['gif','GIF']],'gif'],['mulai','Mulai dari (opsional)','text','mis. 0:10',''],['durasi','Durasi (detik)','number',[1,60],5],['lebar','Lebar','select',[['320','320 px'],['480','480 px'],['640','640 px']],'480'],['fps','Gerak (fps)','select',[['8','8'],['10','10'],['15','15']],'10']]};
+
+/* ============================ TAMBAHAN: Kompres, Gambar (iLoveIMG), Video/Audio+ & Utilitas (FreeConvert) ============================ */
+Object.assign(CV_LIB,{heic:{u:['https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js','https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js'],g:()=>window.heic2any}});
+
+/* ---------- riwayat Convert: lokal + sinkron cloud (kv id mysapansa_cv) ---------- */
+const CVH_K='mysapansa_cvh';
+async function cvCloud(a){if(!CL.on||!CL.url||!CL.key)return;try{const r=await fetch(cU()+'?id=eq.mysapansa_cv&select=data',{headers:cH()}),x=r.ok?await r.json():[],old=(x[0]&&x[0].data&&x[0].data.h)||[],m=[...a,...old.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t).slice(0,300);
+ await fetch(cU()+'?on_conflict=id',{method:'POST',headers:{...cH(),Prefer:'resolution=merge-duplicates'},body:JSON.stringify({id:'mysapansa_cv',data:{h:m},updated_at:new Date().toISOString()})})}catch(e){}}
+function cvLog(T,fs,outs){try{const a=JSON.parse(localStorage.getItem(CVH_K)||'[]');
+ a.unshift({t:Date.now(),a:T.t,u:(me&&(me.n||me.u))||'',f:[...fs].map(f=>f.name).slice(0,3).join(', '),s:[...fs].reduce((n,f)=>n+f.size,0),h:(outs||[]).reduce((n,o)=>n+(o&&o.blob?o.blob.size:0),0)});
+ const b=a.slice(0,200);localStorage.setItem(CVH_K,JSON.stringify(b));cvCloud(b)}catch(e){}}
+
+/* ---------- mesin FFmpeg umum (banyak file masuk, satu file keluar) ---------- */
+async function vxRun(fs,mk,P,ext){
+ if(VT_BUSY)throw new Error('Masih ada proses video/audio lain yang berjalan.');
+ if(!window.Worker||!window.WebAssembly)throw new Error('Browser ini belum mendukung pemrosesan video/audio. Perbarui browser Anda.');
+ VT_BUSY=true;
+ try{const core=await vtCore(P),L=fs.map((f,i)=>({name:'i'+i+'.'+((/\.([a-z0-9]{1,5})$/i.exec(f.name)||[])[1]||'bin').toLowerCase(),data:f}));
+  const run=vtRun(core,fs[0],L[0].name,[...mk(L.map(x=>'/in/'+x.name)),'hasil.'+ext],P,L);CV_STOP.push(run.stop);
+  const d=await run.p;if(!d.length)throw new Error('Hasil kosong. Periksa pengaturan Anda.');return d}
+ finally{VT_BUSY=false}}
+const VX_V=['-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-c:a','aac','-movflags','+faststart'],VX_A=['-c:a','libmp3lame','-b:a','192k'],
+ vxV=vf=>['-vf',(vf?vf+',':'')+'scale=trunc(iw/2)*2:trunc(ih/2)*2',...VX_V],
+ VX_ACC='video/*,audio/*,.mp4,.mov,.mkv,.avi,.webm,.wmv,.flv,.mpeg,.mpg,.3gp,.mp3,.wav,.aac,.flac,.ogg,.m4a,.wma',
+ vxAu=f=>/^audio\//.test(f.type)||/\.(mp3|wav|aac|flac|ogg|m4a|wma)$/i.test(f.name);
+const vxT=(id,t,i,d,o)=>CVX[id]={id,t,i,d,lib:[],acc:VX_ACC,accLabel:'Video / audio',fi:'🎬',...o,
+ run:async(fs,op,P)=>{const outs=[];
+  for(const g of o.multi?[fs]:fs.map(f=>[f])){const au=vxAu(g[0]),e=o.ext?o.ext(op,au):(au?'mp3':'mp4'),d=await vxRun(g,n=>o.mk(n,op,au),P,e);
+   outs.push({name:cvBase(g[0].name)+'_'+id+'.'+e,blob:new Blob([d],{type:(e=='gif'?'image/':au?'audio/':'video/')+(e=='mp3'?'mpeg':e)})})}
+  return outs}};
+vxT('trim','Potong (Trim)','✂️','Potong bagian video atau audio: isi waktu mulai dan/atau selesai (mis. 0:10 atau 90).',{opt:VT_CUT,
+ mk:(n,o,au)=>{const a=vtTime(o.mulai),b=vtTime(o.akhir);if(a==null&&b==null)throw new Error('Isi waktu mulai dan/atau selesai.');if(a!=null&&b!=null&&b<=a)throw new Error('Waktu selesai harus lebih besar dari waktu mulai.');
+  return['-hide_banner','-y',...(a?['-ss',''+a]:[]),'-i',n[0],...(b!=null?['-t',''+(b-(a||0))]:[]),...(au?VX_A:vxV())]}});
+vxT('cropv','Crop Video','📐','Potong bingkai video menurut piksel (area di tengah bila X/Y = 0). Contoh persegi 1:1 dari video 1920×1080: lebar 1080, tinggi 1080.',{acc:'video/*,.mp4,.mov,.mkv,.avi,.webm,.3gp',accLabel:'Video',
+ opt:[['w','Lebar (px)','number',[16,8000],720],['h','Tinggi (px)','number',[16,8000],720],['x','Mulai X (px)','number',[0,8000],0],['y','Mulai Y (px)','number',[0,8000],0]],
+ mk:(n,o)=>['-hide_banner','-y','-i',n[0],...vxV(`crop=${o.w}:${o.h}`+(o.x||o.y?`:${o.x}:${o.y}`:''))]});
+vxT('rotv','Putar & Balik Video','🔄','Putar 90°/180° atau balik (cermin) video.',{acc:'video/*,.mp4,.mov,.mkv,.avi,.webm,.3gp',accLabel:'Video',
+ opt:[['r','Putar','select',[['','Tidak'],['transpose=1','90° searah jarum jam'],['transpose=2','90° berlawanan'],['transpose=1,transpose=1','180°']],'transpose=1'],['f','Balik','select',[['','Tidak'],['hflip','Horizontal (cermin)'],['vflip','Vertikal']],'']],
+ mk:(n,o)=>{const f=[o.r,o.f].filter(Boolean).join(',');if(!f)throw new Error('Pilih putar atau balik.');return['-hide_banner','-y','-i',n[0],...vxV(f)]}});
+vxT('mute','Hapus Suara Video','🔇','Hilangkan jalur suara dari video.',{acc:'video/*,.mp4,.mov,.mkv,.avi,.webm,.3gp',accLabel:'Video',
+ mk:n=>['-hide_banner','-y','-i',n[0],'-an','-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2','-c:v','libx264','-preset','ultrafast','-crf','24','-pix_fmt','yuv420p','-movflags','+faststart']});
+vxT('merge2','Gabung Video / Audio','🔗','Gabungkan beberapa video atau beberapa audio berurutan (atur urutan dengan ▲ ▼). Pilih satu jenis saja; video disamakan ke 1280×720.',{multi:1,min:2,
+ mk:(n,o,au)=>{const I=n.flatMap(x=>['-i',x]),N=n.length;
+  return au?['-hide_banner','-y',...I,'-filter_complex',n.map((_,i)=>`[${i}:a]`).join('')+`concat=n=${N}:v=0:a=1[a]`,'-map','[a]',...VX_A]
+  :['-hide_banner','-y',...I,'-filter_complex',n.map((_,i)=>`[${i}:v]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30[v${i}];[${i}:a]aresample=44100[a${i}]`).join(';')+';'+n.map((_,i)=>`[v${i}][a${i}]`).join('')+`concat=n=${N}:v=1:a=1[v][a]`,'-map','[v]','-map','[a]',...VX_V]}});
+vxT('gifmk','GIF Maker (Gambar ke GIF)','🎞️','Susun beberapa gambar menjadi GIF animasi; urutan mengikuti daftar (▲ ▼).',{multi:1,min:1,acc:'image/*',accLabel:'Gambar (JPG, PNG, WebP, BMP)',fi:'🎞️',ext:()=>'gif',
+ opt:[['dur','Detik per gambar','number',[1,10],1],['w','Lebar GIF','select',[['320','320 px'],['480','480 px'],['640','640 px']],'480']],
+ mk:(n,o)=>{const W=+o.w,H=Math.round(W*9/32)*2;
+  return['-hide_banner','-y',...n.flatMap(x=>['-loop','1','-t',''+o.dur,'-i',x]),'-filter_complex',n.map((_,i)=>`[${i}:v]scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:white,setsar=1,fps=10[v${i}]`).join(';')+';'+n.map((_,i)=>`[v${i}]`).join('')+`concat=n=${n.length}:v=1:a=0,split[x][y];[x]palettegen[p];[y][p]paletteuse`,'-loop','0']}});
+vxT('gif2mp4','GIF ke MP4','🎥','Ubah GIF animasi menjadi video MP4 (lebih kecil dan mudah dibagikan).',{acc:'image/gif,.gif',accLabel:'GIF',fi:'🖼️',mk:n=>['-hide_banner','-y','-i',n[0],...vxV()]});
+
+/* ---------- Kompres: gambar, video, audio ---------- */
+const IMF=[['auto','Sama seperti asli'],['jpg','JPG'],['png','PNG'],['webp','WebP']],IMT={jpg:'image/jpeg',png:'image/png',webp:'image/webp'};
+const imgFlat=c=>{const d=document.createElement('canvas');d.width=c.width;d.height=c.height;const x=d.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,d.width,d.height);x.drawImage(c,0,0);return d};
+const imgBlob=(c,e,q)=>new Promise(r=>(e=='jpg'?imgFlat(c):c).toBlob(b=>r(b),IMT[e],q/100));
+const imgNew=(w,h)=>{const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));const x=c.getContext('2d');x.imageSmoothingQuality='high';return[c,x]};
+async function imgC(f,max){
+ if(/heic|heif/i.test(f.type+f.name)){await cvLoad('heic');const r=await heic2any({blob:f,toType:'image/png'});f=Array.isArray(r)?r[0]:r}
+ let bm;try{bm=await createImageBitmap(f,{imageOrientation:'from-image'})}catch(e){const u=URL.createObjectURL(f);bm=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no(new Error('Gambar tidak dapat dibaca: '+(f.name||'file')));i.src=u})}
+ const w=bm.width||bm.naturalWidth||800,h=bm.height||bm.naturalHeight||600,s=max?Math.min(1,max/Math.max(w,h)):1,[c,x]=imgNew(w*s,h*s);x.drawImage(bm,0,0,c.width,c.height);return c}
+CVX.kompres={id:'kompres',t:'Kompres',i:'🗜️',d:'Perkecil ukuran gambar, video, dan audio sekaligus; tiap file diproses sesuai jenisnya. Bila hasil tidak lebih kecil, file asli dipakai.',multi:1,lib:[],
+ acc:'image/*,video/*,audio/*,.heic,.heif,.mp4,.mov,.mkv,.avi,.webm,.mp3,.wav,.aac,.flac,.ogg,.m4a',accLabel:'Gambar, video, audio',fi:'🗜️',
+ opt:[['q','Tingkat kompresi','select',[['ringan','Ringan (kualitas tinggi)'],['sedang','Sedang (disarankan)'],['kuat','Kuat (file terkecil)']],'sedang'],['mx','Gambar: sisi terpanjang maks (px, 0 = asli)','number',[0,12000],0]],
+ run:async(fs,o,P)=>{const Q={ringan:[85,23,'160k',1080],sedang:[70,28,'128k',720],kuat:[50,33,'64k',480]}[o.q],outs=[];
+  for(const[i,f]of fs.entries()){const m=i/fs.length,P1=(s,p)=>P(`[${i+1}/${fs.length}] ${s}`,p==null?m:m+p/fs.length),n=cvBase(f.name),
+    k=/^image\//.test(f.type)||/\.(jpe?g|png|webp|heic|heif|bmp)$/i.test(f.name)?'i':vxAu(f)?'a':'v';let b,e;P1('Memproses '+f.name);
+   if(k=='i'){const c=await imgC(f,o.mx||0);e=/jpe?g/i.test(f.type+f.name)?'jpg':'webp';b=await imgBlob(c,e,Q[0]);if(b.type!=IMT[e]){e='jpg';b=await imgBlob(c,e,Q[0])}}
+   else{e=k=='a'?'mp3':'mp4';const d=await vxRun([f],nm=>k=='a'?['-hide_banner','-y','-i',nm[0],'-vn','-c:a','libmp3lame','-b:a',Q[2]]
+     :['-hide_banner','-y','-i',nm[0],'-vf',`scale=-2:'trunc(min(${Q[3]},ih)/2)*2'`,'-c:v','libx264','-preset','ultrafast','-crf',''+Q[1],'-pix_fmt','yuv420p','-c:a','aac','-b:a',Q[2],'-movflags','+faststart'],P1,e);
+    b=new Blob([d],{type:k=='a'?'audio/mpeg':'video/mp4'})}
+   outs.push(b.size>=f.size?{name:f.name,blob:f,note:'sudah optimal, dipakai file asli'}:{name:n+'_kecil.'+e,blob:b,note:cvKB(f.size)+' → '+cvKB(b.size)+' (−'+Math.round(100-b.size/f.size*100)+'%)'})}
+  return outs}};
+
+/* ---------- Gambar (setara iLoveIMG, diproses di perangkat) ---------- */
+function imgT(id,t,i,d,opt,fn,df,force){CVX[id]={id,t,i,d,multi:1,lib:[],acc:'image/*,.heic,.heif,.svg',accLabel:'Gambar (JPG, PNG, WebP, GIF, BMP, SVG, HEIC)',fi:'🖼️',
+ opt:[...opt,...(force?[]:[['fmt','Format hasil','select',df?IMF.slice(1):IMF,df||'auto'],['q','Kualitas JPG/WebP (%)','number',[10,100],90]])],
+ run:async(fs,o,P)=>{const outs=[];
+  for(const[n,f]of fs.entries()){P(f.name,n/fs.length);const x0=((/\.(\w+)$/.exec(f.name)||[])[1]||'png').toLowerCase(),
+    e=force||(o.fmt=='auto'?(x0=='jpeg'||x0=='jpg'?'jpg':x0=='webp'?'webp':'png'):o.fmt),c=await fn(await imgC(f),o,f);
+   outs.push({name:cvBase(f.name)+'_'+id+'.'+e,blob:await imgBlob(c,e,o.q||90)})}
+  return outs}}}
+imgT('imgconv','Konversi Gambar','🔁','Ubah gambar ke JPG, PNG, atau WebP (dari HEIC, SVG, GIF, BMP, WebP, dll.). Data EXIF/lokasi ikut terhapus.',[],c=>c,'jpg');
+imgT('resizeimg','Ubah Ukuran','📏','Perbesar atau perkecil gambar menurut persen atau piksel.',[['mode','Ukuran menurut','select',[['pct','Persen'],['px','Piksel']],'pct'],['pct','Persen (%)','number',[1,800],50],['w','Lebar (px)','number',[1,20000],1280],['h','Tinggi (px, 0 = ikuti rasio)','number',[0,20000],0]],
+ (c,o)=>{const w=o.mode=='pct'?c.width*o.pct/100:o.w,h=o.mode=='pct'?c.height*o.pct/100:o.h||c.height*o.w/c.width;if(w*h>8e7)throw new Error('Ukuran hasil terlalu besar.');const[d,x]=imgNew(w,h);x.drawImage(c,0,0,d.width,d.height);return d});
+imgT('cropimg','Potong Gambar','✂️','Potong menurut rasio (di tengah) atau area bebas dalam persen.',[['r','Rasio','select',[['free','Bebas (isi area di bawah)'],['1','1:1'],['1.3333','4:3'],['0.75','3:4'],['1.7778','16:9'],['0.5625','9:16']],'1'],['x','Bebas: mulai X (%)','number',[0,99],0],['y','Bebas: mulai Y (%)','number',[0,99],0],['w','Bebas: lebar (%)','number',[1,100],100],['h','Bebas: tinggi (%)','number',[1,100],100]],
+ (c,o)=>{let x,y,w,h;if(o.r=='free'){x=c.width*o.x/100;y=c.height*o.y/100;w=c.width*Math.min(o.w,100-o.x)/100;h=c.height*Math.min(o.h,100-o.y)/100}else{const r=+o.r;w=Math.min(c.width,c.height*r);h=w/r;x=(c.width-w)/2;y=(c.height-h)/2}
+  const[d,g]=imgNew(w,h);g.drawImage(c,x,y,w,h,0,0,d.width,d.height);return d});
+imgT('rotimg','Putar & Balik Gambar','🔄','Putar 90°/180°/270° dan/atau balik gambar.',[['a','Putar','select',[['0','Tidak'],['90','90° kanan'],['180','180°'],['270','90° kiri']],'90'],['f','Balik','select',[['','Tidak'],['h','Horizontal'],['v','Vertikal']],'']],
+ (c,o)=>{const a=+o.a,sw=a%180,[d,x]=imgNew(sw?c.height:c.width,sw?c.width:c.height);x.translate(d.width/2,d.height/2);x.rotate(a*Math.PI/180);x.scale(o.f=='h'?-1:1,o.f=='v'?-1:1);x.drawImage(c,-c.width/2,-c.height/2);return d});
+imgT('wmimg','Tanda Air Gambar','💧','Tambahkan tanda air berupa teks atau logo.',[['t','Teks tanda air','text','mis. © SMPN 1',''],['logo','Atau logo (gambar)','file','image/*'],['s','Lebar tanda air (% lebar gambar)','number',[2,100],25],['op','Opasitas (%)','number',[5,100],55],['pos','Posisi','select',[['c','Tengah'],['br','Kanan bawah'],['bl','Kiri bawah'],['tr','Kanan atas'],['tl','Kiri atas'],['tile','Ubin berulang']],'br'],['col','Warna teks','color',null,'#ffffff']],
+ async(c,o)=>{const x=c.getContext('2d');let wm,w,h;
+  if(o.logo){wm=await imgC(o.logo);w=c.width*o.s/100;h=wm.height*w/wm.width}else{if(!o.t.trim())throw new Error('Isi teks tanda air atau pilih logo.');h=Math.max(10,c.width*o.s/100/(o.t.length*.6));x.font='bold '+h+'px sans-serif';w=x.measureText(o.t).width}
+  const dr=(px,py)=>{x.save();x.globalAlpha=o.op/100;if(wm)x.drawImage(wm,px,py,w,h);else{x.font='bold '+h+'px sans-serif';x.textBaseline='top';x.fillStyle=o.col;x.shadowColor='#0008';x.shadowBlur=h/8;x.fillText(o.t,px,py)}x.restore()},m=c.width*.03;
+  if(o.pos=='tile'){for(let py=m,r=0;py<c.height;py+=h*3,r++)for(let px=(r%2)*w/2;px<c.width;px+=w*1.8)dr(px,py)}
+  else dr(o.pos.includes('l')?m:o.pos.includes('r')?c.width-w-m:(c.width-w)/2,o.pos.includes('t')?m:o.pos.includes('b')?c.height-h-m:(c.height-h)/2);return c});
+imgT('imged','Editor Foto','🎨','Atur kecerahan, kontras, warna, tambah efek dan teks. (Efek warna butuh Chrome/Edge/Firefox.)',[['br','Kecerahan (%)','number',[0,300],100],['ct','Kontras (%)','number',[0,300],100],['sa','Saturasi (%)','number',[0,300],100],['ef','Efek','select',[['','Tanpa efek'],['grayscale(1)','Hitam putih'],['sepia(1)','Sepia'],['invert(1)','Negatif'],['blur(3px)','Buram']],''],['t','Teks (opsional)','text','Tulis keterangan',''],['ps','Posisi teks','select',[['b','Bawah'],['t','Atas'],['m','Tengah']],'b'],['col','Warna teks','color',null,'#ffffff'],['fz','Ukuran teks (% lebar)','number',[2,30],8]],
+ (c,o)=>{const[d,x]=imgNew(c.width,c.height);x.filter=`brightness(${o.br}%) contrast(${o.ct}%) saturate(${o.sa}%) ${o.ef}`;x.drawImage(c,0,0);x.filter='none';
+  if(o.t.trim()){const f=c.width*o.fz/100,y=o.ps=='t'?f:o.ps=='m'?c.height/2:c.height-f;x.font='bold '+f+'px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillStyle=o.col;x.strokeStyle='#000a';x.lineWidth=f/8;x.strokeText(o.t,c.width/2,y,c.width*.95);x.fillText(o.t,c.width/2,y,c.width*.95)}return d});
+imgT('meme','Pembuat Meme','😂','Tambahkan teks atas dan bawah bergaya meme pada gambar apa pun.',[['a','Teks atas','text','',''],['b','Teks bawah','text','','']],
+ (c,o)=>{const f=Math.round(c.width/9),[d,x]=imgNew(c.width,c.height);x.drawImage(c,0,0);x.font=`900 ${f}px Impact,'Arial Black',sans-serif`;x.textAlign='center';x.fillStyle='#fff';x.strokeStyle='#000';x.lineWidth=f/7;x.lineJoin='round';
+  [[o.a,f*.15,'top'],[o.b,c.height-f*.15,'bottom']].forEach(([t,y,bl])=>{if(!t.trim())return;x.textBaseline=bl;t=t.toUpperCase();x.strokeText(t,c.width/2,y,c.width*.96);x.fillText(t,c.width/2,y,c.width*.96)});return d});
+imgT('upscale','Perbesar Resolusi','🔍','Perbesar gambar 2–4× dengan interpolasi halus dan penajaman. (Bukan AI: ukuran bertambah, detail baru tidak dibuat.)',[['k','Skala','select',[['2','2×'],['3','3×'],['4','4×']],'2'],['sh','Penajaman','select',[['0','Tanpa'],['.4','Ringan'],['.8','Kuat']],'.4']],
+ (c,o)=>{const k=+o.k;if(c.width*c.height*k*k>6e7)throw new Error('Hasil terlalu besar. Pilih skala lebih kecil.');const[d,x]=imgNew(c.width*k,c.height*k);x.drawImage(c,0,0,d.width,d.height);const s=+o.sh;
+  if(s){const W=d.width,H=d.height,im=x.getImageData(0,0,W,H),a=im.data,src=new Uint8ClampedArray(a);for(let y=1;y<H-1;y++)for(let i=1;i<W-1;i++){const p=(y*W+i)*4;for(let q=0;q<3;q++)a[p+q]=src[p+q]*(1+4*s)-s*(src[p-4+q]+src[p+4+q]+src[p-W*4+q]+src[p+W*4+q])}x.putImageData(im,0,0)}return d});
+imgT('rembg','Hapus Latar Belakang','🪄','Hapus latar berwarna polos yang menyentuh tepi gambar, hasil PNG transparan. Berbasis warna (bukan AI): cocok untuk latar putih/polos, kurang cocok untuk latar rumit.',[['tol','Toleransi warna','number',[1,150],40]],
+ (c,o)=>{const x=c.getContext('2d'),W=c.width,H=c.height,im=x.getImageData(0,0,W,H),a=im.data,cs=[0,(W-1)*4,(H-1)*W*4,(H*W-1)*4],bg=[0,1,2].map(q=>cs.reduce((s,p)=>s+a[p+q],0)/4),T=o.tol*o.tol*3,seen=new Uint8Array(W*H),st=[];
+  const push=(i,j)=>{const k=j*W+i;if(i<0||j<0||i>=W||j>=H||seen[k])return;seen[k]=1;const p=k*4,r=a[p]-bg[0],g=a[p+1]-bg[1],b=a[p+2]-bg[2];if(r*r+g*g+b*b<=T)st.push(k)};
+  for(let i=0;i<W;i++){push(i,0);push(i,H-1)}for(let j=0;j<H;j++){push(0,j);push(W-1,j)}
+  while(st.length){const k=st.pop(),i=k%W,j=(k-i)/W;a[k*4+3]=0;push(i+1,j);push(i-1,j);push(i,j+1);push(i,j-1)}x.putImageData(im,0,0);return c},null,'png');
+imgT('blurface','Sensor / Blur Wajah','🙈','Buramkan wajah (deteksi otomatis bila browser mendukung, mis. Chrome/Edge) atau area yang Anda tentukan, misalnya plat nomor.',[['auto','Deteksi wajah otomatis (bila didukung)','check',null,1],['x','Area manual: X (%)','number',[0,99],0],['y','Area manual: Y (%)','number',[0,99],0],['w','Area manual: lebar (%)','number',[0,100],0],['h','Area manual: tinggi (%)','number',[0,100],0],['m','Gaya','select',[['p','Piksel'],['b','Blur']],'p']],
+ async(c,o)=>{const R=[];
+  if(o.auto&&window.FaceDetector){try{(await new FaceDetector({fastMode:true,maxDetectedFaces:30}).detect(c)).forEach(f=>{const b=f.boundingBox,m=b.width*.15;R.push([b.x-m,b.y-m,b.width+2*m,b.height+2*m])})}catch(e){}}
+  if(o.w>0&&o.h>0)R.push([c.width*o.x/100,c.height*o.y/100,c.width*o.w/100,c.height*o.h/100]);
+  if(!R.length)throw new Error('Tidak ada area yang disensor. '+(window.FaceDetector?'Wajah tidak terdeteksi; isi area manual.':'Browser ini belum mendukung deteksi wajah; isi area manual (X, Y, lebar, tinggi dalam %).'));
+  const x=c.getContext('2d');
+  R.forEach(([rx,ry,rw,rh])=>{rx=Math.max(0,rx);ry=Math.max(0,ry);rw=Math.min(rw,c.width-rx);rh=Math.min(rh,c.height-ry);
+   if(o.m=='p'){const n=Math.max(6,Math.round(rw/10)),sw=Math.max(1,Math.round(rw/n)),sh=Math.max(1,Math.round(rh/n)),[s,sx]=imgNew(sw,sh);sx.drawImage(c,rx,ry,rw,rh,0,0,sw,sh);x.imageSmoothingEnabled=false;x.drawImage(s,0,0,sw,sh,rx,ry,rw,rh);x.imageSmoothingEnabled=true}
+   else{x.save();x.beginPath();x.rect(rx,ry,rw,rh);x.clip();x.filter='blur('+Math.max(8,rw/8)+'px)';x.drawImage(c,0,0);x.restore()}});return c});
+CVX.html2img={id:'html2img',t:'HTML ke Gambar',i:'🌐',d:'Ubah kode HTML (atau file .html) menjadi gambar PNG/JPG. Skrip dibuang; gambar dari internet hanya tampil bila situsnya mengizinkan.',acc:'.html,.htm',accLabel:'.html',fi:'🌐',min:0,lib:['h2c'],
+ opt:[['lb','Lebar halaman (px)','number',[320,2000],900],['fmt','Format','select',[['png','PNG'],['jpg','JPG']],'png'],['kode','Atau tempel kode HTML di sini','textarea',8,'<h1>Judul</h1>\n<p>Isi…</p>']],
+ run:async(fs,o,P)=>{const src=fs[0]?await fs[0].text():o.kode;if(!String(src).trim())throw new Error('Isi kode HTML atau pilih file .html.');P('Menggambar halaman…',.3);
+  const h=document.createElement('div');h.style.cssText=`position:fixed;left:-99999px;top:0;width:${o.lb}px;background:#fff;color:#000;font:16px Arial,sans-serif`;h.innerHTML=cvClean(src);document.body.appendChild(h);
+  try{const c=await html2canvas(h,{backgroundColor:'#fff',useCORS:true,scale:1});return[{name:(fs[0]?cvBase(fs[0].name):'halaman')+'.'+o.fmt,blob:await imgBlob(c,o.fmt,92)}]}finally{h.remove()}}};
+CVX.colorpick={id:'colorpick',t:'Pengambil Warna',i:'🎯',ui:el=>{
+ el.innerHTML=`<div class="pnl"><b>🎯 Pengambil Warna</b><div><small>Pilih gambar, lalu klik/ketuk bagian gambar untuk mengambil kode warnanya.</small></div><div id="cpf"></div><div id="cpr"></div><canvas id="cpc" style="max-width:100%;cursor:crosshair;display:none"></canvas></div>`;
+ const cv=el.querySelector('#cpc'),r=el.querySelector('#cpr');
+ cvFiles(el.querySelector('#cpf'),{acc:'image/*,.heic,.svg',accLabel:'Gambar',icon:'🖼️',onChange:async fs=>{if(!fs[0])return;try{const c=await imgC(fs[0],1600);cv.width=c.width;cv.height=c.height;cv.getContext('2d').drawImage(c,0,0);cv.style.display='block'}catch(e){r.textContent=e.message}}});
+ cv.onclick=e=>{const b=cv.getBoundingClientRect(),d=cv.getContext('2d').getImageData(Math.floor((e.clientX-b.left)*cv.width/b.width),Math.floor((e.clientY-b.top)*cv.height/b.height),1,1).data,hx='#'+[...d].slice(0,3).map(v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+  r.innerHTML=`<div class="cvres"><span style="display:inline-block;width:28px;height:28px;border:1px solid var(--ln);vertical-align:middle;background:${hx}"></span> <b>${hx}</b> · rgb(${d[0]}, ${d[1]}, ${d[2]}) <button type="button" class="g" id="cpcp">Salin</button></div>`;
+  r.querySelector('#cpcp').onclick=()=>navigator.clipboard&&navigator.clipboard.writeText(hx)}}};
+CVX.collage={id:'collage',t:'Kolase Foto',i:'🧩',d:'Gabungkan beberapa foto menjadi satu kolase berpetak.',multi:1,min:2,lib:[],acc:'image/*,.heic',accLabel:'Gambar',fi:'🧩',
+ opt:[['kol','Jumlah kolom','number',[1,8],3],['sel','Ukuran tiap petak (px)','number',[100,1000],400],['gap','Jarak (px)','number',[0,60],8],['bg','Warna latar','color',null,'#ffffff']],
+ run:async(fs,o,P)=>{const n=fs.length,k=Math.min(o.kol,n),r=Math.ceil(n/k),s=o.sel,g=o.gap,[d,x]=imgNew(k*s+(k+1)*g,r*s+(r+1)*g);x.fillStyle=o.bg;x.fillRect(0,0,d.width,d.height);
+  for(const[i,f]of fs.entries()){P(f.name,i/n);const c=await imgC(f,1600),m=Math.min(c.width,c.height);x.drawImage(c,(c.width-m)/2,(c.height-m)/2,m,m,g+(i%k)*(s+g),g+Math.floor(i/k)*(s+g),s,s)}
+  return[{name:'kolase.jpg',blob:await imgBlob(d,'jpg',92)}]}};
+
+/* ---------- Dokumen, Ebook, Arsip & Utilitas (setara FreeConvert) ---------- */
+CVX.sheetcv={id:'sheetcv',t:'Spreadsheet & Data',i:'📊',d:'Ubah antar Excel (XLSX/XLS/ODS), CSV, JSON, dan HTML. Semua sheet ikut diproses.',multi:1,lib:[],acc:'.xlsx,.xls,.ods,.csv,.tsv,.json',accLabel:'XLSX, XLS, ODS, CSV, TSV, JSON',fi:'📊',
+ opt:[['fmt','Ubah ke','select',[['xlsx','Excel (.xlsx)'],['csv','CSV'],['json','JSON'],['html','HTML'],['ods','ODS']],'xlsx']],
+ run:async(fs,o)=>{const outs=[];for(const f of fs){let wb;
+   if(/\.json$/i.test(f.name)){let j=JSON.parse(await f.text());if(!Array.isArray(j))j=[j];wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(j),'Sheet1')}else wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+   const b=cvBase(f.name);
+   if(o.fmt=='xlsx'||o.fmt=='ods')outs.push({name:b+'.'+o.fmt,blob:new Blob([XLSX.write(wb,{bookType:o.fmt,type:'array'})])});
+   else wb.SheetNames.forEach(s=>{const w=wb.Sheets[s],t=o.fmt=='csv'?XLSX.utils.sheet_to_csv(w):o.fmt=='json'?JSON.stringify(XLSX.utils.sheet_to_json(w),null,1):XLSX.utils.sheet_to_html(w);outs.push({name:b+(wb.SheetNames.length>1?'_'+s:'')+'.'+o.fmt,blob:cvBlobText(t,'text/plain;charset=utf-8')})})}
+  return outs}};
+CVX.doccv={id:'doccv',t:'Dokumen ke Teks/HTML',i:'📄',d:'Ubah Word (.docx) menjadi teks biasa atau HTML. (Word, TXT, dan HTML ke PDF ada di menu Convert PDF.)',multi:1,acc:'.docx',accLabel:'.docx',fi:'📘',lib:['mammoth'],opt:[['fmt','Ubah ke','select',[['txt','Teks (.txt)'],['html','HTML (.html)']],'txt']],
+ run:async(fs,o)=>Promise.all(fs.map(async f=>{const a=await f.arrayBuffer(),r=o.fmt=='txt'?await mammoth.extractRawText({arrayBuffer:a}):await mammoth.convertToHtml({arrayBuffer:a});return{name:cvBase(f.name)+'.'+o.fmt,blob:cvBlobText(o.fmt=='html'?'<meta charset="utf-8">'+r.value:r.value,o.fmt=='txt'?'text/plain;charset=utf-8':'text/html;charset=utf-8')}}))};
+CVX.ebook={id:'ebook',t:'Ebook (EPUB)',i:'📚',d:'EPUB → TXT/HTML, atau TXT → EPUB. (MOBI/AZW3 belum didukung di browser.)',multi:1,acc:'.epub,.txt',accLabel:'EPUB, TXT',fi:'📚',lib:['jszip'],
+ opt:[['fmt','Ubah ke','select',[['txt','Teks (.txt) dari EPUB'],['html','HTML (.html) dari EPUB'],['epub','EPUB dari file TXT']],'txt'],['jd','Judul (untuk EPUB baru)','text','','Buku Saya']],
+ run:async(fs,o)=>{const outs=[];for(const f of fs){const b=cvBase(f.name),ep=/\.epub$/i.test(f.name);
+   if(o.fmt=='epub'){if(ep)throw new Error('Pilih file .txt untuk dijadikan EPUB.');const z=new JSZip(),T=cvEsc(o.jd||b),body='<p>'+cvEsc(await f.text()).split(/\n{2,}/).join('</p><p>').replace(/\n/g,'<br/>')+'</p>';
+    z.file('mimetype','application/epub+zip',{compression:'STORE'});
+    z.file('META-INF/container.xml','<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="c.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+    z.file('c.opf',`<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="i"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="i">urn:uuid:${crypto.randomUUID()}</dc:identifier><dc:title>${T}</dc:title><dc:language>id</dc:language><meta property="dcterms:modified">${new Date().toISOString().slice(0,19)}Z</meta></metadata><manifest><item id="c" href="c.xhtml" media-type="application/xhtml+xml" properties="nav"/></manifest><spine><itemref idref="c"/></spine></package>`);
+    z.file('c.xhtml',`<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>${T}</title></head><body><nav epub:type="toc"><ol><li><a href="c.xhtml">${T}</a></li></ol></nav><h1>${T}</h1>${body}</body></html>`);
+    outs.push({name:b+'.epub',blob:await z.generateAsync({type:'blob',mimeType:'application/epub+zip'})});continue}
+   if(!ep)throw new Error('Pilih file .epub (atau ubah tujuan ke EPUB).');
+   const z=await JSZip.loadAsync(await f.arrayBuffer()),cf=z.file('META-INF/container.xml');if(!cf)throw new Error('Bukan file EPUB yang valid.');
+   const op=/full-path="([^"]+)"/.exec(await cf.async('string'))[1],ox=await z.file(op).async('string'),dir=op.replace(/[^/]+$/,''),man={};
+   [...ox.matchAll(/<item\b[^>]*>/g)].forEach(m=>{const i=/\bid="([^"]+)"/.exec(m[0]),h=/\bhref="([^"]+)"/.exec(m[0]);if(i&&h)man[i[1]]=decodeURIComponent(h[1])});
+   let out='';for(const m of ox.matchAll(/<itemref\b[^>]*idref="([^"]+)"/g)){const fl=man[m[1]]&&z.file(dir+man[m[1]]);if(!fl)continue;const h=await fl.async('string');
+    out+=o.fmt=='html'?(/<body[^>]*>([\s\S]*)<\/body>/i.exec(h)||[0,h])[1]+'<hr>':new DOMParser().parseFromString(h,'text/html').body.textContent.replace(/\n{3,}/g,'\n\n').trim()+'\n\n'}
+   outs.push({name:b+'.'+o.fmt,blob:cvBlobText(o.fmt=='html'?'<meta charset="utf-8">'+out:out,o.fmt=='html'?'text/html;charset=utf-8':'text/plain;charset=utf-8')})}
+  return outs}};
+CVX.arsip={id:'arsip',t:'Arsip (ZIP)',i:'🗄️',d:'Buat ZIP dari banyak file, atau ekstrak isi ZIP. (RAR, 7z, dan TAR belum didukung di browser.)',multi:1,acc:'*',accLabel:'file apa saja',fi:'🗄️',lib:['jszip'],
+ opt:[['m','Tindakan','select',[['z','Buat ZIP dari file terpilih'],['x','Ekstrak file ZIP']],'z'],['lv','Tingkat kompresi (1–9)','number',[1,9],6]],
+ run:async(fs,o)=>{if(o.m=='z'){const z=new JSZip();fs.forEach(f=>z.file(f.name,f));return[{name:'arsip.zip',blob:await z.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:o.lv}})}]}
+  const outs=[];for(const f of fs){if(!/\.zip$/i.test(f.name))throw new Error('Untuk ekstrak, pilih file .zip ('+f.name+').');const z=await JSZip.loadAsync(f);for(const[n,e]of Object.entries(z.files))if(!e.dir)outs.push({name:n.split('/').pop(),blob:await e.async('blob')})}
+  if(!outs.length)throw new Error('ZIP kosong.');return outs}};
+const UN={Panjang:{m:1,km:1e3,cm:.01,mm:.001,mil:1609.344,kaki:.3048,inci:.0254,yard:.9144},Berat:{kg:1,g:.001,mg:1e-6,ton:1e3,lbs:.45359237,oz:.028349523},Suhu:{'°C':1,'°F':1,K:1},Luas:{'m²':1,'km²':1e6,hektar:1e4,'cm²':1e-4,acre:4046.8564,'kaki²':.09290304},Volume:{liter:1,ml:.001,'m³':1e3,galon:3.785411784,cangkir:.2365882365},Kecepatan:{'m/s':1,'km/jam':1/3.6,mph:.44704,knot:.514444},Data:{B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776},Waktu:{detik:1,menit:60,jam:3600,hari:86400,minggu:604800}};
+CVX.unit={id:'unit',t:'Konversi Satuan',i:'📐',ui:el=>{
+ el.innerHTML=`<div class="pnl"><b>📐 Konversi Satuan</b><div class="row"><label>Jenis<select id="uk">${Object.keys(UN).map(k=>`<option>${k}</option>`).join('')}</select></label><label>Nilai<input id="uv" type="number" value="1" step="any"></label><label>Dari<select id="ua"></select></label><label>Ke<select id="ub"></select></label></div><div id="ur" class="cvres"></div></div>`;
+ const q=s=>el.querySelector(s),fill=()=>{const u=Object.keys(UN[q('#uk').value]);q('#ua').innerHTML=u.map(x=>`<option>${x}</option>`).join('');q('#ub').innerHTML=u.map((x,i)=>`<option${i==1?' selected':''}>${x}</option>`).join('')},
+ calc=()=>{const k=q('#uk').value,t=UN[k],v=+q('#uv').value,a=q('#ua').value,b=q('#ub').value;let r;
+  if(k=='Suhu'){const c=a=='°C'?v:a=='°F'?(v-32)*5/9:v-273.15;r=b=='°C'?c:b=='°F'?c*9/5+32:c+273.15}else r=v*t[a]/t[b];q('#ur').innerHTML=`<b>${+r.toPrecision(10)}</b> ${b}`};
+ q('#uk').onchange=()=>{fill();calc()};['#uv','#ua','#ub'].forEach(s=>q(s).oninput=q(s).onchange=calc);fill();calc()}};
+const TZ=[['WIB (Jakarta)','Asia/Jakarta'],['WITA (Makassar)','Asia/Makassar'],['WIT (Jayapura)','Asia/Jayapura'],['UTC','UTC'],['London (GMT/BST)','Europe/London'],['Paris (CET)','Europe/Paris'],['Riyadh / Mekkah','Asia/Riyadh'],['Dubai','Asia/Dubai'],['India (IST)','Asia/Kolkata'],['Singapura','Asia/Singapore'],['Tokyo (JST)','Asia/Tokyo'],['Sydney','Australia/Sydney'],['New York (EST/EDT)','America/New_York'],['Chicago (CST/CDT)','America/Chicago'],['Los Angeles (PST/PDT)','America/Los_Angeles']];
+const tzOff=(z,ms)=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:z,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}).formatToParts(new Date(ms)).map(x=>[x.type,x.value]));return Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second)-Math.floor(ms/1000)*1000};
+CVX.waktu={id:'waktu',t:'Konversi Zona Waktu',i:'🕒',ui:el=>{
+ const op=v=>TZ.map(z=>`<option value="${z[1]}"${z[1]==v?' selected':''}>${z[0]}</option>`).join(''),n=new Date(),pad=x=>String(x).padStart(2,'0');
+ el.innerHTML=`<div class="pnl"><b>🕒 Konversi Zona Waktu</b><div class="row"><label>Tanggal &amp; jam<input id="tw" type="datetime-local" value="${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}"></label><label>Dari<select id="ta">${op('Asia/Jakarta')}</select></label><label>Ke<select id="tb">${op('America/New_York')}</select></label></div><div id="tr" class="cvres"></div></div>`;
+ const q=s=>el.querySelector(s),calc=()=>{const m=/(\d+)-(\d+)-(\d+)T(\d+):(\d+)/.exec(q('#tw').value);if(!m){q('#tr').textContent='Isi tanggal dan jam.';return}
+  const g=Date.UTC(m[1],m[2]-1,m[3],m[4],m[5]),a=q('#ta').value;let t=g-tzOff(a,g);t=g-tzOff(a,t);
+  q('#tr').innerHTML='<b>'+new Intl.DateTimeFormat('id-ID',{timeZone:q('#tb').value,dateStyle:'full',timeStyle:'short',hourCycle:'h23'}).format(new Date(t))+'</b> <small>('+q('#tb').selectedOptions[0].text+')</small>'};
+ ['#tw','#ta','#tb'].forEach(s=>q(s).oninput=q(s).onchange=calc);calc()}};
+CVX.riwayat={id:'riwayat',t:'Riwayat',i:'🕘',ui:async el=>{
+ el.innerHTML='<div class="pnl"><b>🕘 Riwayat Convert</b> <small>Tersimpan di perangkat ini dan disinkronkan ke cloud (Supabase) bila aktif, sehingga tampil di semua perangkat.</small><div id="rh">Memuat…</div></div>';
+ let a=[];try{a=JSON.parse(localStorage.getItem(CVH_K)||'[]')}catch(e){}
+ if(CL.on&&CL.url&&CL.key){try{const r=await fetch(cU()+'?id=eq.mysapansa_cv&select=data',{headers:cH()}),x=r.ok?await r.json():[],c=(x[0]&&x[0].data&&x[0].data.h)||[];a=[...a,...c.filter(o=>!a.some(p=>p.t==o.t&&p.u==o.u))].sort((p,q)=>q.t-p.t)}catch(e){}}
+ const nm=(me&&(me.n||me.u))||'';a=a.filter(r=>me&&me.r=='admin'||r.u==nm);
+ const h=el.querySelector('#rh');if(h)h.innerHTML=a.length?`<div class="tw"><table><tr><th>Waktu</th><th>Fitur</th><th>Pengguna</th><th>File</th><th>Asal</th><th>Hasil</th></tr>${a.slice(0,100).map(r=>`<tr><td>${new Date(r.t).toLocaleString('id-ID')}</td><td>${cvEsc(r.a)}</td><td>${cvEsc(r.u)}</td><td>${cvEsc(r.f)}</td><td>${cvKB(r.s)}</td><td>${cvKB(r.h)}</td></tr>`).join('')}</table></div>`:'Belum ada riwayat.'}};
 
 /* ============================ A. ORGANIZE PDF ============================ */
 CVX.merge={id:'merge',t:'Merge PDF',i:'🔗',d:'Gabungkan beberapa PDF menjadi satu file. Atur urutan dengan tombol ▲ ▼.',multi:1,min:2,lib:['pdflib'],
